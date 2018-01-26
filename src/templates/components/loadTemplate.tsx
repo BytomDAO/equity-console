@@ -1,18 +1,24 @@
 import * as React from 'react'
+import { connect } from 'react-redux'
 
-const LoadTemplate = () => {
-  const idList = [
-    'LockWithPublicKey',
-    'LockWithPublicKeyHash',
-    'LockWithMultiSig',
-    'TradeOffer',
-    'Escrow',
-    'LoanCollateral',
-    'CallOption',
-    'RevealPreimage'
-  ]
+import { loadTemplate } from '../actions'
+
+const mapStateToProps = (state) => {
+  return {
+    idList: state.templates.idList
+  }
+}
+
+const mapDispatchToProps = (dispatch) => ({
+  handleClick: (e, id: string): void => {
+    e.preventDefault()
+    dispatch(loadTemplate(id))
+  }
+})
+
+const LoadTemplate = ({idList, handleClick}) => {
   const options = idList.slice(1).map(id => {
-    return <li key={id}><a href='#'>{id}</a></li>
+    return <li key={id}><a onClick={(e) => handleClick(e, id)} href='#'>{id}</a></li>
   })
   return (
     <div className="dropdown">
@@ -29,4 +35,7 @@ const LoadTemplate = () => {
   )
 }
 
-export default LoadTemplate
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(LoadTemplate)

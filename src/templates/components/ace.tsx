@@ -6,7 +6,10 @@ import 'brace/theme/monokai'
 
 import '../util/ivymode.js'
 
+const mapStateToProps = undefined
+
 const Ace = ({ source, handleChange }) => {
+  console.log(source)
   return (
     <div className="panel-body">
       <AceEditor

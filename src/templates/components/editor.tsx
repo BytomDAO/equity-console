@@ -1,15 +1,16 @@
 import * as React from 'react'
+import { connect } from 'react-redux'
 import LoadTemplate from './loadTemplate'
 
 import Ace from './ace'
 
-export default () => {
-  const source = `contract ContractName() locks value {
-  clause clauseName() {
-    unlock value
+const mapStateToProps = (state) => {
+  return {
+    source: state.templates.source
   }
-}`
+}
 
+const Editor = ({source}) => {
   return (
     <div>
       <div className="panel panel-default">
@@ -24,3 +25,5 @@ export default () => {
     </div>
   )
 }
+
+export default connect(mapStateToProps)(Editor)
