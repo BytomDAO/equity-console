@@ -14,8 +14,10 @@ import LockedValue from './contracts/components/lockedValue'
 
 import './static/playground.css'
 
+// ivy imports
 import app from './app'
 import Hello from './templates/hello'
+import Lock from './templates/components/lock'
 
 interface ExtensionWindow extends Window {
   __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
@@ -36,7 +38,7 @@ render(
     <DocumentTitle title='Ivy Editor'>
       <Router>
         <app.components.Root>
-          <Route exact={true} path={'/'} component={Hello}/>
+          <Route exact={true} path={'/'} component={Lock}/>
           <Route path={'/unlock'} component={LockedValue}/>
         </app.components.Root>
       </Router>

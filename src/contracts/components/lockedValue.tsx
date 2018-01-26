@@ -6,7 +6,7 @@ const LockedValueDisplay = (props: {contractIds: string[], spentContractIds: str
   return (
     <DocumentTitle title="Unlock Value">
       <div>
-        <span>hello world</span>
+        <span>Unlock Value</span>
       </div>
     </ DocumentTitle>
   )
