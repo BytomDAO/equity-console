@@ -7,9 +7,15 @@ import 'brace/theme/monokai'
 import '../util/ivymode.js'
 
 const mapStateToProps = undefined
+const mapDispatchToProps = (dispatch) => {
+  return {
+    handleChange: (value) => {
+      dispatch({type: 'TEST'})
+    }
+  }
+}
 
-const Ace = ({ source, handleChange }) => {
-  console.log(source)
+const Ace = ({source, handleChange}) => {
   return (
     <div className="panel-body">
       <AceEditor
@@ -22,6 +28,7 @@ const Ace = ({ source, handleChange }) => {
         width="100%"
         tabSize={2}
         value={source}
+        readOnly={false}
         editorProps={{$blockScrolling: Infinity}}
         setOptions={{
           useSoftTabs: true,
@@ -34,4 +41,7 @@ const Ace = ({ source, handleChange }) => {
   )
 }
 
-export default Ace
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Ace)
