@@ -22,7 +22,8 @@
         ],
         "no-var-requires": false,
         "no-bitwise": false,
-        "ordered-imports": false
+        "ordered-imports": false,
+        "interface-over-type-literal": false
     },
     "rulesDirectory": []
 }

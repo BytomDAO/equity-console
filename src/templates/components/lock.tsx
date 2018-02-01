@@ -21,7 +21,6 @@ export default () => {
     <DocumentTitle title="Unlock Value">
       <div>
         <Editor />
-        <span>Lock Value</span>
         {instantiate}
       </div>
     </DocumentTitle>
