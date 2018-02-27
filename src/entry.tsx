@@ -16,7 +16,6 @@ import './static/playground.css'
 
 // ivy imports
 import app from './app'
-import Hello from './templates/hello'
 import Lock from './templates/components/lock'
 
 interface ExtensionWindow extends Window {
