@@ -18,7 +18,7 @@ export default () => {
   )
 
   return (
-    <DocumentTitle title="Unlock Value">
+    <DocumentTitle title="Lock Value">
       <div>
         <Editor />
         {instantiate}

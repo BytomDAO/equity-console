@@ -17,6 +17,7 @@ import './static/playground.css'
 // ivy imports
 import app from './app'
 import Lock from './templates/components/lock'
+import templates from './templates'
 
 interface ExtensionWindow extends Window {
   __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
@@ -31,6 +32,9 @@ const store = createStore(
     applyMiddleware(thunk)
   )
 )
+
+const selected = templates.selectors.getSelectedTemplate(store.getState())
+store.dispatch(templates.actions.loadTemplate(selected))
 
 render(
   <Provider store={store}>
