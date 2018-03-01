@@ -21,8 +21,6 @@ export const fetch = () => {
     })
 
     Promise.all([accountsPromise, balancesPromise]).then(([accounts, balances]) => {
-      window.console.log(accounts)
-      window.console.log(balances)
       return dispatch({type, items: accounts, balances})
     })
   }

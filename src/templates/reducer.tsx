@@ -1,3 +1,4 @@
+import { UPDATE_INPUT } from '../contracts/actions'
 import { TemplateState, CompiledTemplate } from './types'
 import { INITIAL_SOURCE_MAP, INITIAL_ID_LIST } from './constants'
 import { SET_SOURCE, FETCH_COMPILED } from './actions'
@@ -15,6 +16,21 @@ const INITIAL_STATE: TemplateState = {
 
 export default function (state: TemplateState = INITIAL_STATE, action): TemplateState {
   switch (action.type) {
+    case UPDATE_INPUT: {
+      const name = action.name
+      const newValue = action.newValue
+      if (state.inputMap === undefined) return state
+      return {
+        ...state,
+        inputMap: {
+          ...state.inputMap,
+          [name]: {
+            ...state.inputMap[name],
+            value: newValue
+          }
+        }
+      }
+    }
     case SET_SOURCE: {
       const source = action.source
       return {
