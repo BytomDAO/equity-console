@@ -8,6 +8,7 @@ import { Item as Asset } from '../../assets/types'
 import { getItemMap as getAssetMap, getItemList as getAssets } from '../../assets/selectors'
 import { Item as Account } from '../../accounts/types'
 import { getBalanceMap, getItemList as getAccounts, getBalanceSelector } from '../../accounts/selectors'
+import { getState as getContractsState } from '../../contracts/selectors'
 import {
   Input, InputContext, ParameterInput, NumberInput, BooleanInput, StringInput,
   ProvideStringInput, GenerateStringInput, HashInput,
@@ -212,15 +213,57 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
   }
 }
 
+const InsufficientFundsAlert = connect(
+  (state, ownProps: { namePrefix: string }) => ({
+    balance: getBalanceSelector(ownProps.namePrefix)(state),
+    inputMap: getInputMap(state),
+    contracts: getContractsState(state)
+  })
+)(InsufficientFundsAlertUnconnected)
+
+function InsufficientFundsAlertUnconnected({ namePrefix, balance, inputMap, contracts }) {
+  let amountInput
+  if (namePrefix.startsWith("contract")) {
+    amountInput = inputMap[namePrefix + ".amountInput"]
+  } else if (namePrefix.startsWith("clause")) {
+    // THIS IS A HACK
+    const spendInputMap = contracts.contractMap[contracts.spendContractId].spendInputMap
+    amountInput = spendInputMap[namePrefix + ".valueInput.amountInput"]
+  }
+  let jsx = <small/>
+  if (balance !== undefined && amountInput && amountInput.value) {
+    if (balance < amountInput.value) {
+      jsx = (
+        <div style={{width: '300px'}}className="alert alert-danger" role="alert">
+          Insufficient Funds
+        </div>
+      )
+    }
+  }
+  return jsx
+}
+
+const BalanceWidget = connect(
+  (state, ownProps: { namePrefix: string }) => ({ balance: getBalanceSelector(ownProps.namePrefix)(state) })
+)(BalanceWidgetUnconnected)
+
+function BalanceWidgetUnconnected({ namePrefix, balance }) {
+  let jsx = <small/>
+  if (balance !== undefined) {
+    jsx = <small className="value-balance">{balance} available</small>
+  }
+  return jsx
+}
+
 function ValueWidget(props: { input: ValueInput, handleChange: (e)=>undefined }) {
   return (
     <div>
       {/*<EmptyCoreAlert />*/}
-      {/*<InsufficientFundsAlert namePrefix={props.input.name} />*/}
+      <InsufficientFundsAlert namePrefix={props.input.name} />
       {getWidget(props.input.name + ".accountInput")}
       {getWidget(props.input.name + ".assetInput")}
       {getWidget(props.input.name + ".amountInput")}
-      {/*<BalanceWidget namePrefix={props.input.name} />*/}
+      <BalanceWidget namePrefix={props.input.name} />
     </div>
   )
 }
