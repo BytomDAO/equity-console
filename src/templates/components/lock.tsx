@@ -5,7 +5,7 @@ import DocumentTitle from 'react-document-title'
 import Section from '../../app/components/section'
 import Editor from './editor'
 
-import { ContractValue } from '../../contracts/components/parameters'
+import { ContractParameters, ContractValue } from '../../contracts/components/parameters'
 
 import { getSource, getContractParameters, getCompiled } from '../selectors'
 
@@ -19,7 +19,21 @@ const mapStateToProps = (state) => {
 
 const Lock = (instantiable, hasParams) => {
   let instantiate
+  let contractParams
   if (instantiable) {
+    contractParams = <div />
+    if (hasParams) {
+      contractParams = (
+        <Section name="Contract Arguments">
+          <div className="form-wrapper">
+            <ContractParameters />
+          </div>
+          <div className="form-wrapper">
+          </div>
+        </Section>
+      )
+    }
+
     instantiate = (
       <div>
         <Section name="Value to Lock">
@@ -27,6 +41,7 @@ const Lock = (instantiable, hasParams) => {
             <ContractValue />
           </div>
         </Section>
+        {contractParams}
       </div>
     )
   } else {

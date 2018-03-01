@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 
 import { getShowLockInputErrors, getParameterIds, getInputMap, getContractValueId } from '../../templates/selectors'
 
+import RadioSelect from '../../app/components/radioSelect'
 import { updateInput } from '../actions'
 import { Item as Asset } from '../../assets/types'
 import { getItemMap as getAssetMap, getItemList as getAssets } from '../../assets/selectors'
@@ -179,14 +180,39 @@ export function getWidget(id: string): JSX.Element {
   )
 }
 
+function TextWidget(props: { input: ProvideStringInput | ProvideHashInput |
+    ProvidePublicKeyInput | ProvideSignatureInput |
+    ProvidePrivateKeyInput,
+  errorClass: string,
+  handleChange: (e)=>undefined }) {
+  return (
+    <div className={"form-group " + props.errorClass}>
+      <input type="text" key={props.input.name} className="form-control string-input" value={props.input.value} onChange={props.handleChange} />
+    </div>
+  )
+}
+
+function PublicKeyWidget(props: { input: PublicKeyInput,
+  handleChange: (e)=>undefined }) {
+  const options = [{label: "Generate Public Key", value: "accountInput"},
+    {label: "Provide Public Key", value: "provideStringInput"}]
+  const handleChange = (s: string) => undefined
+  return (
+    <div>
+      <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
+      {getChildWidget(props.input)}
+    </div>
+  )
+}
+
 function getWidgetType(type: InputType): ((props: { input: Input, handleChange: (e)=>undefined }) => JSX.Element) {
   switch (type) {
     case "numberInput": return NumberWidget
     // case "booleanInput": return BooleanWidget
     // case "stringInput": return StringWidget
     // case "generateStringInput": return GenerateStringWidget
-    // case "provideStringInput": return TextWidget
-    // case "publicKeyInput": return PublicKeyWidget
+    case "provideStringInput": return TextWidget
+    case "publicKeyInput": return PublicKeyWidget
     // case "signatureInput": return SignatureWidget
     // case "generateSignatureInput": return GenerateSignatureWidget
     // case "generatePublicKeyInput": return GeneratePublicKeyWidget
@@ -289,6 +315,31 @@ function ContractValueUnconnected(props: { valueId: string }) {
           {getWidget(props.valueId)}
           {/*<ValueWidget/>*/}
         </div>
+      </form>
+    </section>
+  )
+}
+
+function mapStateToContractParametersProps(state) {
+  return {
+    parameterIds: getParameterIds(state)
+  }
+}
+
+export const ContractParameters = connect(
+  mapStateToContractParametersProps
+)(ContractParametersUnconnected)
+
+function ContractParametersUnconnected(props: { parameterIds: string[] }) {
+  if (!props.parameterIds || props.parameterIds.length === 0) return <div />
+  window.console.log(props.parameterIds)
+  const parameterInputs = props.parameterIds.map((id) => {
+    return <div key={id} className="argument">{getWidget(id)}</div>
+  })
+  return (
+    <section style={{wordBreak: 'break-all'}}>
+      <form className="form">
+        {parameterInputs}
       </form>
     </section>
   )
