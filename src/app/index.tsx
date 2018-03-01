@@ -1,3 +1,4 @@
+import * as actions from './actions'
 import components from './components'
 
-export default { components }
+export default { actions, components }

@@ -8,12 +8,21 @@ import {
   ProgramInput,
   ValueInput
 } from '../inputs/types'
+import { AppState } from '../app/types'
+
+import {
+  Contract,
+  ContractsState,
+  ContractMap,
+} from './types'
 
 import {
   isValidInput,
   getData,
   addParameterInput,
 } from '../inputs/data'
+
+export const getState = (state: AppState): ContractsState => state.contracts
 
 export const generateInputMap = (compiled: CompiledTemplate): InputMap => {
   let inputs: Input[] = []

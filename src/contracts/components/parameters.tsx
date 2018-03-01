@@ -1,8 +1,11 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
+import { getShowLockInputErrors, getParameterIds, getInputMap, getContractValueId } from '../../templates/selectors'
+
 import { Item as Asset } from '../../assets/types'
 import { Item as Account } from '../../accounts/types'
+import { getBalanceMap, getItemList as getAccounts, getBalanceSelector } from '../../accounts/selectors'
 import {
   Input, InputContext, ParameterInput, NumberInput, BooleanInput, StringInput,
   ProvideStringInput, GenerateStringInput, HashInput,
@@ -13,20 +16,45 @@ import {
   ValueInput, AccountAliasInput, AssetAliasInput, AssetInput, AmountInput,
   ProgramInput, ChoosePublicKeyInput, KeyData
 } from '../../inputs/types'
+import { validateInput, computeDataForInput, getChild,
+  getParameterIdentifier, getInputContext } from '../../inputs/data'
+
+function mapToInputProps(showError: boolean, inputsById: {[s: string]: Input}, id: string) {
+  const input = inputsById[id]
+  if (input === undefined) {
+    throw "bad input ID: " + id
+  }
+
+  let errorClass = ''
+  const hasInputError = !validateInput(input)
+  if (showError && hasInputError) {
+    errorClass = 'has-error'
+  }
+  if (input.type === "generateSignatureInput") {
+    return {
+      input,
+      errorClass,
+      computedValue: "",
+    }
+  }
+
+  return {
+    input,
+    errorClass
+  }
+}
+
+function mapStateToContractInputProps(state, ownProps: { id: string }) {
+  const inputMap = getInputMap(state)
+  if (inputMap === undefined) {
+    throw "inputMap should not be undefined when contract inputs are being rendered"
+  }
+  const showError = getShowLockInputErrors(state)
+  return mapToInputProps(showError, inputMap, ownProps.id)
+}
 
 const AccountAliasWidget = connect(
-  (state) => ({
-    accounts: [
-      {
-        alias: 'alice',
-        id: 0
-      },
-      {
-        alias: 'bob',
-        id: 1
-      }
-    ]
-  })
+  (state) => ({ accounts: getAccounts(state) })
 )(AccountAliasWidgetUnconnected)
 
 function AccountAliasWidgetUnconnected(props: {
@@ -124,7 +152,7 @@ function ValueWidget() {
 
 function mapStateToContractValueProps(state) {
   return {
-    valueId: "contractValue.valueInput"
+    valueId: getContractValueId(state)
   }
 }
 

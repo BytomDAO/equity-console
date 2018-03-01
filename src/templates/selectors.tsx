@@ -76,6 +76,11 @@ export const hasSourceChanged = (source) => {
   )
 }
 
+export const getShowLockInputErrors = createSelector(
+  getTemplateState,
+  (state: TemplateState): boolean => (state as any).showLockInputErrors
+)
+
 export const getContractParameters = createSelector(
   getCompiled,
   (compiled) => {
