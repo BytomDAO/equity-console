@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
+import { typeToString } from '../types'
 
 import { getShowLockInputErrors, getParameterIds, getInputMap, getContractValueId } from '../../templates/selectors'
 
@@ -30,10 +31,10 @@ function getChildWidget(input: ComplexInput) {
 function ParameterWidget(props: { input: ParameterInput, handleChange: (e)=>undefined }) {
   // handle the fact that clause arguments look like spend.sig rather than sig
   const parameterName = getParameterIdentifier(props.input)
-  // const valueType = typeToString(props.input.valueType)
+  const valueType = typeToString(props.input.valueType || props.input.hashType)
   return (
     <div key={props.input.name}>
-      <label>{parameterName}: <span className='type-label'>{'test'}</span></label>
+      <label>{parameterName}: <span className='type-label'>{valueType}</span></label>
       {getChildWidget(props.input)}
     </div>
   )
@@ -205,6 +206,59 @@ function PublicKeyWidget(props: { input: PublicKeyInput,
   )
 }
 
+function HashWidget(props: { input: HashInput, handleChange: (e)=>undefined }) {
+  const options = [{label: "Generate Hash", value: "generateHashInput"},
+    {label: "Provide Hash", value: "provideHashInput"}]
+  const handleChange = (s: string) => undefined
+  return (
+    <div>
+      <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
+      {getChildWidget(props.input)}
+    </div>
+  )
+}
+
+function mapToComputedProps(state, ownProps: { computeFor: string} ) {
+  let inputsById = getInputMap(state)
+  if (inputsById === undefined) throw "inputMap should not be undefined when contract inputs are being rendered"
+  let input = inputsById[ownProps.computeFor]
+  if (input === undefined) throw "bad input ID: " + ownProps.computeFor
+  if (input.type === "generateHashInput" ||
+    input.type === "generateStringInput") {
+    try {
+      let computedValue = computeDataForInput(ownProps.computeFor, inputsById)
+      return {
+        value: computedValue
+      }
+    } catch(e) {
+      return {}
+    }
+  }
+}
+
+const ComputedValue = connect(
+  mapToComputedProps,
+)(ComputedValueUnconnected)
+
+function ComputedValueUnconnected(props: { value: string }) {
+  return props.value? <pre>{props.value}</pre> : <span />
+}
+
+function GenerateHashWidget(props: { id: string,
+  input: GenerateHashInput,
+  handleChange: (e)=>undefined}) {
+  return (
+    <div>
+      <ComputedValue computeFor={props.id} />
+      <div className="nested">
+        <div className="description">{props.input.hashType.hashFunction} of:</div>
+        <label className="type-label">{typeToString(props.input.hashType.inputType)}</label>
+        {getChildWidget(props.input)}
+      </div>
+    </div>
+  )
+}
+
 function getWidgetType(type: InputType): ((props: { input: Input, handleChange: (e)=>undefined }) => JSX.Element) {
   switch (type) {
     case "numberInput": return NumberWidget
@@ -220,9 +274,9 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     // case "providePublicKeyInput": return TextWidget
     // case "providePrivateKeyInput": return TextWidget
     // case "provideSignatureInput": return TextWidget
-    // case "hashInput": return HashWidget
-    // case "provideHashInput": return TextWidget
-    // case "generateHashInput": return GenerateHashWidget
+    case "hashInput": return HashWidget
+    case "provideHashInput": return TextWidget
+    case "generateHashInput": return GenerateHashWidget
     // case "timeInput": return TimeWidget
     // case "timestampTimeInput": return TimestampTimeWidget
     // case "programInput": return ProgramWidget
@@ -332,7 +386,6 @@ export const ContractParameters = connect(
 
 function ContractParametersUnconnected(props: { parameterIds: string[] }) {
   if (!props.parameterIds || props.parameterIds.length === 0) return <div />
-  window.console.log(props.parameterIds)
   const parameterInputs = props.parameterIds.map((id) => {
     return <div key={id} className="argument">{getWidget(id)}</div>
   })
