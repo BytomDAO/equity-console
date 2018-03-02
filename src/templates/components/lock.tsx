@@ -4,20 +4,36 @@ import DocumentTitle from 'react-document-title'
 
 import Section from '../../app/components/section'
 import Editor from './editor'
+import LockButton from './lockButton'
 
 import { ContractParameters, ContractValue } from '../../contracts/components/parameters'
 
-import { getSource, getContractParameters, getCompiled } from '../selectors'
+import { getLockError, getSource, getContractParameters, getCompiled } from '../selectors'
 
 const mapStateToProps = (state) => {
   const compiled = getCompiled(state)
   const instantiable = compiled && compiled.error === ''
   const contractParameters = getContractParameters(state)
   const hasParams = contractParameters && contractParameters.length > 0
-  return { instantiable, hasParams }
+  const error = getLockError(state)
+  return { instantiable, hasParams, error }
 }
 
-const Lock = (instantiable, hasParams) => {
+const ErrorAlert = (props: { error: string }) => {
+  let jsx = <small />
+  if (props.error) {
+    jsx = (
+      <div style={{margin: '25px 0'}} className="alert alert-danger" role="alert">
+        <span className="sr-only">Error:</span>
+        <span className="glyphicon glyphicon-exclamation-sign" style={{marginRight: "5px"}}></span>
+        {props.error}
+      </div>
+    )
+  }
+  return jsx
+}
+
+const Lock = (instantiable, hasParams, error) => {
   let instantiate
   let contractParams
   if (instantiable) {
@@ -42,6 +58,8 @@ const Lock = (instantiable, hasParams) => {
           </div>
         </Section>
         {contractParams}
+        <ErrorAlert error={error} />
+        <LockButton />
       </div>
     )
   } else {

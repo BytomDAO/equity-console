@@ -7,7 +7,9 @@ export type TemplateState = {
   protectedIdList: string[],
   source: string,
   compiled?: CompiledTemplate,
-  inputMap?: InputMap
+  inputMap?: InputMap,
+  showLockInputErrors: boolean,
+  error?
 }
 
 export type Param = {

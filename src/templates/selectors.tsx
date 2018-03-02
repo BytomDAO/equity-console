@@ -4,6 +4,8 @@ import { createSelector } from 'reselect'
 // ivy imports
 import { AppState } from '../app/types'
 import { Input, InputMap } from '../inputs/types'
+import { parseError } from '../core'
+import { SpendFromAccount } from '../core/types'
 import { isValidInput, getData } from '../inputs/data'
 
 // internal imports
@@ -11,6 +13,17 @@ import { TemplateState, SourceMap } from './types'
 import { INITIAL_ID_LIST } from './constants'
 
 export const getTemplateState = (state: AppState): TemplateState => state.templates
+
+export const getLockError = createSelector(
+  getTemplateState,
+  (state: TemplateState) => {
+    const error = state.error
+    if (typeof error === 'string') {
+      return error
+    }
+    return parseError(error)
+  }
+)
 
 
 export const getSourceMap = createSelector(
@@ -54,6 +67,33 @@ export const getInputList = createSelector(
       inputList.push(inputMap[id])
     }
     return inputList
+  }
+)
+
+export const getContractValue = createSelector(
+  getInputMap,
+  getInputList,
+  (inputMap: InputMap, inputList: Input[]): SpendFromAccount|undefined => {
+    let sources: SpendFromAccount[] = []
+    inputList.forEach(input => {
+      if (input.type === "valueInput") {
+        let inputName = input.name
+        let accountId = inputMap[inputName + ".accountInput"].value
+        let assetId = inputMap[inputName + ".assetInput"].value
+        let amount = parseInt(inputMap[inputName + ".amountInput"].value, 10)
+        if (isNaN(amount) || amount < 0 || !accountId || !assetId) {
+          return []
+        }
+        sources.push({
+          type: "spendFromAccount",
+          accountId: accountId,
+          assetId: assetId,
+          amount: amount
+        } as SpendFromAccount)
+      }
+    })
+    if (sources.length !== 1) return undefined
+    return sources[0]
   }
 )
 
