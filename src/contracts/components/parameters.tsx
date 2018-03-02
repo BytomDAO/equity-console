@@ -259,26 +259,71 @@ function GenerateHashWidget(props: { id: string,
   )
 }
 
+function ProgramWidget(props: { input: ProgramInput, handleChange: (e)=>undefined }) {
+  return <div>{getChildWidget(props.input)}</div>
+}
+
+function TimeWidget(props: { input: TimeInput, handleChange: (e)=>undefined }) {
+  return <div>{getChildWidget(props.input)}</div>
+}
+
+function TimestampTimeWidget(props: { input: TimeInput,
+  errorClass: string,
+  handleChange: (e)=>undefined }) {
+  return (
+    <div className={"form-group " + props.errorClass}>
+      <input type="datetime-local" placeholder="yyyy-mm-ddThh:mm:ss" key={props.input.name} className="form-control" value={props.input.value} onChange={props.handleChange} />
+    </div>
+  )
+}
+
+function StringWidget(props: { input: StringInput, handleChange: (e)=>undefined }) {
+  const options = [{label: "Generate String", value: "generateStringInput"},
+    {label: "Provide String (Hex)", value: "provideStringInput"}]
+  const handleChange = (s: string) => undefined
+  return (
+    <div>
+      <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
+      {getChildWidget(props.input)}
+    </div>
+  )
+}
+
+function GenerateStringWidget(props: { id: string,
+  input: GenerateStringInput,
+  errorClass: string,
+  handleChange: (e)=>undefined}) {
+  return (
+    <div>
+      <div className={"input-group " + props.errorClass}>
+        <div className="input-group-addon">Length</div>
+        <input type="text" className="form-control" style={{width: 200}} key={props.input.name} value={props.input.value} onChange={props.handleChange} />
+      </div>
+      <ComputedValue computeFor={props.id} />
+    </div>
+  )
+}
+
 function getWidgetType(type: InputType): ((props: { input: Input, handleChange: (e)=>undefined }) => JSX.Element) {
   switch (type) {
     case "numberInput": return NumberWidget
     // case "booleanInput": return BooleanWidget
-    // case "stringInput": return StringWidget
-    // case "generateStringInput": return GenerateStringWidget
+    case "stringInput": return StringWidget
+    case "generateStringInput": return GenerateStringWidget
     case "provideStringInput": return TextWidget
     case "publicKeyInput": return PublicKeyWidget
     // case "signatureInput": return SignatureWidget
     // case "generateSignatureInput": return GenerateSignatureWidget
     // case "generatePublicKeyInput": return GeneratePublicKeyWidget
     // case "generatePrivateKeyInput": return GeneratePrivateKeyWidget
-    // case "providePublicKeyInput": return TextWidget
+    case "providePublicKeyInput": return TextWidget
     // case "providePrivateKeyInput": return TextWidget
     // case "provideSignatureInput": return TextWidget
     case "hashInput": return HashWidget
     case "provideHashInput": return TextWidget
     case "generateHashInput": return GenerateHashWidget
-    // case "timeInput": return TimeWidget
-    // case "timestampTimeInput": return TimestampTimeWidget
+    case "timeInput": return TimeWidget
+    case "timestampTimeInput": return TimestampTimeWidget
     // case "programInput": return ProgramWidget
     case "valueInput": return ValueWidget
     case "accountInput": return AccountAliasWidget
@@ -287,7 +332,7 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     case "assetInput": return AssetAliasWidget
     case "amountInput": return AmountWidget
     case "amountInput": return AmountWidget
-    // case "programInput": return ProgramWidget
+    case "programInput": return ProgramWidget
     // case "choosePublicKeyInput": return ChoosePublicKeyWidget
     default: return ParameterWidget
   }
