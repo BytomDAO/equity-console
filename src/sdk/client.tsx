@@ -1,25 +1,36 @@
 import Connection from './connection'
+import transactionsAPI from './transactions'
 
 class Client {
+  connection: Connection
+  transactions: Object
+
   constructor(opts = {}) {
     const option = (opts as any);
-    (this as any).connection = new Connection(option.url, option.accessToken, option.agent)
+    this.connection = new Connection(option.url, option.accessToken, option.agent)
+    this.transactions = transactionsAPI(this)
   }
 
-  public compile(contract, args = null) {
-    return (this as any).connection.request('/compile', {contract, args})
+  public compile(contract, args: any = null) {
+    return this.connection.request('/compile', {contract, args})
   }
 
   public listAccounts() {
-    return (this as any).connection.request('/list-accounts')
+    return this.connection.request('/list-accounts')
   }
 
   public listAssets() {
-    return (this as any).connection.request('/list-assets')
+    return this.connection.request('/list-assets')
   }
 
   public listBalances() {
-    return (this as any).connection.request('/list-balances')
+    return this.connection.request('/list-balances')
+  }
+
+  public createAccountPubkey(accountInfo) {
+    return this.connection
+      .request('/create-account-pubkey', {account_info: accountInfo})
+      .then(resp => resp.data)
   }
 }
 

@@ -456,13 +456,13 @@ export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}
     }
     case "publicKeyInput": {
       let accountId = inputsById[input.name + ".accountInput"].value
-      return client.accounts.createPubkey({ accountId }).then((publicKey) => {
+      return client.createAccountPubkey(accountId).then((publicKey) => {
         let publicKeyInput: PublicKeyInput = {
           ...input as PublicKeyInput,
           computedData: publicKey.pubkey,
           keyData: {
-            rootXpub: publicKey.rootXpub,
-            pubkeyDerivationPath: publicKey.pubkeyDerivationPath
+            rootXpub: publicKey.root_xpub,
+            pubkeyDerivationPath: publicKey.pubkey_derivation_path
           }
         }
         return publicKeyInput

@@ -80,7 +80,7 @@ export const create = () => {
         }
         throw 'unsupported argument type ' + (typeof param)
       })
-      return client.compile({ contract: source, args: args })
+      return client.compile(source, args)
     })
 
     let futureDate = new Date()
@@ -96,24 +96,30 @@ export const create = () => {
         assetId,
         amount
       }
-      const actions: Action[] = [spendFromAccount, controlWithReceiver]
+      const gas = {
+        accountId: spendFromAccount.accountId,
+        amount: 20000000,
+        type: 'spendFromAccount',
+        assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+      }
+      const actions: Action[] = [spendFromAccount, controlWithReceiver, gas]
       return createLockingTx(actions) // TODO: implement createLockingTx
     })
 
     Promise.all([promisedInputMap, promisedTemplate, promisedUtxo]).then(([inputMap, template, utxo]) => {
-      dispatch({
-        type: CREATE_CONTRACT,
-        controlProgram: template.program,
-        source,
-        template,
-        inputMap,
-        utxo
-      })
+      // dispatch({
+      //   type: CREATE_CONTRACT,
+      //   controlProgram: template.program,
+      //   source,
+      //   template,
+      //   inputMap,
+      //   utxo
+      // })
       dispatch(fetch())
       dispatch(setSource(source))
       dispatch(updateIsCalling(false))
       dispatch(showLockInputErrors(false))
-      dispatch(push(prefixRoute('/unlock')))
+      // dispatch(push(prefixRoute('/unlock')))
     }).catch(err => {
       console.log(err)
       dispatch(updateIsCalling(false))

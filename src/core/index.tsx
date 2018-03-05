@@ -55,5 +55,34 @@ export const prefixRoute = (route: string): string => {
 }
 
 export const createLockingTx = (actions: types.Action[]): Promise<Object> => {
-  return Promise.resolve({})
+  return client.transactions.build(builder => {
+    actions.forEach(action => {
+      switch (action.type) {
+        case "spendFromAccount":
+          builder.spendFromAccount(action)
+          break
+        case "controlWithReceiver":
+          builder.controlWithReceiver(action)
+          break
+        default:
+          break
+      }
+    })
+  }).then(resp => {
+    if (resp.status === 'fail') {
+      throw new Error(resp.msg)
+    }
+
+    const tpl = resp.data
+    const password = (tpl.signing_instructions || []).map(() => '123456')
+    const body = Object.assign({}, {password, 'transaction': tpl})
+    return client.transactions.signAndSbmit(body).then(resp => {
+      if (resp.status === 'fail') {
+        throw new Error(resp.msg)
+      }
+      return {
+        transactionId: resp.data.txid
+      }
+    })
+  })
 }

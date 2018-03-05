@@ -117,6 +117,12 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
         },
         error: undefined
       }
+    case UPDATE_IS_CALLING: {
+      return {
+        ...state,
+        isCalling: action.isCalling
+      }
+    }
     default:
       return state
   }
