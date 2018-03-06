@@ -8,8 +8,9 @@ import { prefixRoute } from '../../core'
 
 const logo = require('../../static/images/logo.svg')
 
-const mapStateToProps = () => {
-  const pathnames = window.location.pathname.split("/")
+const mapStateToProps = (state) => {
+  const location = state.routing.location
+  const pathnames = location.pathname.split("/")
   return { path: pathnames[pathnames.length - 1] }
 }
 
@@ -25,8 +26,6 @@ const Navbar = (props: { path: string }) => {
         <ul className="nav navbar-nav navbar-right">
           <li className={props.path === 'unlock' ? '' : 'active'} ><Link to={prefixRoute('/')}>Lock Value</Link></li>
           <li className={props.path === 'unlock' ? 'active' : ''} ><Link to={prefixRoute('/unlock')}>Unlock Value</Link></li>
-          {/*<li className="divider-vertical"></li>*/}
-          {/*<li><a href="../dashboard" target="_blank">Dashboard</a></li>*/}
         </ul>
       </div>
     </nav>

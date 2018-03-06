@@ -1,3 +1,4 @@
+import { routerReducer } from 'react-router-redux'
 import { combineReducers } from 'redux'
 
 import accounts from '../accounts'
@@ -10,6 +11,7 @@ export default function (state, action) {
     accounts: accounts.reducer,
     assets: assets.reducer,
     contracts: contracts.reducer,
-    templates: templates.reducer
+    templates: templates.reducer,
+    routing: routerReducer
   })(state, action)
 }
