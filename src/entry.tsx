@@ -19,6 +19,8 @@ import app from './app'
 import Lock from './templates/components/lock'
 import templates from './templates'
 
+import Unlock from './contracts/components/unlock'
+
 interface ExtensionWindow extends Window {
   __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
 }
@@ -44,7 +46,8 @@ render(
       <Router>
         <app.components.Root>
           <Route exact={true} path={'/'} component={Lock}/>
-          <Route path={'/unlock'} component={LockedValue}/>
+          <Route exact path={'/unlock'} component={LockedValue}/>
+          <Route path={'/unlock/:contractId'} component={Unlock} />
         </app.components.Root>
       </Router>
     </DocumentTitle>
