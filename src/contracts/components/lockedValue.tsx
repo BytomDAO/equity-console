@@ -29,7 +29,7 @@ const LockedValueDisplay = (props: {idList: string[]}) => {
 
           <div className={"form-group"}>
             <div className="input-group">
-              <div className="input-group-addon">Account</div>
+              <div className="input-group-addon">Contract Template</div>
               <select className="form-control with-addon">
                 {options}
               </select>
