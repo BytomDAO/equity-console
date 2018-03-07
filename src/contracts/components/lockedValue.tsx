@@ -2,15 +2,17 @@
 import * as React from 'react'
 import DocumentTitle from 'react-document-title'
 import Section from '../../app/components/section'
+import { Link } from 'react-router-dom'
 
 import { connect } from 'react-redux'
 
-import { createSample, setUtxoID, setContractName } from '../actions'
+import { setUtxoID, setContractName } from '../actions'
 
 const mapStateToProps = (state) => {
   return {
     idList: state.templates.idList,
-    contractName: state.contracts.contractName
+    contractName: state.contracts.contractName,
+    utxoId: state.contracts.utxoId
   }
 }
 
@@ -28,6 +30,7 @@ const mapDispatchToContractInputProps = (dispatch) => {
 const LockedValueDisplay = (props: {
   idList: string[],
   contractName: string,
+  utxoId: string,
   handleUtxoChange: (e)=>undefined,
   handleTemplateChange: (e)=>undefined,
 }) => {
@@ -36,7 +39,7 @@ const LockedValueDisplay = (props: {
                    selected={props.contractName == id ? 'selected' : ''}>{id}</option>
   })
 
-  const td = <td><button className="btn btn-primary btn-lg form-button">Unlock</button></td>
+  const td = <Link to={"/unlock/" + props.utxoId} ><button className="btn btn-primary">Unlock</button></Link>
 
   return (
     <DocumentTitle title="Unlock Value">
@@ -44,7 +47,9 @@ const LockedValueDisplay = (props: {
         <Section name="UTXO Params">
           <div className={"form-group"}>
             <label>UTXO ID:</label>
-            <input type="text" className="form-control string-input" onChange={props.handleUtxoChange}/>
+            <input type="text" className="form-control string-input"
+                   value={props.utxoId}
+                   onChange={props.handleUtxoChange}/>
           </div>
 
           <div className={"form-group"}>

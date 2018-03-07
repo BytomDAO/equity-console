@@ -130,22 +130,6 @@ export const create = () => {
   }
 }
 
-export const CREATE_SAMPLE_CONTRACT = 'contracts/CREATE_SAMPLE_CONTRACT'
-
-export const createSample = (utxoId: string, templateName: string) => {
-  return (dispath, getState) => {
-    const sourceMap = getSourceMap(getState())
-    dispath({
-      type: CREATE_SAMPLE_CONTRACT,
-      utxoId: utxoId,
-      template: {
-        name: templateName,
-        source: sourceMap[templateName]
-      }
-    })
-  }
-}
-
 export const SET_UTXO_ID = 'contracts/SET_UTXO_ID'
 
 export const setUtxoID = (utxoId: string) => {
