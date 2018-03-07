@@ -9,7 +9,7 @@ import { addDefaultInput, getPublicKeys } from '../inputs/data'
 import { Contract } from './types'
 
 // internal imports
-import { CREATE_CONTRACT, UPDATE_IS_CALLING } from './actions'
+import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME } from './actions'
 
 export const INITIAL_STATE: ContractsState = {
   contractMap: {},
@@ -18,7 +18,9 @@ export const INITIAL_STATE: ContractsState = {
   selectedClauseIndex: 0,
   isCalling: false,
   showUnlockInputErrors: false,
-  error: undefined
+  error: undefined,
+  utxoId: '',
+  contractName: ''
 }
 
 export default function reducer(state: ContractsState = INITIAL_STATE, action): ContractsState {
@@ -118,6 +120,18 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       return {
         ...state,
         isCalling: action.isCalling
+      }
+    }
+    case SET_UTXO_ID: {
+      return {
+        ...state,
+        utxoId: action.id
+      }
+    }
+    case SET_CONTRACT_NAME: {
+      return {
+        ...state,
+        contractName: action.name
       }
     }
     default:

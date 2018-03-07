@@ -36,7 +36,9 @@ export type ContractsState = {
   selectedClauseIndex: number,
   isCalling: boolean,
   showUnlockInputErrors: boolean,
-  error?
+  error?,
+  utxoId: string,
+  contractName: string
 }
 
 export type HashFunction = "sha256" | "sha3"
