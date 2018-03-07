@@ -35,8 +35,7 @@ const LockedValueDisplay = (props: {
   handleTemplateChange: (e)=>undefined,
 }) => {
   const options = props.idList.slice(1).map(id => {
-    return <option key={id} value={id}
-                   selected={props.contractName == id ? 'selected' : ''}>{id}</option>
+    return <option key={id} value={id}>{id}</option>
   })
 
   const td = <Link to={"/unlock/" + props.utxoId} ><button className="btn btn-primary">Unlock</button></Link>
@@ -55,7 +54,7 @@ const LockedValueDisplay = (props: {
           <div className={"form-group"}>
             <div className="input-group">
               <div className="input-group-addon">Contract Template</div>
-              <select className="form-control with-addon" onChange={props.handleTemplateChange}>
+              <select className="form-control with-addon" value={props.contractName} onChange={props.handleTemplateChange}>
                 {options}
               </select>
             </div>
