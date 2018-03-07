@@ -32,6 +32,16 @@ class Client {
       .request('/create-account-pubkey', {account_info: accountInfo})
       .then(resp => resp.data)
   }
+
+  public listUpspentUtxos(params) {
+    return this.connection.request('/list-unspent-outputs', params).then(resp => {
+      if (resp.status === 'success') {
+        return resp.data
+      } else {
+        return []
+      }
+    })
+  }
 }
 
 export default Client

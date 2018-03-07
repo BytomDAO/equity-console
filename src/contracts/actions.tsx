@@ -18,6 +18,8 @@ import {
   getContractArgs
 } from '../templates/selectors'
 
+import { getUtxoId } from './selectors'
+
 import {
   Action,
   ControlWithAccount,
@@ -149,6 +151,26 @@ export const setContractName = (templateName: string) => {
     dispath({
       type: SET_CONTRACT_NAME,
       name: templateName
+    })
+  }
+}
+
+export const SET_UTXO_INFO = 'contracts/SET_UTXO_INFO'
+
+export const fetchUtxoInfo = () => {
+  return (dispatch, getState) => {
+    const state = getState()
+    const utxoId = getUtxoId(state)
+
+    client.listUpspentUtxos({
+      id: utxoId,
+      smart_contract: true
+    }).then(data => {
+      dispatch({
+        type: SET_UTXO_INFO,
+        info: data
+      })
+      dispatch(push('/unlock/' + utxoId))
     })
   }
 }

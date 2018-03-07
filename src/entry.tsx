@@ -37,8 +37,8 @@ const store = createStore(
   composeEnhancers(
     applyMiddleware(thunk),
     applyMiddleware(routerMiddleware(history))
-  ),
-  persistState()
+  )
+  // persistState()
 )
 
 const selected = templates.selectors.getSelectedTemplate(store.getState())

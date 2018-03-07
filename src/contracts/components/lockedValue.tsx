@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 
 import { connect } from 'react-redux'
 
-import { setUtxoID, setContractName } from '../actions'
+import { setUtxoID, setContractName, fetchUtxoInfo } from '../actions'
 
 const mapStateToProps = (state) => {
   return {
@@ -23,6 +23,9 @@ const mapDispatchToContractInputProps = (dispatch) => {
     },
     handleTemplateChange: (e) => {
       dispatch(setContractName(e.target.value.toString()))
+    },
+    fetch: () => {
+      dispatch(fetchUtxoInfo())
     }
   }
 }
@@ -33,12 +36,13 @@ const LockedValueDisplay = (props: {
   utxoId: string,
   handleUtxoChange: (e)=>undefined,
   handleTemplateChange: (e)=>undefined,
+  fetch: (e)=>undefined
 }) => {
   const options = props.idList.slice(1).map(id => {
     return <option key={id} value={id}>{id}</option>
   })
 
-  const td = <Link to={"/unlock/" + props.utxoId} ><button className="btn btn-primary">Unlock</button></Link>
+  const td = <button className="btn btn-primary" onClick={props.fetch}>Unlock</button>
 
   return (
     <DocumentTitle title="Unlock Value">
@@ -60,7 +64,7 @@ const LockedValueDisplay = (props: {
             </div>
           </div>
         </Section>
-        <div><table><tbody><tr>{td}</tr></tbody></table></div>
+        <div>{td}</div>
       </div>
     </ DocumentTitle>
   )
