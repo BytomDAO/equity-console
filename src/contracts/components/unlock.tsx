@@ -7,8 +7,12 @@ import Section from '../../app/components/section'
 import UnlockButton from './unlockButton'
 import { DisplaySpendContract } from './display'
 
+import {getContractTemplateName, getUtxoId} from '../selectors'
+
 const mapStateToProps = (state) => {
-  return { error: null, display: false }
+  const contractName = getContractTemplateName(state)
+  const utxoId = getUtxoId(state)
+  return { error: null, display: contractName && utxoId }
 }
 
 export const Unlock = ({ error, display }) => {

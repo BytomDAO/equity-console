@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
-import { getSpendContract } from '../selectors'
+import { getContractTemplateName } from '../selectors'
+import { getSourceMap } from '../../templates/selectors'
 
 export const Display = (props: { source: string }) => {
   return <pre className="codeblock">{props.source}</pre>
@@ -8,9 +9,10 @@ export const Display = (props: { source: string }) => {
 
 export const DisplaySpendContract = connect(
   (state) => {
-    const contract = getSpendContract(state)
+    const contract = getContractTemplateName(state)
+    const sourceMap = getSourceMap(state)
     if (contract) {
-      return { source: contract.template.source }
+      return { source: sourceMap[contract] }
     }
     return { source: '' }
   }

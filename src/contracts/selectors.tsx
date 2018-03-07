@@ -41,15 +41,9 @@ import {
 
 export const getState = (state: AppState): ContractsState => state.contracts
 
-export const getContractIds= createSelector(
-  getState,
-  (state: ContractsState) => state.idList
-)
+export const getContractTemplateName = createSelector(getState, (state) => state.contractName)
 
-export const getSpentContractIds = createSelector(
-  getState,
-  (state: ContractsState) => state.spentIdList
-)
+export const getUtxoId = createSelector(getState, (state) => state.utxoId)
 
 export const getContractMap = createSelector(
   getState,
