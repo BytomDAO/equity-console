@@ -11,7 +11,7 @@ const logo = require('../../static/images/logo.svg')
 const mapStateToProps = (state) => {
   const location = state.routing.location
   const pathnames = location.pathname.split("/")
-  return { path: pathnames[pathnames.length - 1] }
+  return { path: pathnames[1] }
 }
 
 const Navbar = (props: { path: string }) => {

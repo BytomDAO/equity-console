@@ -14,8 +14,6 @@ import { CREATE_CONTRACT, UPDATE_IS_CALLING } from './actions'
 export const INITIAL_STATE: ContractsState = {
   contractMap: {},
   firstTime: true,
-  idList: [],
-  spentIdList: [],
   spendContractId: "",
   selectedClauseIndex: 0,
   isCalling: false,
@@ -110,7 +108,6 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       }
       return {
         ...state,
-        idList: [contract.id, ...state.idList],
         contractMap: {
           ...state.contractMap,
           [contract.id]: contract
