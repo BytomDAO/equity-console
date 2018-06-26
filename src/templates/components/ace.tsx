@@ -28,7 +28,7 @@ const Ace = ({source, handleChange}) => {
         width="100%"
         tabSize={2}
         value={source}
-        readOnly={false}
+        readOnly={true}
         editorProps={{$blockScrolling: Infinity}}
         setOptions={{
           useSoftTabs: true,

@@ -1,24 +1,73 @@
 import * as React from 'react'
+import { connect } from 'react-redux'
 import DocumentTitle from 'react-document-title'
 
 import Section from '../../app/components/section'
 import Editor from './editor'
+import LockButton from './lockButton'
 
-import { ContractValue } from '../../contracts/components/parameters'
+import { ContractParameters, ContractValue } from '../../contracts/components/parameters'
 
-export default () => {
-  const instantiate = (
-    <div>
-      <Section name="Value to Lock">
-        <div className="form-wrapper">
-          <ContractValue />
-        </div>
-      </Section>
-    </div>
-  )
+import { getLockError, getSource, getContractParameters, getCompiled } from '../selectors'
+
+const mapStateToProps = (state) => {
+  const compiled = getCompiled(state)
+  const instantiable = compiled && compiled.error === ''
+  const contractParameters = getContractParameters(state)
+  const hasParams = contractParameters && contractParameters.length > 0
+  const error = getLockError(state)
+  return { instantiable, hasParams, error }
+}
+
+const ErrorAlert = (props: { error: string }) => {
+  let jsx = <small />
+  if (props.error) {
+    jsx = (
+      <div style={{margin: '25px 0'}} className="alert alert-danger" role="alert">
+        <span className="sr-only">Error:</span>
+        <span className="glyphicon glyphicon-exclamation-sign" style={{marginRight: "5px"}}></span>
+        {props.error}
+      </div>
+    )
+  }
+  return jsx
+}
+
+const Lock = (instantiable, hasParams, error) => {
+  let instantiate
+  let contractParams
+  if (instantiable) {
+    contractParams = <div />
+    if (hasParams) {
+      contractParams = (
+        <Section name="Contract Arguments">
+          <div className="form-wrapper">
+            <ContractParameters />
+          </div>
+          <div className="form-wrapper">
+          </div>
+        </Section>
+      )
+    }
+
+    instantiate = (
+      <div>
+        <Section name="Value to Lock">
+          <div className="form-wrapper">
+            <ContractValue />
+          </div>
+        </Section>
+        {contractParams}
+        <ErrorAlert error={error} />
+        <LockButton />
+      </div>
+    )
+  } else {
+    instantiate = ( <div /> )
+  }
 
   return (
-    <DocumentTitle title="Unlock Value">
+    <DocumentTitle title="Lock Value">
       <div>
         <Editor />
         {instantiate}
@@ -26,3 +75,7 @@ export default () => {
     </DocumentTitle>
   )
 }
+
+export default connect(
+  mapStateToProps,
+)(Lock)
