@@ -81,6 +81,7 @@ export const getContractValue = createSelector(
         let accountId = inputMap[inputName + ".accountInput"].value
         let assetId = inputMap[inputName + ".assetInput"].value
         let amount = parseInt(inputMap[inputName + ".amountInput"].value, 10)
+        let password = inputMap[inputName + ".passwordInput"].value
         if (isNaN(amount) || amount < 0 || !accountId || !assetId) {
           return []
         }
@@ -88,7 +89,8 @@ export const getContractValue = createSelector(
           type: "spendFromAccount",
           accountId: accountId,
           assetId: assetId,
-          amount: amount
+          amount: amount,
+          password: password
         } as SpendFromAccount)
       }
     })

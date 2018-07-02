@@ -138,6 +138,21 @@ function NumberWidget(props: { input: NumberInput | AmountInput,
                 value={props.input.value} onChange={props.handleChange} />
 }
 
+function PasswordWidget(props: { input: StringInput,
+    errorClass: string,
+  handleChange: (e)=>undefined }) {
+    return (
+        <div className={"form-group " + props.errorClass}>
+            <div className="input-group">
+                <div className="input-group-addon">password</div>
+                <input type="password" className="form-control" style={{width: 200}} key={props.input.name}
+                       value={props.input.value} onChange={props.handleChange}/>
+            </div>
+        </div>
+    )
+}
+
+
 function AmountWidget(props: { input: AmountInput,
   errorClass: string,
   handleChange: (e)=>undefined }) {
@@ -329,10 +344,11 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     case "accountInput": return AccountAliasWidget
     case "assetInput": return AssetAliasWidget
     case "amountInput": return AmountWidget
-    case "assetInput": return AssetAliasWidget
-    case "amountInput": return AmountWidget
-    case "amountInput": return AmountWidget
+    // case "assetInput": return AssetAliasWidget
+    // case "amountInput": return AmountWidget
+    // case "amountInput": return AmountWidget
     case "programInput": return ProgramWidget
+    case "passwordInput": return PasswordWidget
     // case "choosePublicKeyInput": return ChoosePublicKeyWidget
     default: return ParameterWidget
   }
@@ -389,6 +405,7 @@ function ValueWidget(props: { input: ValueInput, handleChange: (e)=>undefined })
       {getWidget(props.input.name + ".assetInput")}
       {getWidget(props.input.name + ".amountInput")}
       <BalanceWidget namePrefix={props.input.name} />
+      {getWidget(props.input.name + ".passwordInput")}
     </div>
   )
 }

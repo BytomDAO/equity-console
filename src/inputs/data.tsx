@@ -198,7 +198,8 @@ export const isValidInput = (id: string, inputMap: InputMap): boolean => {
     case "valueInput":
       return isValidInput(input.name + ".accountInput", inputMap) &&
              isValidInput(input.name + ".assetInput", inputMap) &&
-             isValidInput(input.name + ".amountInput", inputMap)
+             isValidInput(input.name + ".amountInput", inputMap) &&
+             isValidInput(input.name + ".passwordInput", inputMap)
     default: return validateInput(input)
   }
 }
@@ -267,6 +268,7 @@ export const validateInput = (input: Input): boolean => {
       return true
     case "accountInput":
     case "assetInput":
+    case "passwordInput":
       return (input.value !== "")
     case "valueInput":
       // TODO(dan)
@@ -420,6 +422,7 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
     case "valueInput":
     case "assetInput":
     case "amountInput":
+    case "passwordInput":
     case "choosePublicKeyInput":
       return ""
     case "generatePrivateKeyInput":
@@ -459,10 +462,10 @@ export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}
       return client.createAccountPubkey(accountId).then((publicKey) => {
         let publicKeyInput: PublicKeyInput = {
           ...input as PublicKeyInput,
-          computedData: publicKey.pubkey,
+          computedData: publicKey.pubkey_infos[0].pubkey,
           keyData: {
             rootXpub: publicKey.root_xpub,
-            pubkeyDerivationPath: publicKey.pubkey_derivation_path
+            pubkeyDerivationPath: publicKey.pubkey_infos[0].pubkey_derivation_path
           }
         }
         return publicKeyInput
@@ -534,6 +537,7 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       addDefaultInput(inputs, "accountInput", name)
       addDefaultInput(inputs, "assetInput", name)
       addDefaultInput(inputs, "amountInput", name)
+      addDefaultInput(inputs, "passwordInput", name)
       return
     }
     case "programInput": {
