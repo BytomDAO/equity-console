@@ -27,9 +27,9 @@ class Client {
     return this.connection.request('/list-balances')
   }
 
-  public createAccountPubkey(accountInfo) {
+  public createAccountPubkey(accountId) {
     return this.connection
-      .request('/create-account-pubkey', {account_info: accountInfo})
+      .request('/list-pubkeys', {account_id: accountId})
       .then(resp => resp.data)
   }
 

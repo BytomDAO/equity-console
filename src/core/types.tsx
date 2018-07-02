@@ -41,8 +41,8 @@ export type SpendUnspentOutput = {
   outputId: string
 }
 
-export type ControlWithAccount = {
-  type: "controlWithAccount",
+export type ControlWithAddress = {
+  type: "controlWithAddress",
   accountId: string,
   assetId: string,
   amount: number
@@ -50,7 +50,6 @@ export type ControlWithAccount = {
 
 export type Receiver = {
   controlProgram: string,
-  expiresAt: string
 }
 
 export type ControlWithReceiver = {
@@ -60,4 +59,4 @@ export type ControlWithReceiver = {
   amount: number
 }
 
-export type Action = SpendFromAccount | ControlWithReceiver | ControlWithAccount | SpendUnspentOutput
+export type Action = SpendFromAccount | ControlWithReceiver | ControlWithAddress | SpendUnspentOutput

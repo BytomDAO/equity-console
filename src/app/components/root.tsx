@@ -13,7 +13,7 @@ export default function Root(props: Props) {
       <footer className="page-footer">
         <div className="container fixedcontainer">
         <hr/>
-          &copy; 2017 Chain Inc
+          &copy; 2018 Bytom
         </div>
       </footer>
     </div>

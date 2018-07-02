@@ -40,8 +40,8 @@ export class TransactionBuilder {
    *                                   You must specify either an ID or an alias.
    * @param {Number} params.amount - Amount of the asset to be controlled.
    */
-  controlWithAccount(params) {
-    this.actions.push(Object.assign({}, params, {type: 'control_account'}))
+  controlWithAddress(params) {
+    this.actions.push(Object.assign({}, params, {type: 'control_address'}))
   }
 
   /**
@@ -60,8 +60,7 @@ export class TransactionBuilder {
       amount: params.amount,
       asset_id: params.assetId,
       receiver: {
-        control_program: params.receiver.controlProgram,
-        expires_at: params.receiver.expiresAt
+        control_program: params.receiver.controlProgram
       }
     }
     this.actions.push(Object.assign({}, newParams, {type: 'control_receiver'}))
@@ -145,6 +144,15 @@ const transactionsAPI = (client) => {
       builderBlock(builder)
 
       return client.connection.request('/build-transaction', builder)
+    },
+
+
+    sign: (body)=> {
+        return client.connection.request('/sign-transaction', body)
+    },
+
+    submit: (body)=> {
+        return client.connection.request('/submit-transaction', body)
     },
 
     signAndSbmit: (body) => {

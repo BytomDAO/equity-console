@@ -22,7 +22,7 @@ import { getUtxoId } from './selectors'
 
 import {
   Action,
-  ControlWithAccount,
+  ControlWithAddress,
   ControlWithReceiver,
   DataWitness,
   KeyId,
@@ -86,12 +86,9 @@ export const create = () => {
       return client.compile(source, args)
     })
 
-    let futureDate = new Date()
-    futureDate.setDate(futureDate.getDate() + 1000)
     const promisedUtxo = promisedTemplate.then(template => {
       const receiver: Receiver = {
         controlProgram: template.program,
-        expiresAt: futureDate.toISOString()
       }
       const controlWithReceiver: ControlWithReceiver = {
         type: "controlWithReceiver",
@@ -101,12 +98,12 @@ export const create = () => {
       }
       const gas = {
         accountId: spendFromAccount.accountId,
-        amount: 20000000,
+        amount: 10000000,
         type: 'spendFromAccount',
         assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       }
       const actions: Action[] = [spendFromAccount, controlWithReceiver, gas]
-      return createLockingTx(actions) // TODO: implement createLockingTx
+      return createLockingTx(actions, password) // TODO: implement createLockingTx
     })
 
     Promise.all([promisedInputMap, promisedTemplate, promisedUtxo]).then(([inputMap, template, utxo]) => {

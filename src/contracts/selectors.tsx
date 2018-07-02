@@ -30,7 +30,7 @@ import {
 
 import {
   ControlWithReceiver,
-  ControlWithAccount,
+  ControlWithAddress,
   DataWitness,
   KeyId,
   Receiver,
@@ -201,11 +201,11 @@ export const getUnlockAction = createSelector(
       return undefined
     }
     return {
-      type: "controlWithAccount",
+      type: "controlWithAddress",
       accountId: unlockInput.value,
       assetId: contract.assetId,
       amount: contract.amount
-    } as ControlWithAccount
+    } as ControlWithAddress
   }
 )
 
@@ -343,11 +343,8 @@ export const getLockActions = createSelector(
         if (progInput === undefined) throw "programInput unexpectedly undefined"
         if (progInput.computedData === undefined) throw "programInput.computedData unexpectedly undefined"
 
-        let futureDate = new Date()
-        futureDate.setDate(futureDate.getDate() + 1000)
         const receiver: Receiver = {
           controlProgram: progInput.computedData,
-          expiresAt: futureDate.toISOString()
         }
 
         // Handles locking a contract paramater's asset amount
@@ -364,6 +361,7 @@ export const getLockActions = createSelector(
         if (assetInput === undefined) {
           assetInput = inputMap["contractValue." + value.name + ".valueInput.assetInput"]
           amountInput = inputMap["contractValue." + value.name + ".valueInput.amountInput"]
+          passwordInput = inputMap["contractValue." + value.name + ".valueInput.passwordInput"]
         }
 
         const action: ControlWithReceiver = {
@@ -396,7 +394,7 @@ export const isFirstTime = createSelector(
 export const generateInputMap = (compiled: CompiledTemplate): InputMap => {
   let inputs: Input[] = []
   for (const param of compiled.params) {
-    switch(param.type) {
+      switch(param.type) {
       case "Sha3(PublicKey)": {
         const hashParam = {
           type: "hashType",
@@ -442,7 +440,7 @@ export const generateInputMap = (compiled: CompiledTemplate): InputMap => {
     addParameterInput(inputs, "Value", "contractValue." + compiled.value)
   }
 
-  const inputMap = {}
+    const inputMap = {}
   for (let input of inputs) {
     inputMap[input.name] = input
   }
