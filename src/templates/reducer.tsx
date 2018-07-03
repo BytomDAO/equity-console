@@ -1,7 +1,7 @@
 import { UPDATE_INPUT } from '../contracts/actions'
 import { TemplateState, CompiledTemplate } from './types'
 import { INITIAL_SOURCE_MAP, INITIAL_ID_LIST } from './constants'
-import { SHOW_LOCK_INPUT_ERRORS, UPDATE_LOCK_ERROR, SET_SOURCE, FETCH_COMPILED } from './actions'
+import { SHOW_LOCK_INPUT_MESSAGES, UPDATE_LOCK_MESSAGE, SET_SOURCE, FETCH_COMPILED } from './actions'
 import { InputMap } from '../inputs/types'
 
 const INITIAL_STATE: TemplateState = {
@@ -12,7 +12,7 @@ const INITIAL_STATE: TemplateState = {
   // The first ID corresponds to the base template.
   source: INITIAL_SOURCE_MAP[INITIAL_ID_LIST[1]],
   compiled: undefined,
-  showLockInputErrors: false,
+  showLockInputMessages: false,
 }
 
 export default function (state: TemplateState = INITIAL_STATE, action): TemplateState {
@@ -48,22 +48,22 @@ export default function (state: TemplateState = INITIAL_STATE, action): Template
         inputMap
       }
     }
-    case UPDATE_LOCK_ERROR: {
+    case UPDATE_LOCK_MESSAGE: {
       return {
         ...state,
         error: action.error
       }
     }
-    case SHOW_LOCK_INPUT_ERRORS: {
+    case SHOW_LOCK_INPUT_MESSAGES: {
       return {
         ...state,
-        showLockInputErrors: action.result
+        showLockInputMessages: action.result
       }
     }
     case "@@router/LOCATION_CHANGE":
       return {
         ...state,
-        showLockInputErrors: false,
+        showLockInputMessages: false,
         error: undefined
       }
     default:

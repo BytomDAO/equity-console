@@ -2,7 +2,7 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 import { typeToString } from '../types'
 
-import { getShowLockInputErrors, getParameterIds, getInputMap, getContractValueId } from '../../templates/selectors'
+import { getshowLockInputMessages, getParameterIds, getInputMap, getContractValueId } from '../../templates/selectors'
 
 import RadioSelect from '../../app/components/radioSelect'
 import { updateInput } from '../actions'
@@ -70,7 +70,7 @@ function mapStateToContractInputProps(state, ownProps: { id: string }) {
   if (inputMap === undefined) {
     throw "inputMap should not be undefined when contract inputs are being rendered"
   }
-  const showError = getShowLockInputErrors(state)
+  const showError = getshowLockInputMessages(state)
   return mapToInputProps(showError, inputMap, ownProps.id)
 }
 

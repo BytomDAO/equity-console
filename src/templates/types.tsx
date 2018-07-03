@@ -8,7 +8,7 @@ export type TemplateState = {
   source: string,
   compiled?: CompiledTemplate,
   inputMap?: InputMap,
-  showLockInputErrors: boolean,
+  showLockInputMessages: boolean,
   error?
 }
 

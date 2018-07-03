@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
-import { loadTemplate } from '../actions'
+import {loadTemplate, showLockInputMessages} from '../actions'
 
 const mapStateToProps = (state) => {
   return {

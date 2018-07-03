@@ -14,14 +14,22 @@ import { INITIAL_ID_LIST } from './constants'
 
 export const getTemplateState = (state: AppState): TemplateState => state.templates
 
-export const getLockError = createSelector(
+export const getLockMessage = createSelector(
   getTemplateState,
   (state: TemplateState) => {
-    const error = state.error
-    if (typeof error === 'string') {
-      return error
+    // debugger
+    const result = state.error
+    if(result){
+      const error = result._error
+      if(error){
+        if (typeof error === 'string') {
+          return result
+        }
+        return { _error: parseError(error) }
+      }
+
+      return result
     }
-    return parseError(error)
   }
 )
 
@@ -118,9 +126,9 @@ export const hasSourceChanged = (source) => {
   )
 }
 
-export const getShowLockInputErrors = createSelector(
+export const getshowLockInputMessages = createSelector(
   getTemplateState,
-  (state: TemplateState): boolean => (state as any).showLockInputErrors
+  (state: TemplateState): boolean => (state as any).showLockInputMessages
 )
 
 export const getContractParameters = createSelector(

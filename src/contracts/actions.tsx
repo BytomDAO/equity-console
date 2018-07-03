@@ -6,8 +6,8 @@ import { getItem } from '../accounts/selectors';
 import { fetch } from '../accounts/actions';
 import {
   setSource,
-  updateLockError,
-  showLockInputErrors
+  updateLockMessage,
+  showLockInputMessages
 } from '../templates/actions'
 import {
   areInputsValid,
@@ -51,8 +51,8 @@ export const create = () => {
     const state = getState()
     if (!areInputsValid(state)) {
       dispatch(updateIsCalling(false))
-      dispatch(showLockInputErrors(true))
-      return dispatch(updateLockError('One or more arguments to the contract are invalid.'))
+      dispatch(showLockInputMessages(true))
+      return dispatch(updateLockMessage({_error: 'One or more arguments to the contract are invalid.'}))
     }
 
     const inputMap = getInputMap(state)
@@ -119,14 +119,19 @@ export const create = () => {
       // dispatch(fetch())
       dispatch(setSource(source))
       dispatch(updateIsCalling(false))
-      dispatch(showLockInputErrors(false))
-      dispatch(push())
+      dispatch(updateLockMessage(
+        {_success: [
+            "transactions has been submited successfully.",
+            <a key='transactionID' href={"/dashboard/transactions/"+ utxo.transactionId} target="_blank"> {utxo.transactionId}</a>
+          ]
+        }))
+      dispatch(showLockInputMessages(true))
       // dispatch(push(prefixRoute('/unlock')))
     }).catch(err => {
       console.log(err)
       dispatch(updateIsCalling(false))
-      dispatch(updateLockError(err))
-      dispatch(showLockInputErrors(true))
+      dispatch(updateLockMessage({_error: err}))
+      dispatch(showLockInputMessages(true))
     })
   }
 }

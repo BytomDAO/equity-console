@@ -8,7 +8,7 @@ import LockButton from './lockButton'
 
 import { ContractParameters, ContractValue } from '../../contracts/components/parameters'
 
-import { getLockError, getSource, getContractParameters, getCompiled } from '../selectors'
+import { getLockMessage, getSource, getContractParameters, getCompiled } from '../selectors'
 
 const mapStateToProps = (state) => {
   const source = getSource(state)
@@ -16,25 +16,35 @@ const mapStateToProps = (state) => {
   const instantiable = compiled && compiled.error === ''
   const contractParameters = getContractParameters(state)
   const hasParams = contractParameters && contractParameters.length > 0
-  const error = getLockError(state)
-  return { source, instantiable, hasParams, error }
+  const result = getLockMessage(state)
+  return { source, instantiable, hasParams, result }
 }
 
-const ErrorAlert = (props: { error: string }) => {
+const ErrorAlert = (props: { result: object }) => {
   let jsx = <small />
-  if (props.error) {
-    jsx = (
-      <div style={{margin: '25px 0'}} className="alert alert-danger" role="alert">
-        <span className="sr-only">Error:</span>
-        <span className="glyphicon glyphicon-exclamation-sign" style={{marginRight: "5px"}}></span>
-        {props.error}
-      </div>
-    )
+  if (props.result) {
+    if(props.result._error){
+      jsx = (
+        <div style={{margin: '25px 0'}} className="alert alert-danger" role="alert">
+          <span className="sr-only">Error:</span>
+          <span className="glyphicon glyphicon-exclamation-sign" style={{marginRight: "5px"}}></span>
+          {props.result._error}
+        </div>
+      )
+    }else if(props.result._success){
+      jsx = (
+        <div style={{margin: '25px 0'}} className="alert alert-success" role="success">
+          <span className="sr-only">Success:</span>
+          <span className="glyphicon glyphicon-ok" style={{marginRight: "5px"}}></span>
+          {props.result._success}
+        </div>
+      )
+    }
   }
   return jsx
 }
 
-const Lock = ({ source, instantiable, hasParams, error }) => {
+const Lock = ({ source, instantiable, hasParams, result }) => {
   let instantiate
   let contractParams
   if (instantiable) {
@@ -59,7 +69,7 @@ const Lock = ({ source, instantiable, hasParams, error }) => {
           </div>
         </Section>
         {contractParams}
-        <ErrorAlert error={error} />
+        <ErrorAlert result={result} />
         <LockButton />
       </div>
     )

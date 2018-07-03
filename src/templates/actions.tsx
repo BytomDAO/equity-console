@@ -14,20 +14,20 @@ export const loadTemplate = (selected: string) => {
   }
 }
 
-export const SHOW_LOCK_INPUT_ERRORS = 'templates/SHOW_LOCK_INPUT_ERRORS'
+export const SHOW_LOCK_INPUT_MESSAGES = 'templates/SHOW_LOCK_INPUT_MESSAGES'
 
-export const showLockInputErrors = (result: boolean) => {
+export const showLockInputMessages = (result: boolean) => {
   return {
-    type: SHOW_LOCK_INPUT_ERRORS,
+    type: SHOW_LOCK_INPUT_MESSAGES,
     result
   }
 }
 
-export const UPDATE_LOCK_ERROR = 'templates/UPDATE_LOCK_ERROR'
+export const UPDATE_LOCK_MESSAGE = 'templates/UPDATE_LOCK_MESSAGE'
 
-export const updateLockError = (error?) => {
+export const updateLockMessage = (error?) => {
   return {
-    type: UPDATE_LOCK_ERROR,
+    type: UPDATE_LOCK_MESSAGE,
     error
   }
 }
@@ -39,6 +39,7 @@ export const setSource = (source: string) => {
     const type = SET_SOURCE
     dispatch({ type, source })
     dispatch(fetchCompiled(source))
+    dispatch(updateLockMessage())
   }
 }
 

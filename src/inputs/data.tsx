@@ -365,6 +365,7 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
     case "valueInput":
     case "assetInput":
     case "amountInput":
+    case "passwordInput":
       return ""
     case "signatureInput":
     case "choosePublicKeyInput":
