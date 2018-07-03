@@ -63,6 +63,8 @@ export const create = () => {
     if (spendFromAccount === undefined) throw "spendFromAccount should not be undefined here"
     const assetId = spendFromAccount.assetId
     const amount = spendFromAccount.amount
+    const password = spendFromAccount.password
+
     const promisedInputMap = getPromisedInputMap(inputMap)
     const promisedTemplate = promisedInputMap.then((inputMap) => {
       const args = getContractArgs(state, inputMap).map(param => {
@@ -85,7 +87,6 @@ export const create = () => {
       })
       return client.compile(source, args)
     })
-
     const promisedUtxo = promisedTemplate.then(template => {
       const receiver: Receiver = {
         controlProgram: template.program,
@@ -98,7 +99,7 @@ export const create = () => {
       }
       const gas = {
         accountId: spendFromAccount.accountId,
-        amount: 10000000,
+        amount: 20000000,
         type: 'spendFromAccount',
         assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       }
@@ -115,10 +116,11 @@ export const create = () => {
       //   inputMap,
       //   utxo
       // })
-      dispatch(fetch())
+      // dispatch(fetch())
       dispatch(setSource(source))
       dispatch(updateIsCalling(false))
       dispatch(showLockInputErrors(false))
+      dispatch(push())
       // dispatch(push(prefixRoute('/unlock')))
     }).catch(err => {
       console.log(err)

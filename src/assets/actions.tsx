@@ -6,6 +6,7 @@ export const fetch = () => {
   let items: Item[] = []
   return (dispatch, getState) => {
     client.listAssets().then(result => {
+      result.data.shift()
       dispatch({
         type: FETCH,
         items: result.data

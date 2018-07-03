@@ -54,7 +54,7 @@ export const prefixRoute = (route: string): string => {
   return route
 }
 
-export const createLockingTx = (actions: types.Action[]): Promise<Object> => {
+export const createLockingTx = (actions: types.Action[], password: string): Promise<Object> => {
   return client.transactions.build(builder => {
     actions.forEach(action => {
       switch (action.type) {
@@ -74,15 +74,23 @@ export const createLockingTx = (actions: types.Action[]): Promise<Object> => {
     }
 
     const tpl = resp.data
-    const password = (tpl.signing_instructions || []).map(() => '123456')
-    const body = Object.assign({}, {password, 'transaction': tpl})
-    return client.transactions.signAndSbmit(body).then(resp => {
+    const body = Object.assign({}, {'password': password, 'transaction': tpl})
+    return client.transactions.sign(body).then(resp => {
       if (resp.status === 'fail') {
         throw new Error(resp.msg)
       }
-      return {
-        transactionId: resp.data.txid
-      }
+
+      const raw_transaction = resp.data.transaction.raw_transaction
+      const signTx = Object.assign({}, {'raw_transaction': raw_transaction})
+      return client.transactions.submit(signTx).then(resp => {
+        if (resp.status === 'fail') {
+          throw new Error(resp.msg)
+        }
+
+        return {
+          transactionId: resp.data.tx_id
+        }
+      })
     })
   })
 }
