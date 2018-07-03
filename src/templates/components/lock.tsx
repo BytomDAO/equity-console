@@ -11,12 +11,13 @@ import { ContractParameters, ContractValue } from '../../contracts/components/pa
 import { getLockError, getSource, getContractParameters, getCompiled } from '../selectors'
 
 const mapStateToProps = (state) => {
+  const source = getSource(state)
   const compiled = getCompiled(state)
   const instantiable = compiled && compiled.error === ''
   const contractParameters = getContractParameters(state)
   const hasParams = contractParameters && contractParameters.length > 0
   const error = getLockError(state)
-  return { instantiable, hasParams, error }
+  return { source, instantiable, hasParams, error }
 }
 
 const ErrorAlert = (props: { error: string }) => {
@@ -33,7 +34,7 @@ const ErrorAlert = (props: { error: string }) => {
   return jsx
 }
 
-const Lock = (instantiable, hasParams, error) => {
+const Lock = ({ source, instantiable, hasParams, error }) => {
   let instantiate
   let contractParams
   if (instantiable) {

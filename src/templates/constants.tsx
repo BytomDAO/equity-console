@@ -110,10 +110,10 @@ export const INITIAL_SOURCE_MAP = {
   LockWithMultiSig: LOCK_WITH_MULTISIG,
   TradeOffer: TRADE_OFFER,
   Escrow: ESCROW,
-  LoanCollateral: LOAN_COLLATERAL,
+  // LoanCollateral: LOAN_COLLATERAL,
   RevealPreimage: REVEAL_PREIMAGE,
   RevealFactors: REVEAL_FACTORS,
-  CallOption: CALL_OPTION
+  // CallOption: CALL_OPTION
 }
 
 export const INITIAL_ID_LIST = [
@@ -123,7 +123,7 @@ export const INITIAL_ID_LIST = [
   "LockWithMultiSig",
   "TradeOffer",
   "Escrow",
-  "LoanCollateral",
-  "CallOption",
+  // "LoanCollateral",
+  // "CallOption",
   "RevealPreimage",
 ]
