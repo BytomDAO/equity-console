@@ -1,5 +1,6 @@
 // external imports
 import { push } from 'react-router-redux'
+import React from 'react'
 
 import { getItemMap } from '../assets/selectors';
 import { getItem } from '../accounts/selectors';
@@ -174,7 +175,7 @@ export const fetchUtxoInfo = () => {
         type: SET_UTXO_INFO,
         info: data
       })
-      dispatch(push('/unlock/' + utxoId))
+      dispatch(push(prefixRoute('/unlock/'+ utxoId)))
     })
   }
 }

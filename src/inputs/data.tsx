@@ -450,10 +450,10 @@ export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}
   switch (input.type) {
     case "programInput": {
       let accountId = inputsById[input.name + ".accountInput"].value
-      return client.accounts.createReceiver({ accountId }).then((receiver) => {
+      return client.createReceiver(accountId).then((receiver) => {
         let programInput: ProgramInput = {
           ...input as ProgramInput,
-          computedData: receiver.controlProgram
+          computedData: receiver.control_program
         }
         return programInput
       })

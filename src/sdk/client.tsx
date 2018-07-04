@@ -33,6 +33,12 @@ class Client {
       .then(resp => resp.data)
   }
 
+  public createReceiver(accountId) {
+    return this.connection
+      .request('/create-account-receiver', {account_id: accountId})
+      .then(resp => resp.data)
+  }
+
   public listUpspentUtxos(params) {
     return this.connection.request('/list-unspent-outputs', params).then(resp => {
       if (resp.status === 'success') {
