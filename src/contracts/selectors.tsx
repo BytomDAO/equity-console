@@ -45,6 +45,8 @@ export const getContractTemplateName = createSelector(getState, (state) => state
 
 export const getUtxoId = createSelector(getState, (state) => state.utxoId)
 
+export const getUtxoInfo = createSelector(getState, (state) => state.utxoInfo)
+
 export const getContractMap = createSelector(
   getState,
   (state: ContractsState) => state.contractMap
@@ -78,13 +80,12 @@ export const getSelectedClauseIndex = createSelector(
 )
 
 export const getSpendContract = createSelector(
-  getContractMap,
-  getSpendContractId,
-  (contractMap: ContractMap, contractId: string) => {
-    const spendContract = contractMap[contractId]
-    if (spendContract === undefined)
-      throw "no contract for ID " + contractId
-    return spendContract
+  getUtxoInfo,
+  // getSpendContractId,
+  (UtxoInfo: ContractMap) => {
+    // if (UtxoInfo === undefined)
+    //   throw "no contract for ID " + contractId
+    return UtxoInfo
   }
 )
 
@@ -252,7 +253,8 @@ export const areSpendInputsValid = createSelector(
 
 export const getSpendContractValueId = createSelector(
   getSpendContract,
-  (contract) => contract.template && ("contractValue." + contract.template.value)
+  (contract) => contract
+  // (contract) => contract.template && ("contractValue." + contract.template.value)
 )
 
 export const getClauseValueId = createSelector(

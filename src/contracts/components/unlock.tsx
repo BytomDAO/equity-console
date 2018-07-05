@@ -8,11 +8,21 @@ import UnlockButton from './unlockButton'
 import { DisplaySpendContract } from './display'
 
 import {getContractTemplateName, getUtxoId} from '../selectors'
+import { ContractValue } from './argsDisplay'
+import {fetchUtxoInfo, setContractName, setUtxoID} from "../actions"
 
 const mapStateToProps = (state) => {
   const contractName = getContractTemplateName(state)
   const utxoId = getUtxoId(state)
   return { error: null, display: contractName && utxoId }
+}
+
+const mapDispatchToContractInputProps = (dispatch) => {
+  return {
+    fetch: () => {
+      dispatch(fetchUtxoInfo())
+    }
+  }
 }
 
 export const Unlock = ({ error, display }) => {
@@ -27,7 +37,7 @@ export const Unlock = ({ error, display }) => {
           <h4>Contract Template</h4>
           <DisplaySpendContract />
         </section>
-        {/*<ContractValue />*/}
+        <ContractValue />
         {/*<SpendInputs />*/}
       </div>
     )
@@ -58,5 +68,6 @@ export const Unlock = ({ error, display }) => {
 }
 
 export default connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToContractInputProps
 )(Unlock)

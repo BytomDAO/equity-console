@@ -88,7 +88,11 @@ export const create = () => {
       })
       return client.compile(source, args)
     })
-    const promisedUtxo = promisedTemplate.then(template => {
+    const promisedUtxo = promisedTemplate.then(resp => {
+      if(resp.status === 'fail'){
+        throw resp.data
+      }
+      const template = resp.data
       const receiver: Receiver = {
         controlProgram: template.program,
       }

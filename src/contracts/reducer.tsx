@@ -141,6 +141,24 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
         utxoInfo: action.info[0]
       }
     }
+    case "@@router/LOCATION_CHANGE":
+      const path = action.payload.pathname.split("/")
+      if (path[1] === "ivy") {
+        path.shift()
+      }
+      if (path.length > 2 && path[1] === "unlock") {
+        return {
+          ...state,
+          utxoId: path[2],
+          showUnlockInputErrors: false,
+          error: undefined
+        }
+      }
+      return {
+        ...state,
+        showUnlockInputErrors: false,
+        error: undefined
+      }
     default:
       return state
   }

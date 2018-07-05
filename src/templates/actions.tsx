@@ -48,6 +48,9 @@ export const FETCH_COMPILED = 'templates/FETCH_COMPILED'
 export const fetchCompiled = (source: string) => {
   return (dispatch, getState) => {
     client.compile(source).then(result => {
+      if(result.status ==='fail'){
+        throw new Error(result.data)
+      }
       const type = FETCH_COMPILED
       const format = (tpl: CompiledTemplate) => {
         if (tpl.error !== '') {
@@ -55,7 +58,7 @@ export const fetchCompiled = (source: string) => {
         }
         return tpl
       }
-      const compiled = format(result)
+      const compiled = format(result.data)
       const inputMap = generateInputMap(compiled)
       dispatch({ type, compiled, inputMap })
     }).catch((e) => {throw e})
