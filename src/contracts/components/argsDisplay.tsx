@@ -89,7 +89,10 @@ function TextWidget(props: { input: Input }) {
 }
 
 function ComputedWidget(props: { input: ProgramInput }) {
-  return <div><pre>{props.input.computedData}</pre></div>
+  return <div>
+    Hash:
+    <pre>{props.input.computedData}</pre>
+  </div>
 }
 
 function GenerateHashWidget(props: { input: GenerateHashInput, computedValue: string }) {
@@ -145,23 +148,23 @@ function getWidgetType(type: InputType): ((props: { input: Input }) => JSX.Eleme
   }
 }
 
-// function getWidget(id: string): JSX.Element {
-//   let type = id.split(".").pop() as InputType
-//   let widgetTypeConnected = connect(
-//     (state) => ({ input: getInputSelector(id)(state) })
-//   )(getWidgetType(type))
-//   if (type === "generateHashInput" || type === "generatePublicKeyInput") {
-//     widgetTypeConnected = connect(
-//       (state) => {
-//         return {
-//           input: getInputSelector(id)(state),
-//           computedValue: computeDataForInput(id, getInputMap(state))
-//         }
-//       }
-//     )(getWidgetType(type))
-//   }
-//   return React.createElement(widgetTypeConnected, { key: "connect(" + id + ")", id: id })
-// }
+function getWidget(id: string): JSX.Element {
+  let type = id.split(".").pop() as InputType
+  let widgetTypeConnected = connect(
+    (state) => ({ input: getInputSelector(id)(state) })
+  )(getWidgetType(type))
+  if (type === "generateHashInput" || type === "generatePublicKeyInput") {
+    widgetTypeConnected = connect(
+      (state) => {
+        return {
+          input: getInputSelector(id)(state),
+          computedValue: computeDataForInput(id, getInputMap(state))
+        }
+      }
+    )(getWidgetType(type))
+  }
+  return React.createElement(widgetTypeConnected, { key: "connect(" + id + ")", id: id })
+}
 
 function mapStateToContractValueProps(state) {
   return {
@@ -170,7 +173,7 @@ function mapStateToContractValueProps(state) {
 }
 
 function ContractValueUnconnected(props: { valueId: string }) {
-  const asset = props.valueId.asset_alias||props.valueId.asset_id
+  const asset = props.valueId.assetAlias||props.valueId.assetId
   return (
     <section style={{wordBreak: 'break-all'}}>
       <h4>Locked Value</h4>
@@ -178,7 +181,7 @@ function ContractValueUnconnected(props: { valueId: string }) {
         <div className="argument">
           <AssetWidget input={asset}/>
           <AmountWidget input={props.valueId.amount}/>
-          </div>
+        </div>
       </form>
     </section>
   )
@@ -188,23 +191,26 @@ export const ContractValue = connect(
   mapStateToContractValueProps
 )(ContractValueUnconnected)
 
-// function SpendInputsUnconnected(props: { spendInputIds: string[] }) {
-//   if (props.spendInputIds.length === 0) return <div />
-//   const spendInputWidgets = props.spendInputIds.map((id) => {
-//     return <div key={id} className="argument">{getWidget(id)}</div>
-//   })
-//   return (
-//     <section style={{ wordBreak: 'break-all'}}>
-//       <h4>Contract Arguments</h4>
-//       <form className="form">
-//         {spendInputWidgets}
-//       </form>
-//     </section>
-//   )
-// }
-//
-// const SpendInputs = connect(
-//   (state) => ({ spendInputIds: getParameterIds(state) })
-// )(SpendInputsUnconnected)
-//
-// export default SpendInputs
+function SpendInputsUnconnected(props: { spendInputIds: string[] }) {
+  if (props.spendInputIds.length === 0) return <div />
+  const spendInputWidgets = props.spendInputIds.map((id) => {
+    return <div key={id} className="argument">
+      {getWidget(id)}
+      {/*{(getWidget("contractParameters.publicKey.publicKeyInput"))}*/}
+      </div>
+  })
+  return (
+    <section style={{ wordBreak: 'break-all'}}>
+      <h4>Contract Arguments</h4>
+      <form className="form">
+        {spendInputWidgets}
+      </form>
+    </section>
+  )
+}
+
+const SpendInputs = connect(
+  (state) => ({ spendInputIds: getParameterIds(state) })
+)(SpendInputsUnconnected)
+
+export default SpendInputs

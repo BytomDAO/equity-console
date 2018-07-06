@@ -48,6 +48,16 @@ class Client {
       }
     })
   }
+
+  public decodeProgram(params) {
+    return this.connection.request('/decode-program', {program: params}).then(resp => {
+      if (resp.status === 'success') {
+        return resp.data
+      } else {
+        return []
+      }
+    })
+  }
 }
 
 export default Client

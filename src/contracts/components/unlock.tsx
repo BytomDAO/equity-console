@@ -7,14 +7,20 @@ import Section from '../../app/components/section'
 import UnlockButton from './unlockButton'
 import { DisplaySpendContract } from './display'
 
-import {getContractTemplateName, getUtxoId} from '../selectors'
+import SpendInputs from './argsDisplay'
+import {getContractTemplateName, getContractProgram, getUtxoId, getUtxoInfo, getContract} from '../selectors'
 import { ContractValue } from './argsDisplay'
 import {fetchUtxoInfo, setContractName, setUtxoID} from "../actions"
 
 const mapStateToProps = (state) => {
   const contractName = getContractTemplateName(state)
+  const contractProgram = getContractProgram(state)
+  const utxoInfo = getUtxoInfo(state)
   const utxoId = getUtxoId(state)
-  return { error: null, display: contractName && utxoId }
+  const contract = getContract(state)
+
+  const display = contract.contractProgram === contractProgram && utxoId
+  return { error: null, display: display }
 }
 
 const mapDispatchToContractInputProps = (dispatch) => {
@@ -38,7 +44,7 @@ export const Unlock = ({ error, display }) => {
           <DisplaySpendContract />
         </section>
         <ContractValue />
-        {/*<SpendInputs />*/}
+        <SpendInputs />
       </div>
     )
 

@@ -43,13 +43,15 @@ export const getState = (state: AppState): ContractsState => state.contracts
 
 export const getContractTemplateName = createSelector(getState, (state) => state.contractName)
 
+export const getContractProgram = createSelector(getState, (state) => state.contractProgram)
+
 export const getUtxoId = createSelector(getState, (state) => state.utxoId)
 
 export const getUtxoInfo = createSelector(getState, (state) => state.utxoInfo)
 
-export const getContractMap = createSelector(
+export const getContract = createSelector(
   getState,
-  (state: ContractsState) => state.contractMap
+  (state: ContractsState) => state.contract
 )
 
 export const getIsCalling = createSelector(
@@ -57,10 +59,10 @@ export const getIsCalling = createSelector(
   (state: ContractsState) => state.isCalling
 )
 
-export const getContract = (state: AppState, contractId: string) => {
-  const contractMap = getContractMap(state)
-  return contractMap[contractId]
-}
+// export const getContract = (state: AppState, contractId: string) => {
+//   const contractMap = getContractMap(state)
+//   return contractMap[contractId]
+// }
 
 export const getSpendContractId = createSelector(
   getState,
@@ -80,12 +82,13 @@ export const getSelectedClauseIndex = createSelector(
 )
 
 export const getSpendContract = createSelector(
-  getUtxoInfo,
+  getContract,
   // getSpendContractId,
-  (UtxoInfo: ContractMap) => {
+  (contract: Contract) => {
+    console.log(contract)
     // if (UtxoInfo === undefined)
     //   throw "no contract for ID " + contractId
-    return UtxoInfo
+    return contract
   }
 )
 
@@ -134,7 +137,7 @@ export const getInputMap = createSelector(
 
 export const getParameterIds = createSelector(
   getSpendContract,
-  spendContract => spendContract.template.params.map(param => "contractParameters." + param.name)
+  spendContract => spendContract.params.map(param => "contractParameters." + param.name)
 )
 
 export const getSelectedClause = createSelector(

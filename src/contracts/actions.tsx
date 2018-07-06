@@ -175,10 +175,14 @@ export const fetchUtxoInfo = () => {
       id: utxoId,
       smart_contract: true
     }).then(data => {
-      dispatch({
-        type: SET_UTXO_INFO,
-        info: data
-      })
+      client.decodeProgram(data[0].program)
+        .then(resp =>{
+          dispatch({
+            type: SET_UTXO_INFO,
+            info: data[0], 
+            instructions: resp.instructions
+          })
+        })
       dispatch(push(prefixRoute('/unlock/'+ utxoId)))
     })
   }

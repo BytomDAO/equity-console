@@ -2,15 +2,24 @@ import { Input, InputMap } from '../inputs/types'
 
 import { CompiledTemplate } from '../templates/types'
 
+// export type Contract = {
+//   // lock tx id
+//   utxoId: string,
+//   contractName: string,
+//   contractProgram: string,
+//   contractParameter: string,
+//   utxoInfo?
+// }
 export type Contract = {
   // lock tx id
   id: string,
-  unlockTxid: string,
-  outputId: string,
   assetId: string,
+  assetAlias: string,
   amount: number,
-  template: CompiledTemplate,
   controlProgram: string,
+  contractProgram: string,
+
+  params?,
 
   // Map of UI Form inputs
   // used during locking tx.
@@ -30,7 +39,8 @@ export type Contract = {
 export type ContractMap = { [s: string]: Contract }
 
 export type ContractsState = {
-  contractMap: ContractMap,
+  // contractMap: ContractMap,
+  contract: Contract,
   firstTime: boolean,
   spendContractId: string,
   selectedClauseIndex: number,
@@ -39,6 +49,7 @@ export type ContractsState = {
   error?,
   utxoId: string,
   contractName: string,
+  contractProgram: string,
   utxoInfo?
 }
 
