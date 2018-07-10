@@ -59,7 +59,7 @@ export const ESCROW = `contract Escrow(agent: PublicKey,
 
 export const LOAN_COLLATERAL =`contract LoanCollateral(assetLoaned: Asset,
                         amountLoaned: Amount,
-                        repaymentDue: Time,
+                        blockHeight: Integer,
                         lender: Program,
                         borrower: Program) locks collateral {
   clause repay() requires payment: amountLoaned of assetLoaned {
@@ -67,7 +67,7 @@ export const LOAN_COLLATERAL =`contract LoanCollateral(assetLoaned: Asset,
     lock collateral with borrower
   }
   clause default() {
-    verify after(repaymentDue)
+    verify above(blockHeight)
     lock collateral with lender
   }
 }`
@@ -90,15 +90,15 @@ export const CALL_OPTION = `contract CallOption(strikePrice: Amount,
                     strikeCurrency: Asset,
                     seller: Program,
                     buyerKey: PublicKey,
-                    deadline: Time) locks underlying {
+                    blockHeight: Integer) locks underlying {
   clause exercise(buyerSig: Signature) requires payment: strikePrice of strikeCurrency {
-    verify before(deadline)
+    verify below(blockHeight)
     verify checkTxSig(buyerKey, buyerSig)
     lock payment with seller
     unlock underlying
   }
   clause expire() {
-    verify after(deadline)
+    verify above(blockHeight)
     lock underlying with seller
   }
 }`
@@ -110,10 +110,10 @@ export const INITIAL_SOURCE_MAP = {
   LockWithMultiSig: LOCK_WITH_MULTISIG,
   TradeOffer: TRADE_OFFER,
   Escrow: ESCROW,
-  // LoanCollateral: LOAN_COLLATERAL,
+  LoanCollateral: LOAN_COLLATERAL,
   RevealPreimage: REVEAL_PREIMAGE,
   RevealFactors: REVEAL_FACTORS,
-  // CallOption: CALL_OPTION
+  CallOption: CALL_OPTION
 }
 
 export const INITIAL_ID_LIST = [
@@ -123,7 +123,7 @@ export const INITIAL_ID_LIST = [
   "LockWithMultiSig",
   "TradeOffer",
   "Escrow",
-  // "LoanCollateral",
-  // "CallOption",
+  "LoanCollateral",
+  "CallOption",
   "RevealPreimage",
 ]
