@@ -10,7 +10,7 @@ import { addDefaultInput, getPublicKeys , addInputForType} from '../inputs/data'
 import { Contract } from './types'
 
 // internal imports
-import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME, SET_UTXO_INFO } from './actions'
+import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME, SET_UTXO_INFO,  UPDATE_CLAUSE_INPUT} from './actions'
 
 export const INITIAL_STATE: ContractsState = {
   // contractMap: {},
@@ -141,6 +141,30 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
         contractProgram: contractProgram,
       }
     }
+    case UPDATE_CLAUSE_INPUT: {
+      // gotta find a way to make this logic shorter
+      // maybe further normalizing it; maybe Immutable.js or cursors or something
+      const oldContract = state.contract
+      const oldSpendInputMap = oldContract.spendInputMap
+      const oldInput = oldSpendInputMap[action.name]
+      if (oldInput === undefined) throw "unexpectedly undefined clause input"
+      let newInput = {
+        ...oldInput,
+        value: action.newValue
+      }
+      let newSpendInputMap = {
+        ...oldSpendInputMap,
+        [action.name]: newInput
+      }
+      newSpendInputMap[action.name] = newInput
+      return {
+        ...state,
+        contract: {
+          ...oldContract,
+          spendInputMap: newSpendInputMap
+        }
+      }
+    }
     case SET_UTXO_INFO: {
       const utxoInfo = action.info
       const id = utxoInfo.id
@@ -161,8 +185,9 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
         }
       }
       const contractProgram = instructions[contractArg.length+1].split(/(\s+)/)[2]
-      // const inputs: Input[] = []
-      const inputs = {}
+      const inputs: Input[] = []
+      // const inputs = []
+      const inputMap = {}
       const params = []
 
       contractArg.map(value => {
@@ -172,10 +197,16 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
           name: "contractParameters.Hash.programInput",
           computedData: value,
         }
-        inputs["contractParameters.Hash.programInput"] = pubkeyParam
+        inputMap["contractParameters.Hash.programInput"] = pubkeyParam
         // inputs.push(pubkeyParam)
         params.push({name: "Hash.programInput", type: "Sha3(PublicKey)"})
       })
+
+      addDefaultInput(inputs, "accountInput", "unlockValue") // Unlocked value destination. Not always used.
+      const spendInputMap = {}
+      for (const input of inputs) {
+        spendInputMap[input.name] = input
+      }
 
       const contract: Contract = {
         id: id,
@@ -184,8 +215,9 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
         amount: amount,
         controlProgram: controlProgram,
         contractProgram: contractProgram,
-        inputMap: inputs,
-        params: params
+        inputMap: inputMap,
+        params: params,
+        spendInputMap: spendInputMap
       }
       return {
         ...state,

@@ -24,6 +24,10 @@ import {
 import { validateInput, computeDataForInput, getChild,
   getParameterIdentifier, getInputContext } from '../../inputs/data'
 
+import { updateInput, updateClauseInput } from '../actions'
+import { getShowUnlockInputErrors, getSpendInputMap, getClauseParameterIds } from '../selectors'
+
+
 function getChildWidget(input: ComplexInput) {
   return getWidget(getChild(input))
 }
@@ -184,10 +188,10 @@ export function getWidget(id: string): JSX.Element {
       mapDispatchToContractInputProps
     )(getWidgetType(type))
   } else {
-    // widgetTypeConnected = connect(
-    //   mapStateToSpendInputProps,
-    //   mapDispatchToSpendInputProps
-    // )(getWidgetType(type))
+    widgetTypeConnected = connect(
+      mapStateToSpendInputProps,
+      mapDispatchToSpendInputProps
+    )(getWidgetType(type))
   }
   return (
     <div className="widget-wrapper" key={"container(" + id + ")"}>
@@ -231,6 +235,20 @@ function HashWidget(props: { input: HashInput, handleChange: (e)=>undefined }) {
       {getChildWidget(props.input)}
     </div>
   )
+}
+
+function mapStateToSpendInputProps(state, ownProps: { id: string }) {
+  const inputsById = getSpendInputMap(state)
+  const showError = getShowUnlockInputErrors(state)
+  return mapToInputProps(showError, inputsById, ownProps.id)
+}
+
+function mapDispatchToSpendInputProps(dispatch, ownProps: { id: string} ) {
+  return {
+    handleChange: (e) => {
+      dispatch(updateClauseInput(ownProps.id, e.target.value.toString()))
+    }
+  }
 }
 
 function mapToComputedProps(state, ownProps: { computeFor: string} ) {

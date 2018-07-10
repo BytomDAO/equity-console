@@ -85,7 +85,6 @@ export const getSpendContract = createSelector(
   getContract,
   // getSpendContractId,
   (contract: Contract) => {
-    console.log(contract)
     // if (UtxoInfo === undefined)
     //   throw "no contract for ID " + contractId
     return contract
@@ -184,15 +183,16 @@ export const getClauseValueInfo = createSelector(
 )
 
 export const getClauseUnlockInput = createSelector(
-  getSelectedClause,
+  // getSelectedClause,
   getSpendInputMap,
-  (clause, spendInputMap) => {
+  // (clause, spendInputMap) => {
+  ( spendInputMap) => {
     let input
-    clause.valueInfo.forEach(value => {
-      if (value.program === undefined) {
+    // clause.valueInfo.forEach(value => {
+    //   if (value.program === undefined) {
         input = spendInputMap["unlockValue.accountInput"]
-      }
-    })
+    //   }
+    // })
     return input
   }
 )

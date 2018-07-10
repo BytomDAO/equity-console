@@ -179,7 +179,7 @@ export const fetchUtxoInfo = () => {
         .then(resp =>{
           dispatch({
             type: SET_UTXO_INFO,
-            info: data[0], 
+            info: data[0],
             instructions: resp.instructions
           })
         })
@@ -194,6 +194,18 @@ export const updateInput = (name: string, newValue: string) => {
   return (dispatch, getState) => {
     dispatch({
       type: UPDATE_INPUT,
+      name: name,
+      newValue: newValue
+    })
+  }
+}
+
+export const UPDATE_CLAUSE_INPUT = 'contracts/UPDATE_CLAUSE_INPUT'
+
+export const updateClauseInput = (name: string, newValue: string) => {
+  return (dispatch) => {
+    dispatch({
+      type: UPDATE_CLAUSE_INPUT,
       name: name,
       newValue: newValue
     })

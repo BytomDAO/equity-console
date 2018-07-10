@@ -8,14 +8,13 @@ import UnlockButton from './unlockButton'
 import { DisplaySpendContract } from './display'
 
 import SpendInputs from './argsDisplay'
+import UnlockDestination from './unlockDestination'
 import {getContractTemplateName, getContractProgram, getUtxoId, getUtxoInfo, getContract} from '../selectors'
 import { ContractValue } from './argsDisplay'
 import {fetchUtxoInfo, setContractName, setUtxoID} from "../actions"
 
 const mapStateToProps = (state) => {
-  const contractName = getContractTemplateName(state)
   const contractProgram = getContractProgram(state)
-  const utxoInfo = getUtxoInfo(state)
   const utxoId = getUtxoId(state)
   const contract = getContract(state)
 
@@ -53,7 +52,7 @@ export const Unlock = ({ error, display }) => {
         {/*<ClauseSelect />*/}
         {/*<ClauseValue />*/}
         {/*<ClauseParameters />*/}
-        {/*<UnlockDestination />*/}
+        <UnlockDestination />
       </div>
     )
   }
