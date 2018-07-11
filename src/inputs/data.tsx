@@ -267,6 +267,8 @@ export const validateInput = (input: Input): boolean => {
       if (numberValue < 0) return false
       return true
     case "accountInput":
+    case "xpubInput":
+    case "pathInput":
     case "assetInput":
     case "passwordInput":
       return (input.value !== "")
@@ -360,6 +362,8 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
     case "timeInput":
       return "timestampTimeInput"
     case "accountInput":
+    case "xpubInput":
+    case "pathInput":
     case "assetInput":
       return ""
     case "valueInput":
@@ -419,6 +423,8 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
     case "programInput":
       return "accountInput"
     case "accountInput":
+    case "xpubInput":
+    case "pathInput":
     case "assetInput":
     case "valueInput":
     case "assetInput":

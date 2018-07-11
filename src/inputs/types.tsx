@@ -47,7 +47,7 @@ export type Input = ParameterInput | StringInput | HashInput | PublicKeyInput | 
                     GenerateStringInput | ProvideStringInput | GenerateHashInput | ProvideHashInput | GeneratePublicKeyInput |
                     ProvidePublicKeyInput | GeneratePrivateKeyInput | ProvidePrivateKeyInput | TimestampTimeInput | SignatureInput |
                     GenerateSignatureInput | ProvideSignatureInput | ProgramInput | ValueInput | AccountAliasInput | AssetAliasInput |
-                    AmountInput | ProgramInput | AssetInput | ChoosePublicKeyInput
+                    AmountInput | ProgramInput | AssetInput | ChoosePublicKeyInput |PathInput
 
 export type ComplexInput = StringInput | HashInput | GenerateHashInput | PublicKeyInput | TimeInput | ParameterInput | GeneratePublicKeyInput |
                            SignatureInput | GenerateSignatureInput | ProgramInput
@@ -56,7 +56,8 @@ export type InputType = "parameterInput" | "stringInput" | "generateStringInput"
                         "generateHashInput" | "provideHashInput" | "publicKeyInput" | "generatePublicKeyInput" | "providePublicKeyInput" |
                         "generatePrivateKeyInput" | "providePrivateKeyInput" | "numberInput" | "booleanInput" | "timeInput" |
                         "timestampTimeInput" | "signatureInput" | "generateSignatureInput" | "provideSignatureInput" | "programInput" |
-                        "valueInput" | "accountInput" | "assetInput" | "programInput" | "assetInput" | "amountInput" | "choosePublicKeyInput" | "passwordInput"
+                        "valueInput" | "accountInput" | "assetInput" | "programInput" | "assetInput" | "amountInput" | "choosePublicKeyInput" |
+                        "passwordInput" | "xpubInput" | "pathInput"
 
 export type PrimaryInputType = "stringInput" | "hashInput" | "publicKeyInput" | "numberInput" | "booleanInput" | "timeInput" | "signatureInput" |
                                "valueInput" | "programInput" | "assetInput" | "amountInput"
@@ -235,6 +236,18 @@ export type ProgramInput = {
 
 export type AssetInput = {
   type: "assetInput",
+  value: string,
+  name: string
+}
+
+export type XpubInput = {
+  type: "xpubInput",
+  value: string,
+  name: string
+}
+
+export type PathInput = {
+  type: "pathInput",
   value: string,
   name: string
 }

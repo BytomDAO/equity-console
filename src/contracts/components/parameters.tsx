@@ -19,7 +19,7 @@ import {
   ProvideHashInput, InputType, ComplexInput, SignatureInput, GenerateSignatureInput,
   ProvideSignatureInput, ProvidePrivateKeyInput,
   ValueInput, AccountAliasInput, AssetAliasInput, AssetInput, AmountInput,
-  ProgramInput, ChoosePublicKeyInput, KeyData
+  ProgramInput, ChoosePublicKeyInput, KeyData, PathInput
 } from '../../inputs/types'
 import { validateInput, computeDataForInput, getChild,
   getParameterIdentifier, getInputContext } from '../../inputs/data'
@@ -153,6 +153,44 @@ function PasswordWidget(props: { input: StringInput,
                        value={props.input.value} onChange={props.handleChange}/>
             </div>
         </div>
+    )
+}
+
+function XpubWidget(props: { input: StringInput,
+    errorClass: string,
+  handleChange: (e)=>undefined }) {
+    return (
+      <div className={"form-group" + props.errorClass}>
+        <div className="input-group">
+          <div className="input-group-addon">Root Xpub</div>
+          <input type="text" className="form-control with-addon"
+                 key={props.input.name}
+                 value={props.input.value}
+                 onChange={props.handleChange}
+          />
+        </div>
+      </div>
+    )
+}
+
+function PathWidget(props: { input: PathInput,
+    errorClass: string,
+  handleChange: (e)=>undefined
+}) {
+    return (
+      <div>
+        <span className="type-label">{props.input.name.split(".")[1]}</span>
+        <div className={"form-group" + props.errorClass}>
+          <div className="input-group">
+            <div className="input-group-addon">Path</div>
+            <input type="text" className="form-control with-addon"
+                   key={props.input.name}
+                   value={props.input.value}
+                   onChange={props.handleChange}
+            />
+          </div>
+        </div>
+      </div>
     )
 }
 
@@ -365,6 +403,8 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     // case "assetInput": return AssetAliasWidget
     // case "amountInput": return AmountWidget
     // case "amountInput": return AmountWidget
+    case "xpubInput": return XpubWidget
+    case "pathInput": return PathWidget
     case "programInput": return ProgramWidget
     case "passwordInput": return PasswordWidget
     // case "choosePublicKeyInput": return ChoosePublicKeyWidget

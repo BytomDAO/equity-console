@@ -9,6 +9,7 @@ import { DisplaySpendContract } from './display'
 
 import SpendInputs from './argsDisplay'
 import UnlockDestination from './unlockDestination'
+import ClauseSelect from './clauseselect'
 import {getContractTemplateName, getContractProgram, getUtxoId, getUtxoInfo, getContract} from '../selectors'
 import { ContractValue } from './argsDisplay'
 import {fetchUtxoInfo, setContractName, setUtxoID} from "../actions"
@@ -49,7 +50,7 @@ export const Unlock = ({ error, display }) => {
 
     details = (
       <div className="form-wrapper with-subsections">
-        {/*<ClauseSelect />*/}
+        <ClauseSelect />
         {/*<ClauseValue />*/}
         {/*<ClauseParameters />*/}
         <UnlockDestination />

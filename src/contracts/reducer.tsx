@@ -17,7 +17,7 @@ export const INITIAL_STATE: ContractsState = {
   contract: {},
   firstTime: true,
   spendContractId: "",
-  selectedClauseIndex: 0,
+  // selectedClauseIndex: 0,
   isCalling: false,
   showUnlockInputErrors: false,
   error: undefined,
@@ -203,6 +203,9 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       })
 
       addDefaultInput(inputs, "accountInput", "unlockValue") // Unlocked value destination. Not always used.
+      addDefaultInput(inputs, "xpubInput", "clauseParameters") // Unlocked value destination. Not always used.
+      addDefaultInput(inputs, "pathInput", "clauseParameters.path1") // Unlocked value destination. Not always used.
+      addDefaultInput(inputs, "pathInput", "clauseParameters.path2") // Unlocked value destination. Not always used.
       const spendInputMap = {}
       for (const input of inputs) {
         spendInputMap[input.name] = input
