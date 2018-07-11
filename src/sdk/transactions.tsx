@@ -55,15 +55,13 @@ export class TransactionBuilder {
    *                                   You must specify either an ID or an alias.
    * @param {Number} params.amount - Amount of the asset to be controlled.
    */
-  controlWithReceiver(params) {
+  controlWithProgram(params) {
     const newParams = {
       amount: params.amount,
       asset_id: params.assetId,
-      receiver: {
-        control_program: params.receiver.controlProgram
-      }
+      control_program: params.controlProgram
     }
-    this.actions.push(Object.assign({}, newParams, {type: 'control_receiver'}))
+    this.actions.push(Object.assign({}, newParams, {type: 'control_program'}))
   }
 
   /**

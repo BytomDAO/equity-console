@@ -61,8 +61,8 @@ export const createLockingTx = (actions: types.Action[], password: string): Prom
         case "spendFromAccount":
           builder.spendFromAccount(action)
           break
-        case "controlWithReceiver":
-          builder.controlWithReceiver(action)
+        case "controlWithProgram":
+          builder.controlWithProgram(action)
           break
         default:
           break
@@ -92,5 +92,61 @@ export const createLockingTx = (actions: types.Action[], password: string): Prom
         }
       })
     })
+  })
+}
+
+// Satisfies created contract and transfers value.
+export const createUnlockingTx = (actions: types.Action[],
+                                  witness: types.WitnessComponent[]): Promise<{id: string}> => {
+
+  return Promise.resolve().then(() => {
+    return client.transactions.build(builder => {
+      actions.forEach(action => {
+        switch (action.type) {
+          case "spendFromAccount":
+            builder.spendFromAccount(action)
+            break
+          case "controlWithProgram":
+            builder.controlWithProgram(action)
+            break
+          case "spendUnspentOutput":
+            builder.spendUnspentOutput(action)
+            break
+          default:
+            break
+        }
+      })
+    })
+  }).then((tpl) => {
+    tpl.includesContract = true
+    // TODO(boymanjor): Can we depend on contract being on first utxo?
+    tpl.signingInstructions[0].witnessComponents = witness
+    tpl.signingInstructions.forEach((instruction, idx) => {
+      instruction.witnessComponents.forEach((component) => {
+        if (component.keys === undefined) {
+          return
+        }
+        component.keys.forEach((key) => {
+          signer.addKey(key.xpub, client.mockHsm.signerConnection)
+        })
+      })
+    })
+    return signer.sign(tpl)
+  }).then((tpl) => {
+    witness = tpl.signingInstructions[0].witnessComponents
+    if (witness !== undefined) {
+      tpl.signingInstructions[0].witnessComponents = witness.map(component => {
+        switch(component.type) {
+          case "raw_tx_signature":
+            return {
+              type: "data",
+              value: component.signatures[0]
+            } as types.DataWitness
+          default:
+            return component
+        }
+      })
+    }
+    return client.transactions.submit(tpl)
   })
 }

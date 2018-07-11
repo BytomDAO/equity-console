@@ -29,7 +29,7 @@ import {
 } from '../inputs/data'
 
 import {
-  ControlWithReceiver,
+  ControlWithProgram,
   ControlWithAddress,
   DataWitness,
   KeyId,
@@ -213,6 +213,87 @@ export const getUnlockAction = createSelector(
   }
 )
 
+export const getClauseWitnessComponents = createSelector(
+  getSpendInputMap,
+  getClauseName,
+  getClauseParameters,
+  getSpendContract,
+  getSelectedClauseIndex,
+  (spendInputMap: InputMap, clauseName: string, clauseParameters, contract, clauseIndex): WitnessComponent[] => {
+    const witness: WitnessComponent[] = []
+    clauseParameters.forEach(clauseParameter => {
+      const clauseParameterPrefix = "clauseParameters." + clauseName + "." + clauseParameter.name
+      switch (clauseParameter.type) {
+        case "PublicKey": {
+          const inputId = clauseParameterPrefix + ".publicKeyInput.provideStringInput"
+          const input = spendInputMap[inputId]
+          if (input === undefined || input.type !== "provideStringInput") {
+            throw "provideStringInput surprisingly not found for PublicKey clause parameter"
+          }
+          witness.push({
+            type: "data",
+            value: dataToArgString(getData(inputId, spendInputMap))
+          })
+          return
+        }
+        case "String": {
+          const inputId = clauseParameterPrefix + ".stringInput.provideStringInput"
+          const input = spendInputMap[inputId]
+          if (input === undefined || input.type !== "provideStringInput") {
+            throw "provideStringInput surprisingly not found for String clause parameter"
+          }
+          witness.push({
+            type: "data",
+            value: dataToArgString(getData(inputId, spendInputMap))
+          })
+          return
+        }
+        case "Signature": {
+          const inputId = clauseParameterPrefix + ".signatureInput.choosePublicKeyInput"
+          const input = spendInputMap[inputId]
+          if (input === undefined || input.type !== "choosePublicKeyInput") {
+            throw "choosePublicKeyInput surprisingly not found"
+          }
+
+          const pubkey = input.value
+          if (input.keyMap === undefined) {
+            throw 'surprisingly undefined keymap for input ' + input.name
+          }
+
+          const keymap = input.keyMap[pubkey]
+          witness.push({
+            type: "raw_tx_signature",
+            quorum: 1,
+            keys: [{
+              xpub: keymap.rootXpub,
+              derivationPath: keymap.pubkeyDerivationPath
+            } as KeyId],
+            signatures: []
+          } as RawTxSignatureWitness)
+          signer.addKey(keymap.rootXpub, client.mockHsm.signerConnection)
+          return
+        }
+        default: {
+          const val = dataToArgString(getData(clauseParameterPrefix, spendInputMap))
+          witness.push({
+            type: "data",
+            value: val
+          })
+          return
+        }
+      }
+    })
+    if (contract.clauseList.length > 1) {
+      const value = dataToArgString(clauseIndex)
+      witness.push({
+        type: "data",
+        value
+      } as DataWitness)
+    }
+    return witness
+  }
+)
+
 export const getClauseMintimes = createSelector(
   getSpendContract,
   getSelectedClauseIndex,
@@ -348,9 +429,8 @@ export const getLockActions = createSelector(
         if (progInput === undefined) throw "programInput unexpectedly undefined"
         if (progInput.computedData === undefined) throw "programInput.computedData unexpectedly undefined"
 
-        const receiver: Receiver = {
-          controlProgram: progInput.computedData,
-        }
+        const controlProgram = progInput.computedData
+
 
         // Handles locking a contract paramater's asset amount
         let assetInput = inputMap["contractParameters." + value.asset + ".assetInput"]
@@ -369,11 +449,11 @@ export const getLockActions = createSelector(
           passwordInput = inputMap["contractValue." + value.name + ".valueInput.passwordInput"]
         }
 
-        const action: ControlWithReceiver = {
-          type: "controlWithReceiver",
+        const action: ControlWithProgram = {
+          type: "controlWithProgram",
           assetId: assetInput.value,
           amount: parseInt(amountInput.value, 10),
-          receiver
+          controlProgram: controlProgram
         }
         return action
       })
