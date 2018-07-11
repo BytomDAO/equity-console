@@ -16,15 +16,22 @@ import {
   getSourceMap,
   getContractValue,
   getInputMap,
-  getContractArgs
+  getContractArgs,
 } from '../templates/selectors'
 
-import { getUtxoId } from './selectors'
+import {
+  getUtxoId,
+  getSpendContract,
+  getLockActions,
+  getRequiredValueAction,
+  getUnlockAction,
+  getClauseWitnessComponents,
+} from './selectors'
 
 import {
   Action,
   ControlWithAddress,
-  ControlWithReceiver,
+  ControlWithProgram,
   DataWitness,
   KeyId,
   Receiver,
@@ -35,7 +42,26 @@ import {
 
 import { getPromisedInputMap } from '../inputs/data'
 
-import { client, prefixRoute, createLockingTx } from '../core'
+import { client, prefixRoute, createLockingTx, createUnlockingTx } from '../core'
+
+export const SHOW_UNLOCK_INPUT_ERRORS = 'contracts/SHOW_UNLOCK_INPUT_ERRORS'
+
+export const showUnlockInputErrors = (result: boolean) => {
+  return {
+    type: SHOW_UNLOCK_INPUT_ERRORS,
+    result
+  }
+}
+
+export const UPDATE_UNLOCK_ERROR = 'contracts/UPDATE_UNLOCK_ERROR'
+
+export const updateUnlockError = (error?) => {
+  return {
+    type: UPDATE_UNLOCK_ERROR,
+    error
+  }
+}
+
 
 export const UPDATE_IS_CALLING = 'contracts/UPDATE_IS_CALLING'
 
@@ -92,13 +118,10 @@ export const create = () => {
       if(resp.status === 'fail'){
         throw resp.data
       }
-      const template = resp.data
-      const receiver: Receiver = {
-        controlProgram: template.program,
-      }
-      const controlWithReceiver: ControlWithReceiver = {
-        type: "controlWithReceiver",
-        receiver,
+      const controlProgram = resp.data.program
+      const controlWithProgram: ControlWithProgram = {
+        type: "controlWithProgram",
+        controlProgram,
         assetId,
         amount
       }
@@ -108,7 +131,7 @@ export const create = () => {
         type: 'spendFromAccount',
         assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       }
-      const actions: Action[] = [spendFromAccount, controlWithReceiver, gas]
+      const actions: Action[] = [spendFromAccount, controlWithProgram, gas]
       return createLockingTx(actions, password) // TODO: implement createLockingTx
     })
 
@@ -137,6 +160,57 @@ export const create = () => {
       dispatch(updateIsCalling(false))
       dispatch(updateLockMessage({_error: err}))
       dispatch(showLockInputMessages(true))
+    })
+  }
+}
+
+export const SPEND_CONTRACT = "contracts/SPEND_CONTRACT"
+
+export const spend = () => {
+  return (dispatch, getState) => {
+    dispatch(updateIsCalling(true))
+    const state = getState()
+    // if (!areSpendInputsValid(state)) {
+    //   dispatch(updateIsCalling(false))
+    //   dispatch(showUnlockInputErrors(true))
+    //   return dispatch(updateUnlockError('One or more clause arguments are invalid.'))
+    // }
+
+    const contract = getSpendContract(state)
+    const utxoId = contract.id
+    const lockedValueAction: SpendUnspentOutput = {
+      type: "spendUnspentOutput",
+      utxoId,
+      // arguments
+    }
+
+    const lockActions: Action[] = getLockActions(state)
+    const actions: Action[] = [lockedValueAction, ...lockActions]// const lockActions: Action[] = getLockActions(state)
+
+    const reqValueAction = getRequiredValueAction(state)
+    if (reqValueAction !== undefined) {
+      actions.push(reqValueAction)
+    }
+    const unlockAction = getUnlockAction(state)
+    if (unlockAction !== undefined) {
+      actions.push(unlockAction)
+    }
+
+    const witness: WitnessComponent[] = getClauseWitnessComponents(getState())
+    createUnlockingTx(actions, witness).then((result) => {
+      dispatch({
+        type: SPEND_CONTRACT,
+        unlockTxid: result.id
+      })
+      dispatch(fetch())
+      dispatch(updateIsCalling(false))
+      dispatch(showUnlockInputErrors(false))
+      dispatch(push(prefixRoute('/unlock')))
+    }).catch(err => {
+      console.log(err)
+      dispatch(updateIsCalling(false))
+      dispatch(updateUnlockError(err))
+      dispatch(showUnlockInputErrors(true))
     })
   }
 }

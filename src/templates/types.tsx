@@ -32,11 +32,11 @@ export type ValueInfo = {
 
 export type ClauseInfo = {
   name: string,
-  args: Param[],
-  mintimes: string[],
-  maxtimes: string[],
+  params: Param[],
+  // mintimes: string[],
+  // maxtimes: string[],
   hashCalls: HashCall[],
-  valueInfo: ValueInfo[]
+  values: ValueInfo[]
 }
 
 export type CompiledTemplate = {

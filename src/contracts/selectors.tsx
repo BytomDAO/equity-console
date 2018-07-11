@@ -446,7 +446,6 @@ export const getLockActions = createSelector(
         if (assetInput === undefined) {
           assetInput = inputMap["contractValue." + value.name + ".valueInput.assetInput"]
           amountInput = inputMap["contractValue." + value.name + ".valueInput.amountInput"]
-          passwordInput = inputMap["contractValue." + value.name + ".valueInput.passwordInput"]
         }
 
         const action: ControlWithProgram = {
