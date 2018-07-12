@@ -96,7 +96,7 @@ export const createLockingTx = (actions: types.Action[], password: string): Prom
 }
 
 // Satisfies created contract and transfers value.
-export const createUnlockingTx = (actions: types.Action[]): Promise<{id: string}> => {
+export const createUnlockingTx = (actions: types.Action[], password: string): Promise<{id: string}> => {
 
   return Promise.resolve().then(() => {
     return client.transactions.build(builder => {
@@ -122,7 +122,7 @@ export const createUnlockingTx = (actions: types.Action[]): Promise<{id: string}
     }
 
     const tpl = resp.data
-    const body = Object.assign({}, {'password': '12345', 'transaction': tpl})
+    const body = Object.assign({}, {'password': password, 'transaction': tpl})
     return client.transactions.sign(body).then(resp => {
       if (resp.status === 'fail') {
         throw new Error(resp.msg)

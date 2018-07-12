@@ -202,10 +202,11 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
         params.push({name: "Hash.programInput", type: "Sha3(PublicKey)"})
       })
 
-      addDefaultInput(inputs, "accountInput", "unlockValue") // Unlocked value destination. Not always used.
-      addDefaultInput(inputs, "xpubInput", "clauseParameters") // Unlocked value destination. Not always used.
-      addDefaultInput(inputs, "pathInput", "clauseParameters.path1") // Unlocked value destination. Not always used.
-      addDefaultInput(inputs, "pathInput", "clauseParameters.path2") // Unlocked value destination. Not always used.
+      addDefaultInput(inputs, "passwordInput", "unlockValue")
+      addDefaultInput(inputs, "accountInput", "unlockValue")
+      addDefaultInput(inputs, "xpubInput", "clauseParameters")
+      addDefaultInput(inputs, "pathInput", "clauseParameters.path1")
+      addDefaultInput(inputs, "pathInput", "clauseParameters.path2")
       const spendInputMap = {}
       for (const input of inputs) {
         spendInputMap[input.name] = input

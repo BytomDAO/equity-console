@@ -9,6 +9,7 @@ import { DisplaySpendContract } from './display'
 
 import SpendInputs from './argsDisplay'
 import UnlockDestination from './unlockDestination'
+import UnlockValue from './unlockValue'
 import ClauseSelect from './clauseselect'
 import {getContractTemplateName, getContractProgram, getUtxoId, getUtxoInfo, getContract} from '../selectors'
 import { ContractValue } from './argsDisplay'
@@ -21,14 +22,6 @@ const mapStateToProps = (state) => {
 
   const display = contract.contractProgram === contractProgram && utxoId
   return { error: null, display: display }
-}
-
-const mapDispatchToContractInputProps = (dispatch) => {
-  return {
-    fetch: () => {
-      dispatch(fetchUtxoInfo())
-    }
-  }
 }
 
 export const Unlock = ({ error, display }) => {
@@ -54,6 +47,7 @@ export const Unlock = ({ error, display }) => {
         {/*<ClauseValue />*/}
         {/*<ClauseParameters />*/}
         <UnlockDestination />
+        <UnlockValue />
       </div>
     )
   }
@@ -74,6 +68,5 @@ export const Unlock = ({ error, display }) => {
 }
 
 export default connect(
-  mapStateToProps,
-  mapDispatchToContractInputProps
+  mapStateToProps
 )(Unlock)

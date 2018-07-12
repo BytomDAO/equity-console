@@ -209,7 +209,9 @@ export const spend = () => {
 
       // const witness: WitnessComponent[] = getClauseWitnessComponents(getState())
       // return createUnlockingTx(actions, witness)
-      return createUnlockingTx(actions)
+
+      const password = spendInputMap["unlockValue.passwordInput"].value
+      return createUnlockingTx(actions, password)
 
     }).then((result) => {
       dispatch({

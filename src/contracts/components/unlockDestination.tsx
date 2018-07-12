@@ -10,9 +10,10 @@ import { getItemMap as getAssetMap } from '../../assets/selectors'
 // internal imports
 import { getSpendContract, getClauseUnlockInput } from '../selectors'
 
-const UnlockDestination = (props: { assetMap, contract, unlockInput: Input }) => {
-// const UnlockDestination = (props: {  assetMap, contract}) => {
-  if ( props.contract === undefined || props.assetMap === undefined) {
+// const UnlockDestination = (props: { assetMap, contract, unlockInput: Input }) => {
+const UnlockDestination = (props: { contract }) => {
+  // if ( props.contract === undefined || props.assetMap === undefined) {
+  if ( props.contract === undefined ) {
     return <div></div>
   } else {
     return (
@@ -38,8 +39,8 @@ const UnlockDestination = (props: { assetMap, contract, unlockInput: Input }) =>
 
 export default connect(
   (state) => ({
-    assetMap: getAssetMap(state),
-    unlockInput: getClauseUnlockInput(state),
+    // assetMap: getAssetMap(state),
+    // unlockInput: getClauseUnlockInput(state),
     contract: getSpendContract(state)
   })
 )(UnlockDestination)
