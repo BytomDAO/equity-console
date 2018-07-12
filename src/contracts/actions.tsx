@@ -22,11 +22,15 @@ import {
 import {
   getUtxoId,
   getSpendContract,
-  getLockActions,
+  getSpendUnspentOutputAction,
   getRequiredValueAction,
   getUnlockAction,
-  getClauseWitnessComponents,
+  getClauseWitnessComponents, getSpendInputMap,
 } from './selectors'
+
+import{
+  Contract
+} from './types'
 
 import {
   Action,
@@ -43,6 +47,7 @@ import {
 import { getPromisedInputMap } from '../inputs/data'
 
 import { client, prefixRoute, createLockingTx, createUnlockingTx } from '../core'
+import {ProgramInput} from "../inputs/types"
 
 export const SHOW_UNLOCK_INPUT_ERRORS = 'contracts/SHOW_UNLOCK_INPUT_ERRORS'
 
@@ -177,27 +182,36 @@ export const spend = () => {
     // }
 
     const contract = getSpendContract(state)
-    const utxoId = contract.id
-    const lockedValueAction: SpendUnspentOutput = {
-      type: "spendUnspentOutput",
-      utxoId,
-      // arguments
-    }
+    const assetId = contract.assetId
+    const amount = contract.amount
 
-    const lockActions: Action[] = getLockActions(state)
-    const actions: Action[] = [lockedValueAction, ...lockActions]// const lockActions: Action[] = getLockActions(state)
+    const lockedValueAction = getSpendUnspentOutputAction(state)
+    const spendInputMap = getSpendInputMap(state)
+    const accountId = spendInputMap["unlockValue.accountInput"].value
 
-    const reqValueAction = getRequiredValueAction(state)
-    if (reqValueAction !== undefined) {
-      actions.push(reqValueAction)
-    }
-    const unlockAction = getUnlockAction(state)
-    if (unlockAction !== undefined) {
-      actions.push(unlockAction)
-    }
+    client.createReceiver(accountId).then((receiver) => {
+      const controlProgram = receiver.control_program
+      const lockActions: ControlWithProgram = {
+        type: "controlWithProgram",
+        assetId: assetId,
+        amount: amount,
+        controlProgram: controlProgram
+      }
 
-    const witness: WitnessComponent[] = getClauseWitnessComponents(getState())
-    createUnlockingTx(actions, witness).then((result) => {
+      const gas = {
+        accountId: accountId,
+        amount: 20000000,
+        type: 'spendFromAccount',
+        assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+      }
+
+      const actions: Action[] = [lockedValueAction, lockActions, gas]// const lockActions: Action[] = getLockActions(state)
+
+      // const witness: WitnessComponent[] = getClauseWitnessComponents(getState())
+      // return createUnlockingTx(actions, witness)
+      return createUnlockingTx(actions)
+
+    }).then((result) => {
       dispatch({
         type: SPEND_CONTRACT,
         unlockTxid: result.id
@@ -212,6 +226,17 @@ export const spend = () => {
       dispatch(updateUnlockError(err))
       dispatch(showUnlockInputErrors(true))
     })
+
+
+    // const reqValueAction = getRequiredValueAction(state)
+    // if (reqValueAction !== undefined) {
+    //   actions.push(reqValueAction)
+    // }
+    // const unlockAction = getUnlockAction(state)
+    // if (unlockAction !== undefined) {
+    //   actions.push(unlockAction)
+    // }
+
   }
 }
 

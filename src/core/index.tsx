@@ -96,8 +96,7 @@ export const createLockingTx = (actions: types.Action[], password: string): Prom
 }
 
 // Satisfies created contract and transfers value.
-export const createUnlockingTx = (actions: types.Action[],
-                                  witness: types.WitnessComponent[]): Promise<{id: string}> => {
+export const createUnlockingTx = (actions: types.Action[]): Promise<{id: string}> => {
 
   return Promise.resolve().then(() => {
     return client.transactions.build(builder => {
@@ -117,36 +116,29 @@ export const createUnlockingTx = (actions: types.Action[],
         }
       })
     })
-  }).then((tpl) => {
-    tpl.includesContract = true
-    // TODO(boymanjor): Can we depend on contract being on first utxo?
-    tpl.signingInstructions[0].witnessComponents = witness
-    tpl.signingInstructions.forEach((instruction, idx) => {
-      instruction.witnessComponents.forEach((component) => {
-        if (component.keys === undefined) {
-          return
+  }).then(resp => {
+    if (resp.status === 'fail') {
+      throw new Error(resp.msg)
+    }
+
+    const tpl = resp.data
+    const body = Object.assign({}, {'password': '12345', 'transaction': tpl})
+    return client.transactions.sign(body).then(resp => {
+      if (resp.status === 'fail') {
+        throw new Error(resp.msg)
+      }
+
+      const raw_transaction = resp.data.transaction.raw_transaction
+      const signTx = Object.assign({}, {'raw_transaction': raw_transaction})
+      return client.transactions.submit(signTx).then(resp => {
+        if (resp.status === 'fail') {
+          throw new Error(resp.msg)
         }
-        component.keys.forEach((key) => {
-          signer.addKey(key.xpub, client.mockHsm.signerConnection)
-        })
+
+        return {
+          id: resp.data.tx_id
+        }
       })
     })
-    return signer.sign(tpl)
-  }).then((tpl) => {
-    witness = tpl.signingInstructions[0].witnessComponents
-    if (witness !== undefined) {
-      tpl.signingInstructions[0].witnessComponents = witness.map(component => {
-        switch(component.type) {
-          case "raw_tx_signature":
-            return {
-              type: "data",
-              value: component.signatures[0]
-            } as types.DataWitness
-          default:
-            return component
-        }
-      })
-    }
-    return client.transactions.submit(tpl)
   })
 }

@@ -3,6 +3,7 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 
 // internal imports
+import { spend } from '../actions'
 import { areSpendInputsValid, getIsCalling } from '../selectors'
 
 const mapStateToProps = (state) => ({
@@ -11,7 +12,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   handleSpendClick() {
-    window.console.log('spend')
+    dispatch(spend())
   }
 })
 

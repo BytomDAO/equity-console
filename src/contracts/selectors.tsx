@@ -36,8 +36,8 @@ import {
   Receiver,
   RawTxSignatureWitness,
   SpendFromAccount,
-  WitnessComponent
-} from '../core/types';
+  WitnessComponent, SpendUnspentOutput
+} from '../core/types'
 
 export const getState = (state: AppState): ContractsState => state.contracts
 
@@ -390,74 +390,53 @@ export const getRequiredAssetAmount = createSelector(
   }
 )
 
-export const getRequiredValueAction = createSelector(
-  getClauseValueId,
+export const getSpendUnspentOutputAction = createSelector(
+  getSpendContract,
   getSpendInputMap,
-  getRequiredAssetAmount,
-  (clauseValuePrefix, spendInputMap, assetAmount) => {
-    const accountInput = spendInputMap[clauseValuePrefix + ".valueInput.accountInput"]
-    if (clauseValuePrefix === undefined || accountInput === undefined) {
+  ( contract, spendInputMap ) => {
+    const outputId = contract.id
+    const clauseParameters = Object.keys(spendInputMap).filter(k => k.startsWith("clauseParameters"))
+    if (clauseParameters === undefined ) {
       return undefined
     }
 
-    if (assetAmount === undefined) {
-      return undefined
-    }
+    const args = [{
+        "type": "raw_tx_signature",
+        "raw_data": {
+        "xpub": spendInputMap[clauseParameters[0]].value,
+          "derivation_path": [
+            spendInputMap[clauseParameters[1]].value,
+            spendInputMap[clauseParameters[2]].value
+          ]
+      }
+    }]
 
-    const accountId = accountInput.value
-    const assetId = assetAmount.assetId
-    const amount = parseInt(assetAmount.amount, 10)
-    const spendFromAccount: SpendFromAccount = {
-      type: "spendFromAccount",
-      accountId,
-      amount,
-      assetId
+    const spendUnspentOutput: SpendUnspentOutput = {
+      type: "spendUnspentOutput",
+      outputId,
+      arguments: args
     }
-    return spendFromAccount
+    return spendUnspentOutput
   }
 )
 
-export const getLockActions = createSelector(
-  getInputMap,
-  getClauseValueInfo,
-  (inputMap, valueInfo) => {
-    return valueInfo
-      .filter(value => value.program !== undefined)
-      .map(value => {
-        const progName = value.program
-        const progInput = inputMap["contractParameters." + progName + ".programInput"] as ProgramInput
-        if (progInput === undefined) throw "programInput unexpectedly undefined"
-        if (progInput.computedData === undefined) throw "programInput.computedData unexpectedly undefined"
-
-        const controlProgram = progInput.computedData
-
-
-        // Handles locking a contract paramater's asset amount
-        let assetInput = inputMap["contractParameters." + value.asset + ".assetInput"]
-        let amountInput = inputMap["contractParameters." + value.amount + ".amountInput"]
-
-        // Handles locking a required value
-        if (assetInput === undefined) {
-          assetInput = inputMap["clauseValue." + value.name + ".valueInput.assetInput"]
-          amountInput = inputMap["clauseValue." + value.name + ".valueInput.amountInput"]
-        }
-
-        // Handles re-locking the locked value
-        if (assetInput === undefined) {
-          assetInput = inputMap["contractValue." + value.name + ".valueInput.assetInput"]
-          amountInput = inputMap["contractValue." + value.name + ".valueInput.amountInput"]
-        }
-
-        const action: ControlWithProgram = {
-          type: "controlWithProgram",
-          assetId: assetInput.value,
-          amount: parseInt(amountInput.value, 10),
-          controlProgram: controlProgram
-        }
-        return action
-      })
-  }
-)
+// export const getLockActions = createSelector(
+//   getSpendContract,
+//   // getClauseValueInfo,
+//   (contract) => {
+//     const asset = contract.assetId
+//     const amount = contract.amount
+//
+//
+//     const action: ControlWithProgram = {
+//       type: "controlWithProgram",
+//       assetId: asset,
+//       amount: amount,
+//       controlProgram: controlProgram
+//     }
+//     return action
+//   }
+// )
 
 export const getUnlockError = createSelector(
   getState,

@@ -39,7 +39,7 @@ export type SpendFromAccount = {
 export type SpendUnspentOutput = {
   type: "spendUnspentOutput",
   outputId: string,
-  arguments: Object[],
+  arguments?,
 }
 
 export type ControlWithAddress = {
