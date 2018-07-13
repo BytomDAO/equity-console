@@ -177,7 +177,7 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
 
       for (const param of instructions){
         const arr = param.split(/(\s+)/)
-        if(param.startsWith("DATA")){
+        if(!param.startsWith("DEPTH")){
           contractArg.push(arr[2])
         }else{
           break
@@ -188,8 +188,6 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       // const inputs = []
       const inputMap = {}
       const params = []
-
-
 
 
       ///compile.params=[] ==> inputMap
