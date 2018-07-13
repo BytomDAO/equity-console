@@ -22,9 +22,8 @@ export const INITIAL_STATE: ContractsState = {
   showUnlockInputErrors: false,
   error: undefined,
   utxoId: '',
-  utxoInfo: undefined,
-  contractName: 'LockWithPublicKey',
-  contractProgram: 'ae7cac'
+  selectedContractName: 'LockWithPublicKey',
+  selectedContractProgram: 'ae7cac'
 }
 
 export default function reducer(state: ContractsState = INITIAL_STATE, action): ContractsState {
@@ -137,8 +136,8 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       const contractProgram = INITIAL_SOURCE_PRGRAM[contractName]
       return {
         ...state,
-        contractName: contractName,
-        contractProgram: contractProgram,
+        selectedContractName: contractName,
+        selectedContractProgram: contractProgram,
       }
     }
     case UPDATE_CLAUSE_INPUT: {
@@ -190,6 +189,10 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       const inputMap = {}
       const params = []
 
+
+
+
+      ///compile.params=[] ==> inputMap
       contractArg.map(value => {
         const pubkeyParam = {
           type: "programInput",
@@ -204,29 +207,30 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
 
       addDefaultInput(inputs, "passwordInput", "unlockValue")
       addDefaultInput(inputs, "accountInput", "unlockValue")
-      addDefaultInput(inputs, "xpubInput", "clauseParameters")
-      addDefaultInput(inputs, "pathInput", "clauseParameters.path1")
-      addDefaultInput(inputs, "pathInput", "clauseParameters.path2")
+
+      addDefaultInput(inputs, "argInput", "clauseParameters")
+      // addDefaultInput(inputs, "xpubInput", "clauseParameters")
+      // addDefaultInput(inputs, "pathInput", "clauseParameters.path1")
+      // addDefaultInput(inputs, "pathInput", "clauseParameters.path2")
       const spendInputMap = {}
       for (const input of inputs) {
         spendInputMap[input.name] = input
       }
 
       const contract: Contract = {
-        id: id,
-        assetId: assetId,
-        assetAlias: assetAlias,
-        amount: amount,
-        controlProgram: controlProgram,
-        contractProgram: contractProgram,
-        inputMap: inputMap,
-        params: params,
-        spendInputMap: spendInputMap
+        id,
+        assetId,
+        assetAlias,
+        amount,
+        controlProgram,
+        contractProgram,
+        inputMap,
+        params,
+        spendInputMap
       }
       return {
         ...state,
         contract,
-        utxoInfo: utxoInfo,
       }
     }
     case "@@router/LOCATION_CHANGE":

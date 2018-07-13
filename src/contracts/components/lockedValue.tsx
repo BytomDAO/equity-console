@@ -11,7 +11,7 @@ import { setUtxoID, setContractName, fetchUtxoInfo } from '../actions'
 const mapStateToProps = (state) => {
   return {
     idList: state.templates.idList,
-    contractName: state.contracts.contractName,
+    contractName: state.contracts.selectedContractName,
     utxoId: state.contracts.utxoId
   }
 }

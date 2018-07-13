@@ -13,9 +13,10 @@ const ClauseSelect = (props: { unlockInput: Input}) => {
   return (
     <section>
       <h4>Clause</h4>
-      {getWidget("clauseParameters.xpubInput")}
-      {getWidget("clauseParameters.path1.pathInput")}
-      {getWidget("clauseParameters.path2.pathInput")}
+      {getWidget("clauseParameters.argInput")}
+      {/*{getWidget("clauseParameters.xpubInput")}*/}
+      {/*{getWidget("clauseParameters.path1.pathInput")}*/}
+      {/*{getWidget("clauseParameters.path2.pathInput")}*/}
     </section>
   )
 }

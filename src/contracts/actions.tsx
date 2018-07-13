@@ -17,6 +17,7 @@ import {
   getContractValue,
   getInputMap,
   getContractArgs,
+  getContractParameters, getTemplate,
 } from '../templates/selectors'
 
 import {
@@ -25,7 +26,9 @@ import {
   getSpendUnspentOutputAction,
   getRequiredValueAction,
   getUnlockAction,
-  getClauseWitnessComponents, getSpendInputMap,
+  getClauseWitnessComponents,
+  getSpendInputMap,
+  getContractTemplateName
 } from './selectors'
 
 import{
@@ -48,6 +51,8 @@ import { getPromisedInputMap } from '../inputs/data'
 
 import { client, prefixRoute, createLockingTx, createUnlockingTx } from '../core'
 import {ProgramInput} from "../inputs/types"
+import templates from "../templates"
+import {INITIAL_ID_LIST} from "../templates/constants"
 
 export const SHOW_UNLOCK_INPUT_ERRORS = 'contracts/SHOW_UNLOCK_INPUT_ERRORS'
 
@@ -193,22 +198,19 @@ export const spend = () => {
       const controlProgram = receiver.control_program
       const lockActions: ControlWithProgram = {
         type: "controlWithProgram",
-        assetId: assetId,
-        amount: amount,
-        controlProgram: controlProgram
+        assetId,
+        amount,
+        controlProgram
       }
 
       const gas = {
-        accountId: accountId,
+        accountId,
         amount: 20000000,
         type: 'spendFromAccount',
         assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       }
 
-      const actions: Action[] = [lockedValueAction, lockActions, gas]// const lockActions: Action[] = getLockActions(state)
-
-      // const witness: WitnessComponent[] = getClauseWitnessComponents(getState())
-      // return createUnlockingTx(actions, witness)
+      const actions: Action[] = [lockedValueAction, lockActions, gas]
 
       const password = spendInputMap["unlockValue.passwordInput"].value
       return createUnlockingTx(actions, password)
@@ -228,17 +230,6 @@ export const spend = () => {
       dispatch(updateUnlockError(err))
       dispatch(showUnlockInputErrors(true))
     })
-
-
-    // const reqValueAction = getRequiredValueAction(state)
-    // if (reqValueAction !== undefined) {
-    //   actions.push(reqValueAction)
-    // }
-    // const unlockAction = getUnlockAction(state)
-    // if (unlockAction !== undefined) {
-    //   actions.push(unlockAction)
-    // }
-
   }
 }
 
@@ -271,6 +262,7 @@ export const fetchUtxoInfo = () => {
   return (dispatch, getState) => {
     const state = getState()
     const utxoId = getUtxoId(state)
+    const selectContract = getContractTemplateName(state)
 
     client.listUpspentUtxos({
       id: utxoId,
@@ -278,10 +270,46 @@ export const fetchUtxoInfo = () => {
     }).then(data => {
       client.decodeProgram(data[0].program)
         .then(resp =>{
+          dispatch(templates.actions.loadTemplate(selectContract))
+          // const template = getTemplateState(state)
+          const inputMap = getInputMap(state)
+
+          // const promisedInputMap = getPromisedInputMap(inputMap)
+          // const promisedTemplate = promisedInputMap.then((inputMap) => {
+          //   debugger
+          //   const args = getContractArgs(state, inputMap).map(param => {
+          //     if (param instanceof Buffer) {
+          //       return { "string": param.toString('hex') }
+          //     }
+          //
+          //     if (typeof param === 'string') {
+          //       return { "string": param }
+          //     }
+          //
+          //     if (typeof param === 'number') {
+          //       return { "integer": param }
+          //     }
+          //
+          //     if (typeof param === 'boolean') {
+          //       return { 'boolean': param }
+          //     }
+          //     throw 'unsupported argument type ' + (typeof param)
+          //   })
+          //   console.log(args)
+          //   // debugger
+          //   // return client.ivy.compile({ contract: source, args: args })
+          // })
+          //
+          // debugger
+
+
+
           dispatch({
             type: SET_UTXO_INFO,
             info: data[0],
-            instructions: resp.instructions
+            instructions: resp.instructions,
+            inputMap
+            // template: template
           })
         })
       dispatch(push(prefixRoute('/unlock/'+ utxoId)))

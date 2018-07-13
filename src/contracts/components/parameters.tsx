@@ -173,6 +173,24 @@ function XpubWidget(props: { input: StringInput,
     )
 }
 
+function ArgWidget(props: { input: StringInput,
+    errorClass: string,
+  handleChange: (e)=>undefined }) {
+    return (
+      <div className={"form-group" + props.errorClass}>
+        <label><span className='type-label'>Please filled in an arrary of JSON object</span></label>
+        <div className="input-group">
+          <div className="input-group-addon">Arguments</div>
+          <input type="text" className="form-control with-addon"
+                 key={props.input.name}
+                 value={props.input.value}
+                 onChange={props.handleChange}
+          />
+        </div>
+      </div>
+    )
+}
+
 function PathWidget(props: { input: PathInput,
     errorClass: string,
   handleChange: (e)=>undefined
@@ -403,6 +421,7 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     // case "assetInput": return AssetAliasWidget
     // case "amountInput": return AmountWidget
     // case "amountInput": return AmountWidget
+    case "argInput": return ArgWidget
     case "xpubInput": return XpubWidget
     case "pathInput": return PathWidget
     case "programInput": return ProgramWidget
@@ -516,4 +535,20 @@ function ContractParametersUnconnected(props: { parameterIds: string[] }) {
       </form>
     </section>
   )
+}
+
+export const ClauseParameters = connect(
+  (state) => ({ parameterIds: getClauseParameterIds(state) })
+)(ClauseParametersUnconnected)
+
+function ClauseParametersUnconnected(props: { parameterIds: string[] }) {
+  if (props.parameterIds.length === 0) return <div />
+  let parameterInputs = props.parameterIds.map((id) => {
+    return <div key={id} className="argument">{getWidget(id)}</div>
+  })
+  return <section style={{wordBreak: 'break-all'}}>
+    <h4>Clause Arguments</h4>
+    <form className="form">
+      {parameterInputs}
+    </form></section>
 }

@@ -11,7 +11,8 @@ import SpendInputs from './argsDisplay'
 import UnlockDestination from './unlockDestination'
 import UnlockValue from './unlockValue'
 import ClauseSelect from './clauseselect'
-import {getContractTemplateName, getContractProgram, getUtxoId, getUtxoInfo, getContract} from '../selectors'
+import { ClauseValue, ClauseParameters } from './parameters'
+import {getContractTemplateName, getContractProgram, getUtxoId, getContract} from '../selectors'
 import { ContractValue } from './argsDisplay'
 import {fetchUtxoInfo, setContractName, setUtxoID} from "../actions"
 
@@ -19,9 +20,8 @@ const mapStateToProps = (state) => {
   const contractProgram = getContractProgram(state)
   const utxoId = getUtxoId(state)
   const contract = getContract(state)
-
   const display = contract.contractProgram === contractProgram && utxoId
-  return { error: null, display: display }
+  return { error: null, display }
 }
 
 export const Unlock = ({ error, display }) => {
