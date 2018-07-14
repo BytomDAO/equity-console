@@ -47,7 +47,7 @@ export type Input = ParameterInput | StringInput | HashInput | PublicKeyInput | 
                     GenerateStringInput | ProvideStringInput | GenerateHashInput | ProvideHashInput | GeneratePublicKeyInput |
                     ProvidePublicKeyInput | GeneratePrivateKeyInput | ProvidePrivateKeyInput | TimestampTimeInput | SignatureInput |
                     GenerateSignatureInput | ProvideSignatureInput | ProgramInput | ValueInput | AccountAliasInput | AssetAliasInput |
-                    AmountInput | ProgramInput | AssetInput | ChoosePublicKeyInput |PathInput
+                    AmountInput | ProgramInput | AssetInput | ChoosePublicKeyInput |PathInput | XpubInput
 
 export type ComplexInput = StringInput | HashInput | GenerateHashInput | PublicKeyInput | TimeInput | ParameterInput | GeneratePublicKeyInput |
                            SignatureInput | GenerateSignatureInput | ProgramInput
@@ -57,7 +57,7 @@ export type InputType = "parameterInput" | "stringInput" | "generateStringInput"
                         "generatePrivateKeyInput" | "providePrivateKeyInput" | "numberInput" | "booleanInput" | "timeInput" |
                         "timestampTimeInput" | "signatureInput" | "generateSignatureInput" | "provideSignatureInput" | "programInput" |
                         "valueInput" | "accountInput" | "assetInput" | "programInput" | "assetInput" | "amountInput" | "choosePublicKeyInput" |
-                        "passwordInput" | "xpubInput" | "pathInput"
+                        "passwordInput" | "xpubInput" | "path1Input" | "path2Input"
 
 export type PrimaryInputType = "stringInput" | "hashInput" | "publicKeyInput" | "numberInput" | "booleanInput" | "timeInput" | "signatureInput" |
                                "valueInput" | "programInput" | "assetInput" | "amountInput"
@@ -187,7 +187,7 @@ export type TimestampTimeInput = {
 
 export type SignatureInput = {
   type: "signatureInput",
-  value: "choosePublicKeyInput",//"generateSignatureInput" | "provideSignatureInput"
+  value: string,//"generateSignatureInput" | "provideSignatureInput"
   name: string
 }
 
@@ -247,7 +247,7 @@ export type XpubInput = {
 }
 
 export type PathInput = {
-  type: "pathInput",
+  type: string,
   value: string,
   name: string
 }

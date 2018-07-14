@@ -268,7 +268,8 @@ export const validateInput = (input: Input): boolean => {
       return true
     case "accountInput":
     case "xpubInput":
-    case "pathInput":
+    case "path1Input":
+    case "path2Input":
     case "assetInput":
     case "passwordInput":
       return (input.value !== "")
@@ -424,7 +425,8 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
       return "accountInput"
     case "accountInput":
     case "xpubInput":
-    case "pathInput":
+    case "path1Input":
+    case "path2Input"
     case "assetInput":
     case "valueInput":
     case "assetInput":
@@ -533,7 +535,9 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       return
     }
     case "signatureInput": {
-      addDefaultInput(inputs, "choosePublicKeyInput", name)
+      addDefaultInput(inputs, "xpubInput", name)
+      addDefaultInput(inputs, "path1Input", name)
+      addDefaultInput(inputs, "path2Input", name)
       return
     }
     case "generateSignatureInput": {

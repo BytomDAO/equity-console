@@ -47,5 +47,5 @@ export type CompiledTemplate = {
   error: string,
   params: Param[],
   value: string,
-  clauseInfo: ClauseInfo[]
+  clause_info: ClauseInfo[]
 }

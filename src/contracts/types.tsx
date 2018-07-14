@@ -14,8 +14,9 @@ export type Contract = {
   // lock tx id
   id: string,
   assetId: string,
-  assetAlias: string,
+  // assetAlias: string,
   amount: number,
+  template: CompiledTemplate,
   controlProgram: string,
   contractProgram: string,
 
@@ -39,9 +40,10 @@ export type Contract = {
 export type ContractMap = { [s: string]: Contract }
 
 export type ContractsState = {
-  // contractMap: ContractMap,
+  contractMap: ContractMap,
   contract: Contract,
   firstTime: boolean,
+  idList: string[],
   spendContractId: string,
   selectedClauseIndex: number,
   isCalling: boolean,

@@ -54,7 +54,7 @@ export const fetchCompiled = (source: string) => {
       const type = FETCH_COMPILED
       const format = (tpl: CompiledTemplate) => {
         if (tpl.error !== '') {
-          tpl.clauseInfo = tpl.params = []
+          tpl.clause_info = tpl.params = []
         }
         return tpl
       }

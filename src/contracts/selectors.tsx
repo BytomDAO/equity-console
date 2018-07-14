@@ -66,7 +66,7 @@ export const getIsCalling = createSelector(
 
 export const getSpendContractId = createSelector(
   getState,
-  (state: ContractsState): string => state.spendContractId
+  (state: ContractsState): string => state.utxoId
 )
 
 export const getSelectedClauseIndex = createSelector(
@@ -81,13 +81,19 @@ export const getSelectedClauseIndex = createSelector(
   }
 )
 
+export const getContractMap = createSelector(
+  getState,
+  (state: ContractsState) => state.contractMap
+)
+
 export const getSpendContract = createSelector(
-  getContract,
-  // getSpendContractId,
-  (contract: Contract) => {
-    // if (UtxoInfo === undefined)
-    //   throw "no contract for ID " + contractId
-    return contract
+  getContractMap,
+  getSpendContractId,
+  (contractMap: ContractMap, contractId: string) => {
+    const spendContract = contractMap[contractId]
+    if (spendContract === undefined)
+      throw "no contract for ID " + contractId
+    return spendContract
   }
 )
 
@@ -136,14 +142,14 @@ export const getInputMap = createSelector(
 
 export const getParameterIds = createSelector(
   getSpendContract,
-  spendContract => spendContract.params.map(param => "contractParameters." + param.name)
+  spendContract => spendContract.template.params.map(param => "contractParameters." + param.name)
 )
 
 export const getSelectedClause = createSelector(
   getSpendContract,
   getSelectedClauseIndex,
   (spendContract, clauseIndex) => {
-    return spendContract.template.clauseInfo[clauseIndex]
+    return spendContract.template.clause_info[clauseIndex]
   }
 )
 
@@ -154,13 +160,16 @@ export const getClauseName = createSelector(
 
 export const getClauseParameters = createSelector(
   getSelectedClause,
-  (clause) => clause.args
+  (clause) => clause.params
 )
 
 export const getClauseParameterIds = createSelector(
   getClauseName,
   getClauseParameters,
   (clauseName, clauseParameters) => {
+    if (!clauseParameters) {
+      return []
+    }
     return clauseParameters.map(param => "clauseParameters." + clauseName + "." + param.name)
   }
 )
@@ -178,7 +187,7 @@ export function dataToArgString(data: number | Buffer): string {
 export const getClauseValueInfo = createSelector(
   getSelectedClause,
   (clause) => {
-    return clause.valueInfo
+    return clause.values
   }
 )
 
@@ -337,8 +346,7 @@ export const areSpendInputsValid = createSelector(
 
 export const getSpendContractValueId = createSelector(
   getSpendContract,
-  (contract) => contract
-  // (contract) => contract.template && ("contractValue." + contract.template.value)
+  (contract) => contract.template && ("contractValue." + contract.template.value)
 )
 
 export const getClauseValueId = createSelector(

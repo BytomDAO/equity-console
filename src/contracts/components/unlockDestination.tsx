@@ -11,7 +11,7 @@ import { getItemMap as getAssetMap } from '../../assets/selectors'
 import { getSpendContract, getClauseUnlockInput } from '../selectors'
 
 // const UnlockDestination = (props: { assetMap, contract, unlockInput: Input }) => {
-const UnlockDestination = (props: { contract }) => {
+const UnlockDestination = (props: { assetMap, contract }) => {
   // if ( props.contract === undefined || props.assetMap === undefined) {
   if ( props.contract === undefined ) {
     return <div></div>
@@ -20,10 +20,11 @@ const UnlockDestination = (props: { contract }) => {
       <section>
         <h4>Unlocked Value Destination</h4>
         {getWidget("unlockValue.accountInput")}
+        {getWidget("unlockValue.passwordInput")}
         <div className="form-group">
           <div className="input-group">
             <div className="input-group-addon">Asset</div>
-            <input type="text" className="form-control" value={props.contract.assetAlias||props.contract.assetId} disabled />
+            <input type="text" className="form-control" value={props.assetMap[props.contract.assetId].alias} disabled />
           </div>
         </div>
         <div className="form-group">
@@ -38,9 +39,5 @@ const UnlockDestination = (props: { contract }) => {
 }
 
 export default connect(
-  (state) => ({
-    // assetMap: getAssetMap(state),
-    // unlockInput: getClauseUnlockInput(state),
-    contract: getSpendContract(state)
-  })
+  (state) => ({ assetMap: getAssetMap(state), unlockInput: getClauseUnlockInput(state), contract: getSpendContract(state) })
 )(UnlockDestination)

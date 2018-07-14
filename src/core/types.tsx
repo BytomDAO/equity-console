@@ -34,6 +34,7 @@ export type SpendFromAccount = {
   accountId: string,
   assetId: string,
   amount: number
+  password: string
 }
 
 export type SpendUnspentOutput = {

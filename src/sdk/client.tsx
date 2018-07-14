@@ -12,6 +12,7 @@ class Client {
   }
 
   public compile(contract, args: any = null) {
+    console.log({contract});
     return this.connection.request('/compile', {contract, args})
   }
 
