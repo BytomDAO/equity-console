@@ -277,7 +277,8 @@ export const validateInput = (input: Input): boolean => {
       // TODO(dan)
       return true
     case "choosePublicKeyInput":
-      return (input.keyMap !== undefined) && (input.keyMap[input.value] !== undefined)
+      return input.keyMap != undefined
+      // return (input.keyMap !== undefined) && (input.keyMap[input.value] !== undefined)
     default:
       throw 'input type not valid ' + input.type
   }
@@ -462,13 +463,12 @@ export function getPromiseCompiled(contractArg, source) {
     if (typeof param === 'number' || /^\d+$/.test(param)) {
       return { "integer": parseInt(param) }
     }
+    if (typeof param === 'boolean' || param === "true" || param === "false") {
+      return { 'boolean':  Boolean(param) }
+    }
 
     if (typeof param === 'string') {
       return { "string": param }
-    }
-
-    if (typeof param === 'boolean') {
-      return { 'boolean': param }
     }
     throw 'unsupported argument type ' + (typeof param)
   })
@@ -608,8 +608,8 @@ export function getPublicKeys(inputsById: {[s: string]: Input}) {
     let input = inputsById[id]
     if (input.type === "publicKeyInput") {
       if (input.computedData === undefined) throw 'input.computedData unexpectedly undefined'
-      if (input.keyData === undefined) throw 'input.keyData unexpectedly undefined'
-      mapping[input.computedData] = input.keyData
+      //if (input.keyData === undefined) throw 'input.keyData unexpectedly undefined'
+      mapping[input.computedData] = {}
     }
   }
   return mapping

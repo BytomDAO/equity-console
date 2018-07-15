@@ -343,16 +343,20 @@ export const fetchUtxoInfo = () => {
           for (let i = 0; i < compiled.params.length; i++) {
             const params = compiled.params;
             let newValue = contractArg[i];
-            if (params[i].type === "PublicKey" || params[i].type === "Program") {
-              // TODO shenao mock accountId
-              newValue = "0G1R52O1G0A02";
+            if (params[i].type === "PublicKey") {
+              const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
+              inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
+            } else if (params[i].type === "Program") {
+              const inputId = "contractParameters." + params[i].name + "." + "programInput"
+              inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
+            } else {
+              updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
             }
-            updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
           }
           updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.asset_id, "asset");
           updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
 
-          return getPromisedInputMap(inputMap)
+          return inputMap
         })
 
         Promise.all([promisedInputMap, promisedCompiled]).then(([inputMap, compiled]) => {
