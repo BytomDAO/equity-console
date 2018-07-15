@@ -321,7 +321,7 @@ export const getClauseMaxtimes = createSelector(
   getSelectedClauseIndex,
   (spendContract, clauseIndex) => {
     const clauseName = spendContract.clauseList[clauseIndex]
-    const maxtimes = spendContract.template.clauseInfo[clauseIndex].maxtimes
+    const maxtimes = spendContract.template.clause_info[clauseIndex].maxtimes
     if (maxtimes === undefined)
       return []
 

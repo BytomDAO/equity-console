@@ -29,7 +29,7 @@ import {
   getClauseWitnessComponents, getSpendInputMap, getContractTemplateName, generateInputMap, getSpendContractId,
 } from './selectors'
 
-import{
+import {
   Contract
 } from './types'
 
@@ -45,10 +45,10 @@ import {
   WitnessComponent
 } from '../core/types'
 
-import { getPromisedInputMap } from '../inputs/data'
+import { getPromisedInputMap, getPromiseCompiled } from '../inputs/data'
 
 import { client, prefixRoute, createLockingTx, createUnlockingTx } from '../core'
-import {ProgramInput} from "../inputs/types"
+import { ProgramInput } from "../inputs/types"
 import { CompiledTemplate } from '../templates/types';
 
 export const SHOW_UNLOCK_INPUT_ERRORS = 'contracts/SHOW_UNLOCK_INPUT_ERRORS'
@@ -95,7 +95,7 @@ export const create = () => {
     if (!areInputsValid(state)) {
       dispatch(updateIsCalling(false))
       dispatch(showLockInputMessages(true))
-      return dispatch(updateLockMessage({_error: 'One or more arguments to the contract are invalid.'}))
+      return dispatch(updateLockMessage({ _error: 'One or more arguments to the contract are invalid.' }))
     }
 
     const inputMap = getInputMap(state)
@@ -131,7 +131,7 @@ export const create = () => {
       return client.compile(source, args)
     })
     const promisedUtxo = promisedTemplate.then(resp => {
-      if(resp.status === 'fail'){
+      if (resp.status === 'fail') {
         throw resp.data
       }
       const controlProgram = resp.data.program
@@ -164,9 +164,10 @@ export const create = () => {
       dispatch(setSource(source))
       dispatch(updateIsCalling(false))
       dispatch(updateLockMessage(
-        {_success: [
+        {
+          _success: [
             "transactions has been submited successfully.",
-            <a key='transactionID' href={"/dashboard/transactions/"+ utxo.transactionId} target="_blank"> {utxo.transactionId}</a>
+            <a key='transactionID' href={"/dashboard/transactions/" + utxo.transactionId} target="_blank"> {utxo.transactionId}</a>
           ]
         }))
       dispatch(showLockInputMessages(true))
@@ -174,7 +175,7 @@ export const create = () => {
     }).catch(err => {
       console.log(err)
       dispatch(updateIsCalling(false))
-      dispatch(updateLockMessage({_error: err}))
+      dispatch(updateLockMessage({ _error: err }))
       dispatch(showLockInputMessages(true))
     })
   }
@@ -278,19 +279,20 @@ export const setContractName = (templateName: string) => {
 
 const parseInstructions = (instructions: string) => {
   const contractArg = [];
-  for (const param of instructions.split(/\n/)){
+  for (const param of instructions.split(/\n/)) {
     const arr = param.split(/(\s+)/)
-    if(param.startsWith("DATA")){
+    if (param.startsWith("DATA")) {
       contractArg.push(arr[2])
-    }else{
+    } else {
       break
     }
   }
-  const contractProgram = instructions[contractArg.length+1].split(/(\s+)/)[2]
-  return {contractArg, contractProgram}
+  const contractProgram = instructions[contractArg.length + 1].split(/(\s+)/)[2]
+  contractArg.reverse()
+  return { contractArg, contractProgram }
 }
 
-const updateContractInputMap = (inputMap, name, newValue, type="") => {
+const updateContractInputMap = (inputMap, name, newValue, type = "") => {
   let input;
   while (input = inputMap[name]) {
     if (input.value) {
@@ -300,7 +302,7 @@ const updateContractInputMap = (inputMap, name, newValue, type="") => {
         name += "." + type + "Input"
         type = ""
       } else {
-        inputMap[name] = {...inputMap[name], value: newValue}
+        inputMap[name] = { ...inputMap[name], value: newValue }
         break;
       }
     }
@@ -310,7 +312,6 @@ const updateContractInputMap = (inputMap, name, newValue, type="") => {
 export const SET_UTXO_INFO = 'contracts/SET_UTXO_INFO'
 
 export const fetchUtxoInfo = () => {
-  console.log('fetch...');
   return (dispatch, getState) => {
     const state = getState()
     const utxoId = getUtxoId(state)
@@ -321,75 +322,57 @@ export const fetchUtxoInfo = () => {
       smart_contract: true
     }).then(data => {
       const utxo = data[0];
-      client.decodeProgram(data[0].program).then(resp =>{
-          client.compile(source).then(result => {
-            if(result.status ==='fail'){
-              throw new Error(result.data)
-            }
-            const format = (tpl: CompiledTemplate) => {
-              if (tpl.error !== '') {
-                tpl.clause_info = tpl.params = []
-              }
-              return tpl
-            }
-            const compiled = format(result.data)
-            const inputMap = generateInputMap(compiled)
-            const {contractArg, contractProgram} = parseInstructions(resp.instructions);
+      client.decodeProgram(data[0].program).then(resp => {
 
-            for (let i = 0; i < compiled.params.length; i++) {
-              const params = compiled.params;
-              let newValue = contractArg[contractArg.length - 1 - i];
-              if (params[i].type === "PublicKey" || params[i].type === "Program") {
-                // TODO shenao mock accountId
-                newValue = "0G1R52O1G0A02";
-              }
-              updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
-            }
-            updateContractInputMap(inputMap, "contractValue." + compiled.value,  utxo.asset_id, "asset");
-            updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
+        const { contractArg, contractProgram } = parseInstructions(resp.instructions);
 
-            const promisedInputMap = getPromisedInputMap(inputMap)
-            const promisedCompiled = promisedInputMap.then((inputMap) => {
-              const args = getContractArgs(state, inputMap).map(param => {
-                if (param instanceof Buffer) {
-                  return { "string": param.toString('hex') }
-                }
-        
-                if (typeof param === 'string') {
-                  return { "string": param }
-                }
-        
-                if (typeof param === 'number') {
-                  return { "integer": param }
-                }
-        
-                if (typeof param === 'boolean') {
-                  return { 'boolean': param }
-                }
-                throw 'unsupported argument type ' + (typeof param)
-              })
-              return client.compile(source, args);
-            })
-            
-            Promise.all([promisedInputMap, promisedCompiled]).then(([inputMap, compiled]) => {
-              if (compiled.status !== "success") {
-                throw "compile failed";
-              }
-              const template = compiled.data;
-              dispatch({
-                type: CREATE_CONTRACT,
-                controlProgram: template.program,
-                contractProgram,
-                source,
-                template,
-                inputMap,
-                utxo
-              })
-            })
+        const promisedCompiled = getPromiseCompiled(contractArg, source)
+
+        const promisedInputMap = promisedCompiled.then(result => {
+          if (result.status === 'fail') {
+            throw new Error(result.data)
+          }
+          const format = (tpl: CompiledTemplate) => {
+            if (tpl.error !== '') {
+              tpl.clause_info = tpl.params = []
+            }
+            return tpl
+          }
+          const compiled = format(result.data)
+          const inputMap = generateInputMap(compiled)
+          for (let i = 0; i < compiled.params.length; i++) {
+            const params = compiled.params;
+            let newValue = contractArg[i];
+            if (params[i].type === "PublicKey" || params[i].type === "Program") {
+              // TODO shenao mock accountId
+              newValue = "0G1R52O1G0A02";
+            }
+            updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+          }
+          updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.asset_id, "asset");
+          updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
+
+          return getPromisedInputMap(inputMap)
+        })
+
+        Promise.all([promisedInputMap, promisedCompiled]).then(([inputMap, compiled]) => {
+          if (compiled.status !== "success") {
+            throw "compile failed";
+          }
+          const template = compiled.data;
+          dispatch({
+            type: CREATE_CONTRACT,
+            controlProgram: template.program,
+            contractProgram,
+            source,
+            template,
+            inputMap,
+            utxo
           })
         })
-      dispatch(push(prefixRoute('/unlock/'+ utxoId)))
+      })
     })
+    dispatch(push(prefixRoute('/unlock/' + utxoId)))
   }
 }
 
