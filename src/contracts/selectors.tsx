@@ -431,7 +431,7 @@ export const getSpendUnspentOutputAction = createSelector(
   getSpendInputMap,
   ( contract, spendInputMap ) => {
     const outputId = contract.id
-    const param = spendInputMap["clauseParameters.argInput"].value
+    const param = spendInputMap["clauseParameters.spend.sig.signatureInput.argInput"].value
     if (param === undefined ) {
       return undefined
     }
