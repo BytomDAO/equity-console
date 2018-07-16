@@ -271,16 +271,18 @@ export const setContractName = (templateName: string) => {
 }
 
 const parseInstructions = (instructions: string) => {
-  const contractArg = [];
-  for (const param of instructions.split(/\n/)) {
-    const arr = param.split(/(\s+)/)
-    if (param.startsWith("DATA")) {
-      contractArg.push(arr[2])
-    } else {
-      break
+  const contractArg = []
+  const instructionsArray = instructions.split(/\n/)
+
+  for (const param of instructionsArray){
+      const arr = param.split(/(\s+)/)
+      if(!param.startsWith("DEPTH")){
+        contractArg.push(arr[2])
+      }else{
+        break
+      }
     }
-  }
-  const contractProgram = instructions[contractArg.length + 1].split(/(\s+)/)[2]
+  const contractProgram = instructionsArray[contractArg.length + 1].split(/(\s+)/)[2]
   contractArg.reverse()
   return { contractArg, contractProgram }
 }
