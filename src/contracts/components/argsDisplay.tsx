@@ -92,7 +92,6 @@ function TextWidget(props: { input: Input }) {
 
 function ComputedWidget(props: { input: ProgramInput }) {
   return <div>
-    Hash:
     <pre>{props.input.computedData}</pre>
   </div>
 }

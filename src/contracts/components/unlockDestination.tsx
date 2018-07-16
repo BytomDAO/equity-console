@@ -20,7 +20,6 @@ const UnlockDestination = (props: { assetMap, contract }) => {
       <section>
         <h4>Unlocked Value Destination</h4>
         {getWidget("unlockValue.accountInput")}
-        {getWidget("unlockValue.passwordInput")}
         <div className="form-group">
           <div className="input-group">
             <div className="input-group-addon">Asset</div>

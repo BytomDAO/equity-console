@@ -18,9 +18,10 @@ import { ClauseValue, ClauseParameters } from './parameters'
 
 const mapStateToProps = (state) => {
   const error = getUnlockError(state)
+  const contractProgram = getContractProgram(state)
   const map = getContractMap(state)
   const id = getSpendContractId(state)
-  const display = map[id] !== undefined
+  const display = map[id] !== undefined && map[id].contractProgram === contractProgram
   return { error, display }
 }
 
@@ -47,7 +48,7 @@ export const Unlock = ({ error, display }) => {
         <ClauseValue />
         <ClauseParameters />
         <UnlockDestination />
-        {/* <UnlockValue /> */}
+        <UnlockValue />
       </div>
     )
   }

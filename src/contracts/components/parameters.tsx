@@ -29,7 +29,6 @@ import {
 import { updateInput, updateClauseInput } from '../actions'
 import { getShowUnlockInputErrors, getSpendInputMap, getClauseParameterIds } from '../selectors'
 
-
 function getChildWidget(input: ComplexInput) {
   return getWidget(getChild(input))
 }
@@ -181,29 +180,8 @@ function XpubWidget(props: {
   )
 }
 
-function PathWidget(props: {
-  input: PathInput,
-  errorClass: string,
-  handleChange: (e) => undefined
-}) {
-  return (
-    <div>
-      {/* <span className="type-label">{props.input.name.split(".")[1]}</span> */}
-      <div className={"form-group" + props.errorClass}>
-        <div className="input-group">
-          <div className="input-group-addon">Path</div>
-          <input type="text" className="form-control with-addon"
-            key={props.input.name}
-            value={props.input.value}
-            onChange={props.handleChange}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ArgWidget(props: { input: StringInput,
+function ArgWidget(props: {
+    input: StringInput,
     errorClass: string,
   handleChange: (e)=>undefined }) {
     return (
@@ -240,6 +218,14 @@ function PathWidget(props: { input: PathInput,
         </div>
       </div>
     )
+}
+
+function SignatureWidget(props: {input: SignatureInput, handleChange: (e) => undefined}) {
+  return (
+    <div>
+      {getWidget(props.input.name + ".argInput")}
+    </div>
+  )
 }
 
 function AmountWidget(props: {

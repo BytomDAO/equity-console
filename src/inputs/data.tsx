@@ -558,9 +558,7 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       return
     }
     case "signatureInput": {
-      addDefaultInput(inputs, "xpubInput", name)
-      addDefaultInput(inputs, "path1Input", name)
-      addDefaultInput(inputs, "path2Input", name)
+      addDefaultInput(inputs, "argInput", name)
       return
     }
     case "generateSignatureInput": {
