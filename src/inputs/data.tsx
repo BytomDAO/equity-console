@@ -455,25 +455,8 @@ export function getPromisedInputMap(inputsById: {[s: string]: Input}): Promise<{
   return Promise.props(newInputsById)
 }
 
-export function getPromiseCompiled(contractArg, source) {
-  const args = contractArg.map(param => {
-    if (param instanceof Buffer) {
-      return { "string": param.toString('hex') }
-    }
-
-    if (typeof param === 'number' || /^\d+$/.test(param)) {
-      return { "integer": parseInt(param) }
-    }
-    if (typeof param === 'boolean' || param === "true" || param === "false") {
-      return { 'boolean':  Boolean(param) }
-    }
-
-    if (typeof param === 'string') {
-      return { "string": param }
-    }
-    throw 'unsupported argument type ' + (typeof param)
-  })
-  return  Promise.props(client.compile(source, args));
+export function getPromiseCompiled(source) {
+  return  Promise.props(client.compile(source));
 }
 
 export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}): Promise<Input> {

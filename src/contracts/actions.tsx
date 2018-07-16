@@ -323,7 +323,7 @@ export const fetchUtxoInfo = () => {
 
         const { contractArg, contractProgram } = parseInstructions(resp.instructions);
 
-        const promisedCompiled = getPromiseCompiled(contractArg, source)
+        const promisedCompiled = getPromiseCompiled(source)
 
         const promisedInputMap = promisedCompiled.then(result => {
           if (result.status === 'fail') {
