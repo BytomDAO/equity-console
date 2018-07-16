@@ -321,38 +321,55 @@ export const fetchUtxoInfo = () => {
       const utxo = data[0];
       client.decodeProgram(data[0].program).then(resp => {
 
-        const { contractArg, contractProgram } = parseInstructions(resp.instructions)
+        const { contractArg, contractProgram } = parseInstructions(resp.instructions);
 
-        dispatch(setSource(source))
+        const promisedCompiled = getPromiseCompiled(contractArg, source)
 
-        let inputMap = getInputMap(state)
-        const compiled = getCompiled(state)
-
-
-        for (let i = 0; i < compiled.params.length; i++) {
-          const params = compiled.params;
-          let newValue = contractArg[i];
-          if (params[i].type === "PublicKey") {
-            const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
-            inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
-          } else if (params[i].type === "Program") {
-            const inputId = "contractParameters." + params[i].name + "." + "programInput"
-            inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
-          } else {
-            updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+        const promisedInputMap = promisedCompiled.then(result => {
+          if (result.status === 'fail') {
+            throw new Error(result.data)
           }
-        }
-        updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.asset_id, "asset");
-        updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
+          const format = (tpl: CompiledTemplate) => {
+            if (tpl.error !== '') {
+              tpl.clause_info = tpl.params = []
+            }
+            return tpl
+          }
+          const compiled = format(result.data)
+          const inputMap = generateInputMap(compiled)
+          for (let i = 0; i < compiled.params.length; i++) {
+            const params = compiled.params;
+            let newValue = contractArg[i];
+            if (params[i].type === "PublicKey") {
+              const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
+              inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
+            } else if (params[i].type === "Program") {
+              const inputId = "contractParameters." + params[i].name + "." + "programInput"
+              inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
+            } else {
+              updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+            }
+          }
+          updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.asset_id, "asset");
+          updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
 
-        dispatch({
-          type: CREATE_CONTRACT,
-          controlProgram: compiled.program,
-          contractProgram,
-          source,
-          template: compiled,
-          inputMap,
-          utxo
+          return inputMap
+        })
+
+        Promise.all([promisedInputMap, promisedCompiled]).then(([inputMap, compiled]) => {
+          if (compiled.status !== "success") {
+            throw "compile failed";
+          }
+          const template = compiled.data;
+          dispatch({
+            type: CREATE_CONTRACT,
+            controlProgram: template.program,
+            contractProgram,
+            source,
+            template,
+            inputMap,
+            utxo
+          })
         })
       })
     })

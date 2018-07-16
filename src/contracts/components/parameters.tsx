@@ -503,7 +503,7 @@ function InsufficientFundsAlertUnconnected({ namePrefix, balance, inputMap, cont
     amountInput = inputMap[namePrefix + ".amountInput"]
   } else if (namePrefix.startsWith("clause")) {
     // THIS IS A HACK
-    const spendInputMap = contracts.contractMap[contracts.spendContractId].spendInputMap
+    const spendInputMap = contracts.contractMap[contracts.utxoId].spendInputMap
     amountInput = spendInputMap[namePrefix + ".valueInput.amountInput"]
   }
   let jsx = <small />
