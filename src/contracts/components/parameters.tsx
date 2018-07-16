@@ -203,14 +203,43 @@ function PathWidget(props: {
   )
 }
 
-function SignatureWidget(props: {input: SignatureInput, handleChange: (e) => undefined}) {
-  return (
-    <div>
-      {getWidget(props.input.name + ".xpubInput")}
-      {getWidget(props.input.name + ".path1Input")}
-      {getWidget(props.input.name + ".path2Input")}
-    </div>
-  )
+function ArgWidget(props: { input: StringInput,
+    errorClass: string,
+  handleChange: (e)=>undefined }) {
+    return (
+      <div className={"form-group" + props.errorClass}>
+        <label><span className='type-label'>Please filled in an arrary of JSON object</span></label>
+        <div className="input-group">
+          <div className="input-group-addon">Arguments</div>
+          <input type="text" className="form-control with-addon"
+                 key={props.input.name}
+                 value={props.input.value}
+                 onChange={props.handleChange}
+          />
+        </div>
+      </div>
+    )
+}
+
+function PathWidget(props: { input: PathInput,
+    errorClass: string,
+  handleChange: (e)=>undefined
+}) {
+    return (
+      <div>
+        <span className="type-label">{props.input.name.split(".")[1]}</span>
+        <div className={"form-group" + props.errorClass}>
+          <div className="input-group">
+            <div className="input-group-addon">Path</div>
+            <input type="text" className="form-control with-addon"
+                   key={props.input.name}
+                   value={props.input.value}
+                   onChange={props.handleChange}
+            />
+          </div>
+        </div>
+      </div>
+    )
 }
 
 function AmountWidget(props: {
@@ -460,6 +489,7 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     // case "assetInput": return AssetAliasWidget
     // case "amountInput": return AmountWidget
     // case "amountInput": return AmountWidget
+    case "argInput": return ArgWidget
     case "xpubInput": return XpubWidget
     case "path1Input": 
     case "path2Input": {
@@ -636,7 +666,7 @@ function ClauseParametersUnconnected(props: { parameterIds: string[] }) {
   let parameterInputs = props.parameterIds.map((id) => {
     return <div key={id} className="argument">{getWidget(id)}</div>
   })
-  return <section style={{ wordBreak: 'break-all' }}>
+  return <section style={{wordBreak: 'break-all'}}>
     <h4>Clause Arguments</h4>
     <form className="form">
       {parameterInputs}

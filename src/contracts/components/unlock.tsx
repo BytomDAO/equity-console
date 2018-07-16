@@ -14,7 +14,7 @@ import ClauseSelect from './clauseselect'
 import {getContractTemplateName, getContractProgram, getUtxoId, getUtxoInfo, getContract, getUnlockError, getContractMap, getSpendContractId} from '../selectors'
 import { ContractValue } from './argsDisplay'
 import {fetchUtxoInfo, setContractName, setUtxoID} from "../actions"
-import { ClauseValue, ClauseParameters } from './parameters';
+import { ClauseValue, ClauseParameters } from './parameters'
 
 const mapStateToProps = (state) => {
   const error = getUnlockError(state)

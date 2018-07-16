@@ -41,13 +41,11 @@ import {
 
 export const getState = (state: AppState): ContractsState => state.contracts
 
-export const getContractTemplateName = createSelector(getState, (state) => state.contractName)
+export const getContractTemplateName = createSelector(getState, (state) => state.selectedContractName)
 
-export const getContractProgram = createSelector(getState, (state) => state.contractProgram)
+export const getContractProgram = createSelector(getState, (state) => state.selectedContractProgram)
 
 export const getUtxoId = createSelector(getState, (state) => state.utxoId)
-
-export const getUtxoInfo = createSelector(getState, (state) => state.utxoInfo)
 
 export const getContract = createSelector(
   getState,
@@ -398,27 +396,47 @@ export const getRequiredAssetAmount = createSelector(
   }
 )
 
+// export const getSpendUnspentOutputAction = createSelector(
+//   getSpendContract,
+//   getSpendInputMap,
+//   ( contract, spendInputMap ) => {
+//     const outputId = contract.id
+//     const clauseParameters = Object.keys(spendInputMap).filter(k => k.startsWith("clauseParameters"))
+//     if (clauseParameters === undefined ) {
+//       return undefined
+//     }
+//
+//     const args = [{
+//         "type": "raw_tx_signature",
+//         "raw_data": {
+//         "xpub": spendInputMap[clauseParameters[0]].value,
+//           "derivation_path": [
+//             spendInputMap[clauseParameters[1]].value,
+//             spendInputMap[clauseParameters[2]].value
+//           ]
+//       }
+//     }]
+//
+//     const spendUnspentOutput: SpendUnspentOutput = {
+//       type: "spendUnspentOutput",
+//       outputId,
+//       arguments: args
+//     }
+//     return spendUnspentOutput
+//   }
+// )
+
 export const getSpendUnspentOutputAction = createSelector(
   getSpendContract,
   getSpendInputMap,
   ( contract, spendInputMap ) => {
     const outputId = contract.id
-    const clauseParameters = Object.keys(spendInputMap).filter(k => k.startsWith("clauseParameters"))
-    if (clauseParameters === undefined ) {
+    const param = spendInputMap["clauseParameters.argInput"].value
+    if (param === undefined ) {
       return undefined
     }
 
-    const args = [{
-        "type": "raw_tx_signature",
-        "raw_data": {
-        "xpub": spendInputMap[clauseParameters[0]].value,
-          "derivation_path": [
-            spendInputMap[clauseParameters[1]].value,
-            spendInputMap[clauseParameters[2]].value
-          ]
-      }
-    }]
-
+    const args = JSON.parse(param)
     const spendUnspentOutput: SpendUnspentOutput = {
       type: "spendUnspentOutput",
       outputId,

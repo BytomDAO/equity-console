@@ -14,8 +14,10 @@ import { Input, ParameterInput, NumberInput, BooleanInput, StringInput, ProvideS
          InputType, ComplexInput, ValueInput, AssetAliasInput, AccountAliasInput, AssetInput,
          AmountInput, ProgramInput } from '../../inputs/types'
 
+// import { getParameterIds } from '../../templates/selectors'
+
 // internal imports
-import { getInputMap, getInputSelector, getParameterIds, getSpendContractValueId } from '../selectors'
+import { getInputMap, getInputSelector, getSpendContractValueId, getParameterIds } from '../selectors'
 
 function getChildWidget(input: ComplexInput) {
   return getWidget(getChild(input))
@@ -190,7 +192,9 @@ export const ContractValue = connect(
 function SpendInputsUnconnected(props: { spendInputIds: string[] }) {
   if (props.spendInputIds.length === 0) return <div />
   const spendInputWidgets = props.spendInputIds.map((id) => {
-    return <div key={id} className="argument">{getWidget(id)}</div>
+    return <div key={id} className="argument">
+      {getWidget(id)}
+      </div>
   })
   return (
     <section style={{ wordBreak: 'break-all'}}>

@@ -20,6 +20,10 @@ const ClauseSelect = (props: {
       <select className="form-control" value={props.spendIndex} onChange={(e) => props.setClauseIndex(e.target.value)}>
         {props.clauses.map((clause, i) => <option key={clause.name} value={i}>{clause.name}</option>)}
       </select>
+      {/*{getWidget("clauseParameters.argInput")}*/}
+      {/*{getWidget("clauseParameters.xpubInput")}*/}
+      {/*{getWidget("clauseParameters.path1.pathInput")}*/}
+      {/*{getWidget("clauseParameters.path2.pathInput")}*/}
     </section>
   )
 }

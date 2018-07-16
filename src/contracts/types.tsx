@@ -50,9 +50,8 @@ export type ContractsState = {
   showUnlockInputErrors: boolean,
   error?,
   utxoId: string,
-  contractName: string,
-  contractProgram: string,
-  utxoInfo?
+  selectedContractName: string,
+  selectedContractProgram: string,
 }
 
 export type HashFunction = "sha256" | "sha3"

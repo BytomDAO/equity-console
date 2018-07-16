@@ -24,9 +24,8 @@ export const INITIAL_STATE: ContractsState = {
   showUnlockInputErrors: false,
   error: undefined,
   utxoId: '',
-  utxoInfo: undefined,
-  contractName: 'LockWithPublicKey',
-  contractProgram: 'ae7cac'
+  selectedContractName: 'LockWithPublicKey',
+  selectedContractProgram: 'ae7cac'
 }
 
 export default function reducer(state: ContractsState = INITIAL_STATE, action): ContractsState {
@@ -144,8 +143,8 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       const contractProgram = INITIAL_SOURCE_PRGRAM[contractName]
       return {
         ...state,
-        contractName: contractName,
-        contractProgram: contractProgram,
+        selectedContractName: contractName,
+        selectedContractProgram: contractProgram,
       }
     }
     case SET_CLAUSE_INDEX: {
@@ -185,57 +184,72 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       }
     }
     case SET_UTXO_INFO: {
-    //   const utxoInfo = action.utxo
-    //   const id = utxoInfo.id
-    //   const assetId = utxoInfo.asset_id
-    //   const assetAlias = utxoInfo.asset_alias
-    //   const amount = utxoInfo.amount
-    //   const controlProgram = utxoInfo.program
-    //   const {contractArg, contractProgram} = parseInstructions(action.instructions)
-    //   const inputs: Input[] = []
-    //   // const inputs = []
-    //   const inputMap = {}
-    //   const params = []
-
-    //   contractArg.map(value => {
-    //     const pubkeyParam = {
-    //       type: "programInput",
-    //       value: "accountInput",
-    //       name: "contractParameters.Hash.programInput",
-    //       computedData: value,
-    //     }
-    //     inputMap["contractParameters.Hash.programInput"] = pubkeyParam
-    //     // inputs.push(pubkeyParam)
-    //     params.push({name: "Hash.programInput", type: "Sha3(PublicKey)"})
-    //   })
-
-    //   addDefaultInput(inputs, "passwordInput", "unlockValue")
-    //   addDefaultInput(inputs, "accountInput", "unlockValue")
-    //   addDefaultInput(inputs, "xpubInput", "clauseParameters")
-    //   addDefaultInput(inputs, "pathInput", "clauseParameters.path1")
-    //   addDefaultInput(inputs, "pathInput", "clauseParameters.path2")
-    //   const spendInputMap = {}
-    //   for (const input of inputs) {
-    //     spendInputMap[input.name] = input
-    //   }
-
-    //   const contract: Contract = {
-    //     id: id,
-    //     assetId: assetId,
-    //     assetAlias: assetAlias,
-    //     amount: amount,
-    //     controlProgram: controlProgram,
-    //     contractProgram: contractProgram,
-    //     inputMap: inputMap,
-    //     params: params,
-    //     spendInputMap: spendInputMap
-    //   }
-    //   return {
-    //     ...state,
-    //     contract,
-    //     utxoInfo: utxoInfo,
-    //   }
-    // }
+      // const utxoInfo = action.info
+      // const id = utxoInfo.id
+      // const assetId = utxoInfo.asset_id
+      // const assetAlias = utxoInfo.asset_alias
+      // const amount = utxoInfo.amount
+      // const controlProgram = utxoInfo.program
+      //
+      // const instructions = action.instructions.split(/\n/)
+      // const contractArg = []
+      //
+      // for (const param of instructions){
+      //   const arr = param.split(/(\s+)/)
+      //   if(!param.startsWith("DEPTH")){
+      //     contractArg.push(arr[2])
+      //   }else{
+      //     break
+      //   }
+      // }
+      // const contractProgram = instructions[contractArg.length+1].split(/(\s+)/)[2]
+      // const inputs: Input[] = []
+      // // const inputs = []
+      // const inputMap = {}
+      // const params = []
+      //
+      //
+      // ///compile.params=[] ==> inputMap
+      // contractArg.map(value => {
+      //   const pubkeyParam = {
+      //     type: "programInput",
+      //     value: "accountInput",
+      //     name: "contractParameters.Hash.programInput",
+      //     computedData: value,
+      //   }
+      //   inputMap["contractParameters.Hash.programInput"] = pubkeyParam
+      //   // inputs.push(pubkeyParam)
+      //   params.push({name: "Hash.programInput", type: "Sha3(PublicKey)"})
+      // })
+      //
+      // addDefaultInput(inputs, "passwordInput", "unlockValue")
+      // addDefaultInput(inputs, "accountInput", "unlockValue")
+      //
+      // addDefaultInput(inputs, "argInput", "clauseParameters")
+      // // addDefaultInput(inputs, "xpubInput", "clauseParameters")
+      // // addDefaultInput(inputs, "pathInput", "clauseParameters.path1")
+      // // addDefaultInput(inputs, "pathInput", "clauseParameters.path2")
+      // const spendInputMap = {}
+      // for (const input of inputs) {
+      //   spendInputMap[input.name] = input
+      // }
+      //
+      // const contract: Contract = {
+      //   id,
+      //   assetId,
+      //   assetAlias,
+      //   amount,
+      //   controlProgram,
+      //   contractProgram,
+      //   inputMap,
+      //   params,
+      //   spendInputMap
+      // }
+      // return {
+      //   ...state,
+      //   contract,
+      // }
+    }
     case "@@router/LOCATION_CHANGE":
       const path = action.payload.pathname.split("/")
       if (path[1] === "ivy") {

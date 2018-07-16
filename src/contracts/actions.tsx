@@ -18,6 +18,7 @@ import {
   getContractValue,
   getInputMap,
   getContractArgs,
+  getContractParameters, getTemplate,
 } from '../templates/selectors'
 
 import {
@@ -26,7 +27,11 @@ import {
   getSpendUnspentOutputAction,
   getRequiredValueAction,
   getUnlockAction,
-  getClauseWitnessComponents, getSpendInputMap, getContractTemplateName, generateInputMap, getSpendContractId,
+  getClauseWitnessComponents,
+  getSpendInputMap,
+  getContractTemplateName,
+  generateInputMap,
+  getSpendContractId,
 } from './selectors'
 
 import {
@@ -48,8 +53,10 @@ import {
 import { getPromisedInputMap, getPromiseCompiled } from '../inputs/data'
 
 import { client, prefixRoute, createLockingTx, createUnlockingTx } from '../core'
-import { ProgramInput } from "../inputs/types"
 import { CompiledTemplate } from '../templates/types';
+import {ProgramInput} from "../inputs/types"
+import templates from "../templates"
+import {INITIAL_ID_LIST} from "../templates/constants"
 
 export const SHOW_UNLOCK_INPUT_ERRORS = 'contracts/SHOW_UNLOCK_INPUT_ERRORS'
 
@@ -205,22 +212,19 @@ export const spend = () => {
       const controlProgram = receiver.control_program
       const lockActions: ControlWithProgram = {
         type: "controlWithProgram",
-        assetId: assetId,
-        amount: amount,
-        controlProgram: controlProgram
+        assetId,
+        amount,
+        controlProgram
       }
 
       const gas = {
-        accountId: accountId,
+        accountId,
         amount: 20000000,
         type: 'spendFromAccount',
         assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       }
 
-      const actions: Action[] = [lockedValueAction, lockActions, gas]// const lockActions: Action[] = getLockActions(state)
-
-      // const witness: WitnessComponent[] = getClauseWitnessComponents(getState())
-      // return createUnlockingTx(actions, witness)
+      const actions: Action[] = [lockedValueAction, lockActions, gas]
 
       const password = spendInputMap["unlockValue.passwordInput"].value
       return createUnlockingTx(actions, password)
@@ -240,17 +244,6 @@ export const spend = () => {
       dispatch(updateUnlockError(err))
       dispatch(showUnlockInputErrors(true))
     })
-
-
-    // const reqValueAction = getRequiredValueAction(state)
-    // if (reqValueAction !== undefined) {
-    //   actions.push(reqValueAction)
-    // }
-    // const unlockAction = getUnlockAction(state)
-    // if (unlockAction !== undefined) {
-    //   actions.push(unlockAction)
-    // }
-
   }
 }
 
