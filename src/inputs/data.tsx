@@ -209,6 +209,16 @@ const validateHex = (str: string): boolean => {
   return (/^([a-f0-9][a-f0-9])*$/.test(str))
 }
 
+function validateJson(str: string) {
+  try {
+    JSON.parse(str)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+
 export const validateInput = (input: Input): boolean => {
   // validates that an individual
   // does not validate child inputs
@@ -267,9 +277,9 @@ export const validateInput = (input: Input): boolean => {
       if (isNaN(numberValue)) return false
       if (numberValue < 0) return false
       return true
+    case "argInput":
     case "accountInput":
     case "xpubInput":
-    case "argInput":
     case "pathInput":
     case "assetInput":
     case "passwordInput":

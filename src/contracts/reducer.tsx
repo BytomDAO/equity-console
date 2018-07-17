@@ -10,7 +10,8 @@ import { addDefaultInput, getPublicKeys , addInputForType} from '../inputs/data'
 import { Contract } from './types'
 
 // internal imports
-import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME, SET_UTXO_INFO,  UPDATE_CLAUSE_INPUT, SET_CLAUSE_INDEX} from './actions'
+import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME,
+  SET_UTXO_INFO,  UPDATE_CLAUSE_INPUT, SET_CLAUSE_INDEX,  UPDATE_UNLOCK_ERROR, SHOW_UNLOCK_INPUT_ERRORS, } from './actions'
 import { generateInputMap } from './selectors';
 
 export const INITIAL_STATE: ContractsState = {
@@ -102,8 +103,8 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
     const keyMap = getPublicKeys(action.inputMap)
     for (const input of inputs) {
       spendInputMap[input.name] = input
-      if (input.type === "choosePublicKeyInput") {
-        input.keyMap = keyMap
+      if (input.value === "choosePublicKeyInput") {
+        input.value = "argInput"
       }
     }
     const contract: Contract = {
@@ -154,6 +155,18 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
         selectedClauseIndex: action.selectedClauseIndex,
         error: undefined,
         showUnlockInputErrors: false
+      }
+    }
+    case UPDATE_UNLOCK_ERROR: {
+      return {
+        ...state,
+        error: action.error
+      }
+    }
+    case SHOW_UNLOCK_INPUT_ERRORS: {
+      return {
+        ...state,
+        showUnlockInputErrors: action.result
       }
     }
     case UPDATE_CLAUSE_INPUT: {

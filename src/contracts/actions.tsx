@@ -34,6 +34,7 @@ import {
   getContractTemplateName,
   generateInputMap,
   getSpendContractId,
+  areSpendInputsValid
 } from './selectors'
 
 import {
@@ -197,11 +198,11 @@ export const spend = () => {
   return (dispatch, getState) => {
     dispatch(updateIsCalling(true))
     const state = getState()
-    // if (!areSpendInputsValid(state)) {
-    //   dispatch(updateIsCalling(false))
-    //   dispatch(showUnlockInputErrors(true))
-    //   return dispatch(updateUnlockError('One or more clause arguments are invalid.'))
-    // }
+    if (!areSpendInputsValid(state)) {
+      dispatch(updateIsCalling(false))
+      dispatch(showUnlockInputErrors(true))
+      return dispatch(updateUnlockError('One or more clause arguments are invalid.'))
+    }
 
     const contract = getSpendContract(state)
     const assetId = contract.assetId
@@ -212,35 +213,33 @@ export const spend = () => {
     const accountId = spendInputMap["unlockValue.accountInput"].value
     const gas = spendInputMap["unlockValue.gasInput"].value
 
-    client.createReceiver(accountId).then((receiver) => {
-      const controlProgram = receiver.control_program
-      const lockActions: ControlWithProgram = {
-        type: "controlWithProgram",
-        assetId,
-        amount,
-        controlProgram
-      }
+    client.createReceiver(accountId)
+      .then((receiver) => {
+        const controlProgram = receiver.control_program
+        const lockActions: ControlWithProgram = {
+          type: "controlWithProgram",
+          assetId,
+          amount,
+          controlProgram
+        }
 
-      const gasAction = {
-        accountId,
-        amount: gas,
-        type: 'spendFromAccount',
-        assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-      }
+        const gasAction = {
+          accountId,
+          amount: gas,
+          type: 'spendFromAccount',
+          assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+        }
 
-      const actions: Action[] = [lockedValueAction, lockActions, gasAction]
+        const actions: Action[] = [lockedValueAction, lockActions, gasAction]
 
-      const password = spendInputMap["unlockValue.passwordInput"].value
-      return createUnlockingTx(actions, password)
+        const password = spendInputMap["unlockValue.passwordInput"].value
+        return createUnlockingTx(actions, password)
+      })
+      .then((result) => {
+        if(result.status === "fail"){
+           throw result.msg
+        }
 
-    }).then((result) => {
-      if(result.status === "fail"){
-        const err = result.msg
-        console.log(err)
-        dispatch(updateIsCalling(false))
-        dispatch(updateUnlockError(err))
-        dispatch(showUnlockInputErrors(true))
-      }else{
         dispatch({
           type: SPEND_CONTRACT,
           unlockTxid: result.id
@@ -249,13 +248,12 @@ export const spend = () => {
         dispatch(updateIsCalling(false))
         dispatch(showUnlockInputErrors(false))
         dispatch(push(prefixRoute('/unlock')))
-      }
-    }).catch(err => {
-      console.log(err)
-      dispatch(updateIsCalling(false))
-      dispatch(updateUnlockError(err))
-      dispatch(showUnlockInputErrors(true))
-    })
+      }).catch(err => {
+        console.log(err)
+        dispatch(updateIsCalling(false))
+        dispatch(updateUnlockError(err))
+        dispatch(showUnlockInputErrors(true))
+      })
   }
 }
 
