@@ -199,7 +199,8 @@ export const isValidInput = (id: string, inputMap: InputMap): boolean => {
       return isValidInput(input.name + ".accountInput", inputMap) &&
              isValidInput(input.name + ".assetInput", inputMap) &&
              isValidInput(input.name + ".amountInput", inputMap) &&
-             isValidInput(input.name + ".passwordInput", inputMap)
+             isValidInput(input.name + ".passwordInput", inputMap) &&
+             isValidInput(input.name + ".gasInput", inputMap)
     default: return validateInput(input)
   }
 }
@@ -272,6 +273,7 @@ export const validateInput = (input: Input): boolean => {
     case "pathInput":
     case "assetInput":
     case "passwordInput":
+    case "gasInput":
       return (input.value !== "")
     case "valueInput":
       // TODO(dan)
@@ -373,6 +375,7 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
     case "assetInput":
     case "amountInput":
     case "passwordInput":
+    case "gasInput":
       return ""
     case "signatureInput":
     case "choosePublicKeyInput":
@@ -434,6 +437,7 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
     case "assetInput":
     case "amountInput":
     case "passwordInput":
+    case "gasInput":
     case "choosePublicKeyInput":
       return ""
     case "generatePrivateKeyInput":
@@ -553,6 +557,7 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       addDefaultInput(inputs, "assetInput", name)
       addDefaultInput(inputs, "amountInput", name)
       addDefaultInput(inputs, "passwordInput", name)
+      addDefaultInput(inputs, "gasInput", name)
       return
     }
     case "programInput": {

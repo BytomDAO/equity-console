@@ -8,6 +8,7 @@ const UnlockValue = () => {
     return (
       <div>
         {getWidget("unlockValue.passwordInput")}
+        {getWidget("unlockValue.gasInput")}
       </div>
     )
 }

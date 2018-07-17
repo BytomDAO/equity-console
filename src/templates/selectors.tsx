@@ -85,20 +85,22 @@ export const getContractValue = createSelector(
     let sources: SpendFromAccount[] = []
     inputList.forEach(input => {
       if (input.type === "valueInput") {
-        let inputName = input.name
-        let accountId = inputMap[inputName + ".accountInput"].value
-        let assetId = inputMap[inputName + ".assetInput"].value
-        let amount = parseInt(inputMap[inputName + ".amountInput"].value, 10)
-        let password = inputMap[inputName + ".passwordInput"].value
+        const inputName = input.name
+        const accountId = inputMap[inputName + ".accountInput"].value
+        const assetId = inputMap[inputName + ".assetInput"].value
+        const amount = parseInt(inputMap[inputName + ".amountInput"].value, 10)
+        const password = inputMap[inputName + ".passwordInput"].value
+        const gas = parseInt(inputMap[inputName + ".gasInput"].value, 10)
         if (isNaN(amount) || amount < 0 || !accountId || !assetId) {
           return []
         }
         sources.push({
           type: "spendFromAccount",
-          accountId: accountId,
-          assetId: assetId,
-          amount: amount,
-          password: password
+          accountId,
+          assetId,
+          amount,
+          password,
+          gas
         } as SpendFromAccount)
       }
     })

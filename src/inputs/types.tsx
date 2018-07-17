@@ -57,7 +57,7 @@ export type InputType = "parameterInput" | "stringInput" | "generateStringInput"
                         "generatePrivateKeyInput" | "providePrivateKeyInput" | "numberInput" | "booleanInput" | "timeInput" |
                         "timestampTimeInput" | "signatureInput" | "generateSignatureInput" | "provideSignatureInput" | "programInput" |
                         "valueInput" | "accountInput" | "assetInput" | "programInput" | "assetInput" | "amountInput" | "choosePublicKeyInput" |
-                        "passwordInput" | "xpubInput" | "pathInput" | "argInput"
+                        "passwordInput" | "xpubInput" | "pathInput" | "argInput" | "gasInput"
 
 export type PrimaryInputType = "stringInput" | "hashInput" | "publicKeyInput" | "numberInput" | "booleanInput" | "timeInput" | "signatureInput" |
                                "valueInput" | "programInput" | "assetInput" | "amountInput"

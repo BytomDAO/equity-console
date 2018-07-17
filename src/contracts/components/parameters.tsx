@@ -161,6 +161,22 @@ function PasswordWidget(props: {
   )
 }
 
+function GasWidget(props: {
+  input: AmountInput,
+  errorClass: string,
+  handleChange: (e) => undefined
+}) {
+  return (
+    <div className={"form-group " + props.errorClass}>
+      <div className="input-group">
+        <div className="input-group-addon">Gas</div>
+        <input type="text" className="form-control" style={{ width: 200 }} key={props.input.name}
+          value={props.input.value} onChange={props.handleChange} />
+      </div>
+    </div>
+  )
+}
+
 function XpubWidget(props: {
   input: StringInput,
   errorClass: string,
@@ -482,6 +498,7 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
       return PathWidget
     }
     case "programInput": return ProgramWidget
+    case "gasInput": return GasWidget
     case "passwordInput": return PasswordWidget
     case "signatureInput": return SignatureWidget
     case "choosePublicKeyInput": return ChoosePublicKeyWidget
@@ -541,6 +558,7 @@ function ValueWidget(props: { input: ValueInput, handleChange: (e) => undefined 
       {getWidget(props.input.name + ".amountInput")}
       <BalanceWidget namePrefix={props.input.name} />
       {getWidget(props.input.name + ".passwordInput")}
+      {getWidget(props.input.name + ".gasInput")}
     </div>
   )
 }

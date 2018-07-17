@@ -116,6 +116,7 @@ export const create = () => {
     const assetId = spendFromAccount.assetId
     const amount = spendFromAccount.amount
     const password = spendFromAccount.password
+    const gas = spendFromAccount.gas
 
     const promisedInputMap = getPromisedInputMap(inputMap)
     const promisedTemplate = promisedInputMap.then((inputMap) => {
@@ -150,13 +151,13 @@ export const create = () => {
         assetId,
         amount
       }
-      const gas = {
+      const gasAction = {
         accountId: spendFromAccount.accountId,
-        amount: 20000000,
+        amount: gas,
         type: 'spendFromAccount',
         assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       }
-      const actions: Action[] = [spendFromAccount, controlWithProgram, gas]
+      const actions: Action[] = [spendFromAccount, controlWithProgram, gasAction]
       return createLockingTx(actions, password) // TODO: implement createLockingTx
     })
 
@@ -209,6 +210,7 @@ export const spend = () => {
     const lockedValueAction = getSpendUnspentOutputAction(state)
     const spendInputMap = getSpendInputMap(state)
     const accountId = spendInputMap["unlockValue.accountInput"].value
+    const gas = spendInputMap["unlockValue.gasInput"].value
 
     client.createReceiver(accountId).then((receiver) => {
       const controlProgram = receiver.control_program
@@ -219,27 +221,35 @@ export const spend = () => {
         controlProgram
       }
 
-      const gas = {
+      const gasAction = {
         accountId,
-        amount: 20000000,
+        amount: gas,
         type: 'spendFromAccount',
         assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
       }
 
-      const actions: Action[] = [lockedValueAction, lockActions, gas]
+      const actions: Action[] = [lockedValueAction, lockActions, gasAction]
 
       const password = spendInputMap["unlockValue.passwordInput"].value
       return createUnlockingTx(actions, password)
 
     }).then((result) => {
-      dispatch({
-        type: SPEND_CONTRACT,
-        unlockTxid: result.id
-      })
-      dispatch(fetch())
-      dispatch(updateIsCalling(false))
-      dispatch(showUnlockInputErrors(false))
-      dispatch(push(prefixRoute('/unlock')))
+      if(result.status === "fail"){
+        const err = result.msg
+        console.log(err)
+        dispatch(updateIsCalling(false))
+        dispatch(updateUnlockError(err))
+        dispatch(showUnlockInputErrors(true))
+      }else{
+        dispatch({
+          type: SPEND_CONTRACT,
+          unlockTxid: result.id
+        })
+        dispatch(fetch())
+        dispatch(updateIsCalling(false))
+        dispatch(showUnlockInputErrors(false))
+        dispatch(push(prefixRoute('/unlock')))
+      }
     }).catch(err => {
       console.log(err)
       dispatch(updateIsCalling(false))
