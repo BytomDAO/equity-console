@@ -11,17 +11,18 @@ import SpendInputs from './argsDisplay'
 import UnlockDestination from './unlockDestination'
 import UnlockValue from './unlockValue'
 import ClauseSelect from './clauseselect'
-import { ClauseValue, ClauseParameters } from './parameters'
-import {getContractTemplateName, getContractProgram, getUtxoId, getContract} from '../selectors'
+import {getContractTemplateName, getContractProgram, getUtxoId, getUtxoInfo, getContract, getUnlockError, getContractMap, getSpendContractId} from '../selectors'
 import { ContractValue } from './argsDisplay'
 import {fetchUtxoInfo, setContractName, setUtxoID} from "../actions"
+import { ClauseValue, ClauseParameters } from './parameters'
 
 const mapStateToProps = (state) => {
+  const error = getUnlockError(state)
   const contractProgram = getContractProgram(state)
-  const utxoId = getUtxoId(state)
-  const contract = getContract(state)
-  const display = contract.contractProgram === contractProgram && utxoId
-  return { error: null, display }
+  const map = getContractMap(state)
+  const id = getSpendContractId(state)
+  const display = map[id] !== undefined && map[id].contractProgram === contractProgram
+  return { error, display }
 }
 
 export const Unlock = ({ error, display }) => {
@@ -44,8 +45,8 @@ export const Unlock = ({ error, display }) => {
     details = (
       <div className="form-wrapper with-subsections">
         <ClauseSelect />
-        {/*<ClauseValue />*/}
-        {/*<ClauseParameters />*/}
+        <ClauseValue />
+        <ClauseParameters />
         <UnlockDestination />
         <UnlockValue />
       </div>

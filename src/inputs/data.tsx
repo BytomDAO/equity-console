@@ -277,7 +277,8 @@ export const validateInput = (input: Input): boolean => {
       // TODO(dan)
       return true
     case "choosePublicKeyInput":
-      return (input.keyMap !== undefined) && (input.keyMap[input.value] !== undefined)
+      return input.keyMap != undefined
+      // return (input.keyMap !== undefined) && (input.keyMap[input.value] !== undefined)
     default:
       throw 'input type not valid ' + input.type
   }
@@ -454,6 +455,10 @@ export function getPromisedInputMap(inputsById: {[s: string]: Input}): Promise<{
   return Promise.props(newInputsById)
 }
 
+export function getPromiseCompiled(source) {
+  return  Promise.props(client.compile(source));
+}
+
 export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}): Promise<Input> {
   let input = inputsById[inputId]
   switch (input.type) {
@@ -536,7 +541,7 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       return
     }
     case "signatureInput": {
-      addDefaultInput(inputs, "choosePublicKeyInput", name)
+      addDefaultInput(inputs, "argInput", name)
       return
     }
     case "generateSignatureInput": {
@@ -585,8 +590,8 @@ export function getPublicKeys(inputsById: {[s: string]: Input}) {
     let input = inputsById[id]
     if (input.type === "publicKeyInput") {
       if (input.computedData === undefined) throw 'input.computedData unexpectedly undefined'
-      if (input.keyData === undefined) throw 'input.keyData unexpectedly undefined'
-      mapping[input.computedData] = input.keyData
+      //if (input.keyData === undefined) throw 'input.keyData unexpectedly undefined'
+      mapping[input.computedData] = {}
     }
   }
   return mapping

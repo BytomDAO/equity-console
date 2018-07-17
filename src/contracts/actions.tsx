@@ -8,7 +8,8 @@ import { fetch } from '../accounts/actions';
 import {
   setSource,
   updateLockMessage,
-  showLockInputMessages
+  showLockInputMessages,
+  fetchCompiled
 } from '../templates/actions'
 import {
   areInputsValid,
@@ -16,8 +17,10 @@ import {
   getSourceMap,
   getContractValue,
   getInputMap,
+  getCompiled,
   getContractArgs,
-  getContractParameters, getTemplate,
+  getContractParameters,
+  getTemplate,
 } from '../templates/selectors'
 
 import {
@@ -28,10 +31,12 @@ import {
   getUnlockAction,
   getClauseWitnessComponents,
   getSpendInputMap,
-  getContractTemplateName
+  getContractTemplateName,
+  generateInputMap,
+  getSpendContractId,
 } from './selectors'
 
-import{
+import {
   Contract
 } from './types'
 
@@ -47,9 +52,10 @@ import {
   WitnessComponent
 } from '../core/types'
 
-import { getPromisedInputMap } from '../inputs/data'
+import { getPromisedInputMap, getPromiseCompiled } from '../inputs/data'
 
 import { client, prefixRoute, createLockingTx, createUnlockingTx } from '../core'
+import { CompiledTemplate } from '../templates/types';
 import {ProgramInput} from "../inputs/types"
 import templates from "../templates"
 import {INITIAL_ID_LIST} from "../templates/constants"
@@ -72,6 +78,15 @@ export const updateUnlockError = (error?) => {
   }
 }
 
+export const SET_CLAUSE_INDEX = 'contracts/SET_CLAUSE_INDEX'
+
+export const setClauseIndex = (selectedClauseIndex: number) => {
+  return {
+    type: SET_CLAUSE_INDEX,
+    selectedClauseIndex: selectedClauseIndex
+  }
+}
+
 
 export const UPDATE_IS_CALLING = 'contracts/UPDATE_IS_CALLING'
 
@@ -89,7 +104,7 @@ export const create = () => {
     if (!areInputsValid(state)) {
       dispatch(updateIsCalling(false))
       dispatch(showLockInputMessages(true))
-      return dispatch(updateLockMessage({_error: 'One or more arguments to the contract are invalid.'}))
+      return dispatch(updateLockMessage({ _error: 'One or more arguments to the contract are invalid.' }))
     }
 
     const inputMap = getInputMap(state)
@@ -125,7 +140,7 @@ export const create = () => {
       return client.compile(source, args)
     })
     const promisedUtxo = promisedTemplate.then(resp => {
-      if(resp.status === 'fail'){
+      if (resp.status === 'fail') {
         throw resp.data
       }
       const controlProgram = resp.data.program
@@ -158,9 +173,10 @@ export const create = () => {
       dispatch(setSource(source))
       dispatch(updateIsCalling(false))
       dispatch(updateLockMessage(
-        {_success: [
+        {
+          _success: [
             "transactions has been submited successfully.",
-            <a key='transactionID' href={"/dashboard/transactions/"+ utxo.transactionId} target="_blank"> {utxo.transactionId}</a>
+            <a key='transactionID' href={"/dashboard/transactions/" + utxo.transactionId} target="_blank"> {utxo.transactionId}</a>
           ]
         }))
       dispatch(showLockInputMessages(true))
@@ -168,7 +184,7 @@ export const create = () => {
     }).catch(err => {
       console.log(err)
       dispatch(updateIsCalling(false))
-      dispatch(updateLockMessage({_error: err}))
+      dispatch(updateLockMessage({ _error: err }))
       dispatch(showLockInputMessages(true))
     })
   }
@@ -256,64 +272,108 @@ export const setContractName = (templateName: string) => {
   }
 }
 
+const parseInstructions = (instructions: string) => {
+  const contractArg = []
+  const instructionsArray = instructions.split(/\n/)
+
+  for (const param of instructionsArray){
+      const arr = param.split(/(\s+)/)
+      if(!param.startsWith("DEPTH")){
+        contractArg.push(arr[2])
+      }else{
+        break
+      }
+    }
+  const contractProgram = instructionsArray[contractArg.length + 1].split(/(\s+)/)[2]
+  contractArg.reverse()
+  return { contractArg, contractProgram }
+}
+
+const updateContractInputMap = (inputMap, name, newValue, type = "") => {
+  let input;
+  while (input = inputMap[name]) {
+    if (input.value) {
+      name += "." + input.value
+    } else {
+      if (type) {
+        name += "." + type + "Input"
+        type = ""
+      } else {
+        inputMap[name] = { ...inputMap[name], value: newValue }
+        break;
+      }
+    }
+  }
+}
+
 export const SET_UTXO_INFO = 'contracts/SET_UTXO_INFO'
 
 export const fetchUtxoInfo = () => {
   return (dispatch, getState) => {
     const state = getState()
     const utxoId = getUtxoId(state)
-    const selectContract = getContractTemplateName(state)
+    const source = getSourceMap(state)[getContractTemplateName(state)]
 
     client.listUpspentUtxos({
       id: utxoId,
       smart_contract: true
     }).then(data => {
-      client.decodeProgram(data[0].program)
-        .then(resp =>{
-          dispatch(templates.actions.loadTemplate(selectContract))
-          // const template = getTemplateState(state)
-          const inputMap = getInputMap(state)
+      const utxo = data[0];
+      client.decodeProgram(data[0].program).then(resp => {
 
-          // const promisedInputMap = getPromisedInputMap(inputMap)
-          // const promisedTemplate = promisedInputMap.then((inputMap) => {
-          //   debugger
-          //   const args = getContractArgs(state, inputMap).map(param => {
-          //     if (param instanceof Buffer) {
-          //       return { "string": param.toString('hex') }
-          //     }
-          //
-          //     if (typeof param === 'string') {
-          //       return { "string": param }
-          //     }
-          //
-          //     if (typeof param === 'number') {
-          //       return { "integer": param }
-          //     }
-          //
-          //     if (typeof param === 'boolean') {
-          //       return { 'boolean': param }
-          //     }
-          //     throw 'unsupported argument type ' + (typeof param)
-          //   })
-          //   console.log(args)
-          //   // debugger
-          //   // return client.ivy.compile({ contract: source, args: args })
-          // })
-          //
-          // debugger
+        const { contractArg, contractProgram } = parseInstructions(resp.instructions);
 
+        const promisedCompiled = getPromiseCompiled(source)
 
+        const promisedInputMap = promisedCompiled.then(result => {
+          if (result.status === 'fail') {
+            throw new Error(result.data)
+          }
+          const format = (tpl: CompiledTemplate) => {
+            if (tpl.error !== '') {
+              tpl.clause_info = tpl.params = []
+            }
+            return tpl
+          }
+          const compiled = format(result.data)
+          const inputMap = generateInputMap(compiled)
+          for (let i = 0; i < compiled.params.length; i++) {
+            const params = compiled.params;
+            let newValue = contractArg[i];
+            if (params[i].type === "PublicKey") {
+              const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
+              inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
+            } else if (params[i].type === "Program") {
+              const inputId = "contractParameters." + params[i].name + "." + "programInput"
+              inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
+            } else {
+              updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+            }
+          }
+          updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.asset_id, "asset");
+          updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
 
+          return inputMap
+        })
+
+        Promise.all([promisedInputMap, promisedCompiled]).then(([inputMap, compiled]) => {
+          if (compiled.status !== "success") {
+            throw "compile failed";
+          }
+          const template = compiled.data;
           dispatch({
-            type: SET_UTXO_INFO,
-            info: data[0],
-            instructions: resp.instructions,
-            inputMap
-            // template: template
+            type: CREATE_CONTRACT,
+            controlProgram: template.program,
+            contractProgram,
+            source,
+            template,
+            inputMap,
+            utxo
           })
         })
-      dispatch(push(prefixRoute('/unlock/'+ utxoId)))
+      })
     })
+    dispatch(push(prefixRoute('/unlock/' + utxoId)))
   }
 }
 
@@ -332,9 +392,12 @@ export const updateInput = (name: string, newValue: string) => {
 export const UPDATE_CLAUSE_INPUT = 'contracts/UPDATE_CLAUSE_INPUT'
 
 export const updateClauseInput = (name: string, newValue: string) => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const state = getState()
+    const contractId = getSpendContractId(state)
     dispatch({
       type: UPDATE_CLAUSE_INPUT,
+      contractId: contractId,
       name: name,
       newValue: newValue
     })

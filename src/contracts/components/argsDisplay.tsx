@@ -77,11 +77,11 @@ let AccountAliasWidget = connect(
   (state) => ({ accountMap: getAccountMap(state) })
 )(AccountAliasWidgetUnconnected)
 
-function AmountWidget(props: { input: string }) {
+function AmountWidget(props: { input: Input }) {
 return <div className="form-group">
   <div className="input-group">
     <div className="input-group-addon">Amount</div>
-    <input type="text" className="form-control" value={props.input} disabled />
+    <input type="text" className="form-control" value={props.input.value} disabled />
   </div>
 </div>
 }
@@ -92,7 +92,6 @@ function TextWidget(props: { input: Input }) {
 
 function ComputedWidget(props: { input: ProgramInput }) {
   return <div>
-    Hash:
     <pre>{props.input.computedData}</pre>
   </div>
 }
@@ -175,15 +174,11 @@ function mapStateToContractValueProps(state) {
 }
 
 function ContractValueUnconnected(props: { valueId: string }) {
-  const asset = props.valueId.assetAlias||props.valueId.assetId
   return (
     <section style={{wordBreak: 'break-all'}}>
       <h4>Locked Value</h4>
       <form className="form">
-        <div className="argument">
-          <AssetWidget input={asset}/>
-          <AmountWidget input={props.valueId.amount}/>
-        </div>
+        <div className="argument">{getWidget(props.valueId)}</div>
       </form>
     </section>
   )
