@@ -209,6 +209,7 @@ export const spend = () => {
 
     const templateName = getContractTemplateName(state)
     const clauseName = getClauseName(state)
+    const contract = getSpendContract(state)
 
     const template = getActionBuildTemplate(templateName + "." + clauseName, state)
     template.buildActions().then(actions => {
@@ -221,6 +222,7 @@ export const spend = () => {
       }
       dispatch({
         type: SPEND_CONTRACT,
+        id: contract.id,
         unlockTxid: result.id
       })
       dispatch(fetch())
@@ -325,8 +327,8 @@ export const fetchUtxoInfo = () => {
           const compiled = format(result.data)
           const inputMap = generateInputMap(compiled)
           for (let i = 0; i < compiled.params.length; i++) {
-            const params = compiled.params;
-            let newValue = contractArg[i];
+            const params = compiled.params
+            let newValue = contractArg[i]
             if (params[i].type === "PublicKey") {
               const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
               inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
@@ -350,7 +352,7 @@ export const fetchUtxoInfo = () => {
           if (compiled.status !== "success") {
             throw "compile failed";
           }
-          const template = compiled.data;
+          const template = compiled.data
           dispatch({
             type: CREATE_CONTRACT,
             controlProgram: template.program,
