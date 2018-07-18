@@ -27,7 +27,6 @@ import {
   getUtxoId,
   getSpendContract,
   getSpendUnspentOutputAction,
-  getRequiredValueAction,
   getUnlockAction,
   getClauseWitnessComponents,
   getSpendInputMap,
@@ -47,8 +46,7 @@ import {
   ControlWithProgram,
   DataWitness,
   KeyId,
-  Receiver,
-  SignatureWitness,
+  SignatureWitness, SpendFromAccount,
   SpendUnspentOutput,
   WitnessComponent
 } from '../core/types'
@@ -112,12 +110,13 @@ export const create = () => {
     if (inputMap === undefined) throw "create should not have been called when inputMap is undefined"
 
     const source = getSource(state)
-    const spendFromAccount = getContractValue(state)
+    const spendFromAccountArray = getContractValue(state) ||[]
+    const spendFromAccount = spendFromAccountArray[2]
     if (spendFromAccount === undefined) throw "spendFromAccount should not be undefined here"
     const assetId = spendFromAccount.assetId
     const amount = spendFromAccount.amount
-    const password = spendFromAccount.password
-    const gas = spendFromAccount.gas
+    const password = spendFromAccountArray[0]
+    const gas = spendFromAccountArray[1]
 
     const promisedInputMap = getPromisedInputMap(inputMap)
     const promisedTemplate = promisedInputMap.then((inputMap) => {
@@ -152,7 +151,7 @@ export const create = () => {
         assetId,
         amount
       }
-      const gasAction = {
+      const gasAction : SpendFromAccount= {
         accountId: spendFromAccount.accountId,
         amount: gas,
         type: 'spendFromAccount',
@@ -211,7 +210,7 @@ export const spend = () => {
     const lockedValueAction = getSpendUnspentOutputAction(state)
     const spendInputMap = getSpendInputMap(state)
     const accountId = spendInputMap["unlockValue.accountInput"].value
-    const gas = spendInputMap["unlockValue.gasInput"].value
+    const gas = parseInt(spendInputMap["unlockValue.gasInput"].value, 10)
 
     client.createReceiver(accountId)
       .then((receiver) => {
@@ -223,11 +222,11 @@ export const spend = () => {
           controlProgram
         }
 
-        const gasAction = {
-          accountId,
-          amount: gas,
+        const gasAction: SpendFromAccount = {
           type: 'spendFromAccount',
-          assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+          accountId,
+          assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+          amount: gas
         }
 
         const actions: Action[] = [lockedValueAction, lockActions, gasAction]
@@ -298,7 +297,7 @@ const parseInstructions = (instructions: string) => {
 }
 
 const updateContractInputMap = (inputMap, name, newValue, type = "") => {
-  let input;
+  let input
   while (input = inputMap[name]) {
     if (input.value) {
       name += "." + input.value
@@ -308,7 +307,7 @@ const updateContractInputMap = (inputMap, name, newValue, type = "") => {
         type = ""
       } else {
         inputMap[name] = { ...inputMap[name], value: newValue }
-        break;
+        break
       }
     }
   }

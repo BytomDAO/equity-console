@@ -21,6 +21,7 @@ import './static/playground.css'
 import app from './app'
 import Lock from './templates/components/lock'
 import templates from './templates'
+import { prefixRoute } from './core'
 
 import Unlock from './contracts/components/unlock'
 
@@ -48,12 +49,12 @@ store.dispatch(app.actions.seed())
 
 render(
   <Provider store={store}>
-    <DocumentTitle title='Ivy Editor'>
+    <DocumentTitle title='Equity Contract'>
       <ConnectedRouter history={history}>
         <app.components.Root>
-          <Route exact={true} path={'/'} component={Lock}/>
-          <Route exact path={'/unlock'} component={LockedValue}/>
-          <Route path={'/unlock/:contractId'} component={Unlock} />
+          <Route exact={true} path={prefixRoute('/')} component={Lock} />
+          <Route exact path={prefixRoute('/unlock')}  component={LockedValue} />
+          <Route path={prefixRoute('/unlock/:contractId')} component={Unlock} />
         </app.components.Root>
       </ConnectedRouter>
     </DocumentTitle>

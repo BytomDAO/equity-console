@@ -72,6 +72,7 @@ export function getData(inputId: string, inputsById: {[s: string]: Input}): Buff
       return Buffer.from(input.value, 'hex')
     }
     case "numberInput":
+    case "argInput":
     case "amountInput": {
       return parseInt(input.value, 10)
     }

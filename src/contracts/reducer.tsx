@@ -6,7 +6,7 @@ import { INITIAL_SOURCE_PRGRAM } from './constants'
 
 // ivy imports
 import { AppState } from '../app/types'
-import { addDefaultInput, getPublicKeys , addInputForType} from '../inputs/data'
+import { addDefaultInput, getPublicKeys } from '../inputs/data'
 import { Contract } from './types'
 
 // internal imports
@@ -16,7 +16,6 @@ import { generateInputMap } from './selectors';
 
 export const INITIAL_STATE: ContractsState = {
   contractMap: {},
-  contract: {},
   firstTime: true,
   spendContractId: "",
   idList: [],
@@ -114,10 +113,10 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       template,
       inputMap: action.inputMap,
       contractProgram: action.contractProgram,
-      controlProgram: controlProgram,
+      controlProgram,
       clauseList: clauseNames,
       clauseMap: clauseParameterIds,
-      spendInputMap: spendInputMap
+      spendInputMap
     }
     return {
       ...state,

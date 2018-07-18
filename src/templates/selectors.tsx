@@ -82,7 +82,8 @@ export const getContractValue = createSelector(
   getInputMap,
   getInputList,
   (inputMap: InputMap, inputList: Input[]): SpendFromAccount|undefined => {
-    let sources: SpendFromAccount[] = []
+    const sources: SpendFromAccount[] = []
+    const other: any = []
     inputList.forEach(input => {
       if (input.type === "valueInput") {
         const inputName = input.name
@@ -98,14 +99,15 @@ export const getContractValue = createSelector(
           type: "spendFromAccount",
           accountId,
           assetId,
-          amount,
-          password,
-          gas
+          amount
         } as SpendFromAccount)
+        other.push(password)
+        other.push(gas)
       }
     })
     if (sources.length !== 1) return undefined
-    return sources[0]
+    other.push(sources[0])
+    return other
   }
 )
 

@@ -33,7 +33,6 @@ import {
   ControlWithAddress,
   DataWitness,
   KeyId,
-  Receiver,
   RawTxSignatureWitness,
   SpendFromAccount,
   WitnessComponent, SpendUnspentOutput
@@ -301,34 +300,34 @@ export const getClauseWitnessComponents = createSelector(
   }
 )
 
-export const getClauseMintimes = createSelector(
-  getSpendContract,
-  getSelectedClauseIndex,
-  (spendContract, clauseIndex) => {
-    const clauseName = spendContract.clauseList[clauseIndex]
-    const mintimes = spendContract.template.clauseInfo[clauseIndex].mintimes
-    return mintimes.map(argName => {
-      const inputMap = spendContract.inputMap
-      return new Date(inputMap["contractParameters." + argName + ".timeInput.timestampTimeInput"].value)
-    })
-  }
-)
+// export const getClauseMintimes = createSelector(
+//   getSpendContract,
+//   getSelectedClauseIndex,
+//   (spendContract, clauseIndex) => {
+//     const clauseName = spendContract.clauseList[clauseIndex]
+//     const mintimes = spendContract.template.clause_info[clauseIndex].mintimes
+//     return mintimes.map(argName => {
+//       const inputMap = spendContract.inputMap
+//       return new Date(inputMap["contractParameters." + argName + ".timeInput.timestampTimeInput"].value)
+//     })
+//   }
+// )
 
-export const getClauseMaxtimes = createSelector(
-  getSpendContract,
-  getSelectedClauseIndex,
-  (spendContract, clauseIndex) => {
-    const clauseName = spendContract.clauseList[clauseIndex]
-    const maxtimes = spendContract.template.clause_info[clauseIndex].maxtimes
-    if (maxtimes === undefined)
-      return []
-
-    return maxtimes.map(argName => {
-      const inputMap = spendContract.inputMap
-      return new Date(inputMap["contractParameters." + argName + ".timeInput.timestampTimeInput"].value)
-    })
-  }
-)
+// export const getClauseMaxtimes = createSelector(
+//   getSpendContract,
+//   getSelectedClauseIndex,
+//   (spendContract, clauseIndex) => {
+//     const clauseName = spendContract.clauseList[clauseIndex]
+//     const maxtimes = spendContract.template.clause_info[clauseIndex].maxtimes
+//     if (maxtimes === undefined)
+//       return []
+//
+//     return maxtimes.map(argName => {
+//       const inputMap = spendContract.inputMap
+//       return new Date(inputMap["contractParameters." + argName + ".timeInput.timestampTimeInput"].value)
+//     })
+//   }
+// )
 
 export const areSpendInputsValid = createSelector(
   getSpendInputMap,
@@ -432,9 +431,6 @@ export const getSpendUnspentOutputAction = createSelector(
   ( contract, spendInputMap ) => {
     const outputId = contract.id
     const param = spendInputMap["clauseParameters.spend.sig.signatureInput.argInput"].value
-    if (param === undefined ) {
-      return undefined
-    }
 
     const args = JSON.parse(param)
     const spendUnspentOutput: SpendUnspentOutput = {

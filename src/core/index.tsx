@@ -49,7 +49,7 @@ export const parseError = (err) => {
 // Prefixes the redux router route during production builds.
 export const prefixRoute = (route: string): string => {
   if (isProd) {
-    return "/ivy" + route
+    return "/equity" + route
   }
   return route
 }

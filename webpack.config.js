@@ -10,7 +10,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "public"),
     filename: "bitcoin-playground.bundle.js",
-    publicPath: "/static/"
+    publicPath: "/equity/"
   },
   resolve: {
     modules: ["node_modules"],
@@ -53,7 +53,21 @@ module.exports = {
   },
   devServer: {
     historyApiFallback: true,
-    port: 9000
+    port: 9000,
+    // Proxy API requests to local core server
+    proxy: {
+      '/api': {
+        target: process.env.PROXY_API_HOST || 'http://localhost:9888/',
+        pathRewrite: {
+          '^/api': ''
+        }
+      }
+    }
   },
-  plugins: [new CheckerPlugin()]
+  plugins: [
+    new CheckerPlugin(),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+    })
+  ]
 }

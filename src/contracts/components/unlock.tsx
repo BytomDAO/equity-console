@@ -11,7 +11,7 @@ import SpendInputs from './argsDisplay'
 import UnlockDestination from './unlockDestination'
 import UnlockValue from './unlockValue'
 import ClauseSelect from './clauseselect'
-import {getContractTemplateName, getContractProgram, getUtxoId, getUtxoInfo, getContract, getUnlockError, getContractMap, getSpendContractId} from '../selectors'
+import {getContractTemplateName, getContractProgram, getUtxoId, getContract, getUnlockError, getContractMap, getSpendContractId} from '../selectors'
 import { ContractValue } from './argsDisplay'
 import {fetchUtxoInfo, setContractName, setUtxoID} from "../actions"
 import { ClauseValue, ClauseParameters } from './parameters'

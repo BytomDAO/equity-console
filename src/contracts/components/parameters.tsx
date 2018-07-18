@@ -5,7 +5,6 @@ import { typeToString } from '../types'
 import { getshowLockInputMessages, getParameterIds, getInputMap, getContractValueId } from '../../templates/selectors'
 
 import RadioSelect from '../../app/components/radioSelect'
-import { updateInput } from '../actions'
 import { Item as Asset } from '../../assets/types'
 import { getItemMap as getAssetMap, getItemList as getAssets } from '../../assets/selectors'
 import { Item as Account } from '../../accounts/types'
@@ -492,11 +491,11 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     // case "amountInput": return AmountWidget
     // case "amountInput": return AmountWidget
     case "argInput": return ArgWidget
-    case "xpubInput": return XpubWidget
-    case "path1Input": 
-    case "path2Input": {
-      return PathWidget
-    }
+    // case "xpubInput": return XpubWidget
+    // case "path1Input":
+    // case "path2Input": {
+    //   return PathWidget
+    // }
     case "programInput": return ProgramWidget
     case "gasInput": return GasWidget
     case "passwordInput": return PasswordWidget

@@ -4,8 +4,9 @@
   "description": "",
   "main": "src/entry.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --content-base public --inline --hot"
+    "build": "NODE_ENV=production webpack",
+    "start": "webpack-dev-server --content-base public --inline --hot",
+    "test": "./node_modules/.bin/mocha-webpack --webpack-config webpack.config.js ./test/*.js"
   },
   "author": "",
   "dependencies": {
@@ -25,9 +26,9 @@
     "react-redux": "^5.0.6",
     "redux-localstorage": "^0.4.1",
     "react-router-redux": "^5.0.0-alpha.8",
-    "react": "16.0.0",
+    "react": "^15.4.2",
     "react-ace": "^4.1.6",
-    "react-dom": "16.0.0",
+    "react-dom": "^15.4.2",
     "reselect": "^3.0.0",
     "babel-core": "6.25.0",
     "babel-loader": "^7.1.1",
