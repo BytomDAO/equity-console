@@ -34,6 +34,8 @@ import {
   generateInputMap,
   getSpendContractId,
   areSpendInputsValid
+  getSelectedClause,
+  getClauseName,
 } from './selectors'
 
 import {
@@ -55,9 +57,10 @@ import { getPromisedInputMap, getPromiseCompiled } from '../inputs/data'
 
 import { client, prefixRoute, createLockingTx, createUnlockingTx } from '../core'
 import { CompiledTemplate } from '../templates/types';
-import {ProgramInput} from "../inputs/types"
+import { ProgramInput } from "../inputs/types"
 import templates from "../templates"
-import {INITIAL_ID_LIST} from "../templates/constants"
+import { INITIAL_ID_LIST } from "../templates/constants"
+import { getActionBuildTemplate } from './template';
 
 export const SHOW_UNLOCK_INPUT_ERRORS = 'contracts/SHOW_UNLOCK_INPUT_ERRORS'
 
@@ -110,7 +113,7 @@ export const create = () => {
     if (inputMap === undefined) throw "create should not have been called when inputMap is undefined"
 
     const source = getSource(state)
-    const spendFromAccountArray = getContractValue(state) ||[]
+    const spendFromAccountArray = getContractValue(state) || []
     const spendFromAccount = spendFromAccountArray[2]
     if (spendFromAccount === undefined) throw "spendFromAccount should not be undefined here"
     const assetId = spendFromAccount.assetId
@@ -151,7 +154,7 @@ export const create = () => {
         assetId,
         amount
       }
-      const gasAction : SpendFromAccount= {
+      const gasAction: SpendFromAccount = {
         accountId: spendFromAccount.accountId,
         amount: gas,
         type: 'spendFromAccount',
@@ -197,62 +200,39 @@ export const spend = () => {
   return (dispatch, getState) => {
     dispatch(updateIsCalling(true))
     const state = getState()
+
     if (!areSpendInputsValid(state)) {
       dispatch(updateIsCalling(false))
       dispatch(showUnlockInputErrors(true))
       return dispatch(updateUnlockError('One or more clause arguments are invalid.'))
     }
 
-    const contract = getSpendContract(state)
-    const assetId = contract.assetId
-    const amount = contract.amount
+    const templateName = getContractTemplateName(state)
+    const clauseName = getClauseName(state)
 
-    const lockedValueAction = getSpendUnspentOutputAction(state)
-    const spendInputMap = getSpendInputMap(state)
-    const accountId = spendInputMap["unlockValue.accountInput"].value
-    const gas = parseInt(spendInputMap["unlockValue.gasInput"].value, 10)
-
-    client.createReceiver(accountId)
-      .then((receiver) => {
-        const controlProgram = receiver.control_program
-        const lockActions: ControlWithProgram = {
-          type: "controlWithProgram",
-          assetId,
-          amount,
-          controlProgram
-        }
-
-        const gasAction: SpendFromAccount = {
-          type: 'spendFromAccount',
-          accountId,
-          assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-          amount: gas
-        }
-
-        const actions: Action[] = [lockedValueAction, lockActions, gasAction]
-
-        const password = spendInputMap["unlockValue.passwordInput"].value
-        return createUnlockingTx(actions, password)
+    const template = getActionBuildTemplate(templateName + "." + clauseName, state)
+    template.buildActions().then(actions => {
+      const spendInputMap = getSpendInputMap(state)
+      const password = spendInputMap["unlockValue.passwordInput"].value
+      return createUnlockingTx(actions, password)
+    }).then((result) => {
+      if (result.status === "fail") {
+        throw result.msg
+      }
+      dispatch({
+        type: SPEND_CONTRACT,
+        unlockTxid: result.id
       })
-      .then((result) => {
-        if(result.status === "fail"){
-           throw result.msg
-        }
-
-        dispatch({
-          type: SPEND_CONTRACT,
-          unlockTxid: result.id
-        })
-        dispatch(fetch())
-        dispatch(updateIsCalling(false))
-        dispatch(showUnlockInputErrors(false))
-        dispatch(push(prefixRoute('/unlock')))
-      }).catch(err => {
-        console.log(err)
-        dispatch(updateIsCalling(false))
-        dispatch(updateUnlockError(err))
-        dispatch(showUnlockInputErrors(true))
-      })
+      dispatch(fetch())
+      dispatch(updateIsCalling(false))
+      dispatch(showUnlockInputErrors(false))
+      dispatch(push(prefixRoute('/unlock')))
+    }).catch(err => {
+      console.log(err)
+      dispatch(updateIsCalling(false))
+      dispatch(updateUnlockError(err))
+      dispatch(showUnlockInputErrors(true))
+    })
   }
 }
 
@@ -280,17 +260,17 @@ export const setContractName = (templateName: string) => {
 }
 
 const parseInstructions = (instructions: string) => {
-  const contractArg = []
+  const contractArg: string[] = []
   const instructionsArray = instructions.split(/\n/)
 
-  for (const param of instructionsArray){
-      const arr = param.split(/(\s+)/)
-      if(!param.startsWith("DEPTH")){
-        contractArg.push(arr[2])
-      }else{
-        break
-      }
+  for (const param of instructionsArray) {
+    const arr = param.split(/(\s+)/)
+    if (!param.startsWith("DEPTH")) {
+      contractArg.push(arr[2])
+    } else {
+      break
     }
+  }
   const contractProgram = instructionsArray[contractArg.length + 1].split(/(\s+)/)[2]
   contractArg.reverse()
   return { contractArg, contractProgram }
@@ -349,10 +329,13 @@ export const fetchUtxoInfo = () => {
             let newValue = contractArg[i];
             if (params[i].type === "PublicKey") {
               const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
-              inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
+              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
             } else if (params[i].type === "Program") {
               const inputId = "contractParameters." + params[i].name + "." + "programInput"
-              inputMap[inputId] = {...inputMap[inputId], computedData: newValue}
+              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+            } else if (/\w+\(\w+\)/.test(params[i].type)) {
+              const inputId = "contractParameters." + params[i].name + ".hashInput.generateHashInput.publicKeyInput"
+              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
             } else {
               updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
             }
@@ -375,7 +358,8 @@ export const fetchUtxoInfo = () => {
             source,
             template,
             inputMap,
-            utxo
+            utxo,
+            contractArg
           })
         })
       })

@@ -32,7 +32,6 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
   switch (action.type) {
     case CREATE_CONTRACT: // reset keys etc. this is safe (the action already has this stuff)
     const controlProgram = action.controlProgram
-    const hash = action.utxo.transactionId
     const template: CompiledTemplate = action.template
     const clauseNames = template.clause_info.map(clause => clause.name)
     const clauseParameterIds = {}
@@ -116,7 +115,8 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       controlProgram,
       clauseList: clauseNames,
       clauseMap: clauseParameterIds,
-      spendInputMap
+      spendInputMap,
+      contractArgs: action.contractArg
     }
     return {
       ...state,

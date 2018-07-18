@@ -97,22 +97,23 @@ export const createLockingTx = (actions: types.Action[], password: string): Prom
 
 // Satisfies created contract and transfers value.
 export const createUnlockingTx = (actions: types.Action[], password: string): Promise<{id: string}> => {
-
-  return client.transactions.build(builder => {
-    actions.forEach(action => {
-      switch (action.type) {
-        case "spendFromAccount":
-          builder.spendFromAccount(action)
-          break
-        case "controlWithProgram":
-          builder.controlWithProgram(action)
-          break
-        case "spendUnspentOutput":
-          builder.spendUnspentOutput(action)
-          break
-        default:
-          break
-      }
+  return Promise.resolve().then(() => {
+    return client.transactions.build(builder => {
+      actions.forEach(action => {
+        switch (action.type) {
+          case "spendFromAccount":
+            builder.spendFromAccount(action)
+            break
+          case "controlWithProgram":
+            builder.controlWithProgram(action)
+            break
+          case "spendUnspentOutput":
+            builder.spendUnspentOutput(action)
+            break
+          default:
+            break
+        }
+      })
     })
   }).then(resp => {
     if (resp.status === 'fail') {

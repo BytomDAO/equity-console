@@ -9,7 +9,7 @@ export class TransactionBuilder {
   constructor() {
     this.actions = []
     this.baseTransaction = null
-    this.ttl = 0
+    this.ttl = 1
   }
 
   /**

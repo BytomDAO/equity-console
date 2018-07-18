@@ -127,6 +127,11 @@ export const getSpendInputSelector = (id: string) => {
   )
 }
 
+export const getSpendContractArgs = createSelector(
+  getSpendContract,
+  (contract: Contract): string[] => contract.contractArgs
+)
+
 export const getSpendInputMap = createSelector(
   getSpendContract,
   spendContract => spendContract.spendInputMap
@@ -248,35 +253,16 @@ export const getClauseWitnessComponents = createSelector(
           if (input === undefined || input.type !== "provideStringInput") {
             throw "provideStringInput surprisingly not found for String clause parameter"
           }
-          witness.push({
-            type: "data",
-            value: dataToArgString(getData(inputId, spendInputMap))
-          })
+          witness.push(JSON.parse(input.value))
           return
         }
         case "Signature": {
-          const inputId = clauseParameterPrefix + ".signatureInput.choosePublicKeyInput"
+          const inputId = clauseParameterPrefix + ".signatureInput.argInput"
           const input = spendInputMap[inputId]
-          if (input === undefined || input.type !== "choosePublicKeyInput") {
-            throw "choosePublicKeyInput surprisingly not found"
+          if (input === undefined || input.type !== "argInput") {
+            throw "argInput surprisingly not found"
           }
-
-          const pubkey = input.value
-          if (input.keyMap === undefined) {
-            throw 'surprisingly undefined keymap for input ' + input.name
-          }
-
-          const keymap = input.keyMap[pubkey]
-          witness.push({
-            type: "raw_tx_signature",
-            quorum: 1,
-            keys: [{
-              xpub: keymap.rootXpub,
-              derivationPath: keymap.pubkeyDerivationPath
-            } as KeyId],
-            signatures: []
-          } as RawTxSignatureWitness)
-          signer.addKey(keymap.rootXpub, client.mockHsm.signerConnection)
+          witness.push(JSON.parse(input.value))
           return
         }
         default: {
@@ -289,13 +275,6 @@ export const getClauseWitnessComponents = createSelector(
         }
       }
     })
-    if (contract.clauseList.length > 1) {
-      const value = dataToArgString(clauseIndex)
-      witness.push({
-        type: "data",
-        value
-      } as DataWitness)
-    }
     return witness
   }
 )
@@ -427,18 +406,30 @@ export const getRequiredAssetAmount = createSelector(
 
 export const getSpendUnspentOutputAction = createSelector(
   getSpendContract,
-  getSpendInputMap,
-  ( contract, spendInputMap ) => {
+  getClauseWitnessComponents,
+  ( contract, witness ) => {
     const outputId = contract.id
-    const param = spendInputMap["clauseParameters.spend.sig.signatureInput.argInput"].value
-
-    const args = JSON.parse(param)
     const spendUnspentOutput: SpendUnspentOutput = {
       type: "spendUnspentOutput",
       outputId,
-      arguments: args
+      arguments: witness
     }
     return spendUnspentOutput
+  }
+)
+
+export const getGasAction = createSelector(
+  getSpendInputMap,
+  (spendInputMap) => {
+    const accountId = spendInputMap["unlockValue.accountInput"].value
+    const gas = parseInt(spendInputMap["unlockValue.gasInput"].value, 10)
+    const gasAction = {
+      accountId: accountId,
+      amount: gas,
+      type: 'spendFromAccount',
+      assetId: 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+    } as SpendFromAccount
+    return gasAction
   }
 )
 

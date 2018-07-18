@@ -19,6 +19,7 @@ export type Contract = {
   template: CompiledTemplate,
   controlProgram: string,
   contractProgram: string,
+  contractArgs: string[],
 
   params?,
 
