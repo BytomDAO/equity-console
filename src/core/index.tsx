@@ -97,7 +97,6 @@ export const createLockingTx = (actions: types.Action[], password: string): Prom
 
 // Satisfies created contract and transfers value.
 export const createUnlockingTx = (actions: types.Action[], password: string): Promise<{id: string}> => {
-
   return Promise.resolve().then(() => {
     return client.transactions.build(builder => {
       actions.forEach(action => {
