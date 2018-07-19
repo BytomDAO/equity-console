@@ -2,10 +2,17 @@ import Client from '../sdk'
 
 import * as types from './types'
 
+let url: string
 const isProd: boolean = process.env.NODE_ENV === 'production'
+if (isProd) {
+  url = window.location.origin
+} else {
+  // Used to proxy requests from the client to core.
+  url = 'http://localhost:9888'
+}
 
 export const client = new Client({
-  url: 'http://localhost:9888'
+  url
 })
 
 // Parses an error from Chain Core
