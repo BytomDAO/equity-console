@@ -17,7 +17,6 @@ export const getTemplateState = (state: AppState): TemplateState => state.templa
 export const getLockMessage = createSelector(
   getTemplateState,
   (state: TemplateState) => {
-    // debugger
     const result = state.error
     if(result){
       const error = result._error

@@ -38,7 +38,7 @@ const store = createStore(
   composeEnhancers(
     applyMiddleware(thunk),
     applyMiddleware(routerMiddleware(history))
-    // ,persistState()
+    ,persistState()
   )
 )
 

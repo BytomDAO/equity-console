@@ -201,11 +201,12 @@ export const spend = () => {
     dispatch(updateIsCalling(true))
     const state = getState()
 
-    if (!areSpendInputsValid(state)) {
-      dispatch(updateIsCalling(false))
-      dispatch(showUnlockInputErrors(true))
-      return dispatch(updateUnlockError('One or more clause arguments are invalid.'))
-    }
+    // debugger
+    // if (!areSpendInputsValid(state)) {
+    //   dispatch(updateIsCalling(false))
+    //   dispatch(showUnlockInputErrors(true))
+    //   return dispatch(updateUnlockError('One or more clause arguments are invalid.'))
+    // }
 
     const templateName = getContractTemplateName(state)
     const clauseName = getClauseName(state)

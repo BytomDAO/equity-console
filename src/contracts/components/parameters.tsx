@@ -201,7 +201,7 @@ function ArgWidget(props: {
   handleChange: (e)=>undefined }) {
     return (
       <div className={"form-group" + props.errorClass}>
-        <label><span className='type-label'>Please filled in an arrary of JSON object</span></label>
+        <label><span className='type-label'>Please filled in the JSON objects</span></label>
         <div className="input-group">
           <div className="input-group-addon">Arguments</div>
           <input type="text" className="form-control with-addon"

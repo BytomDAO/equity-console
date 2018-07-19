@@ -108,12 +108,12 @@ export const INITIAL_SOURCE_MAP = {
   LockWithPublicKey: LOCK_WITH_PUBLIC_KEY,
   LockWithPublicKeyHash: LOCK_WITH_PUBLIC_KEY_HASH,
   LockWithMultiSig: LOCK_WITH_MULTISIG,
-  TradeOffer: TRADE_OFFER,
+  // TradeOffer: TRADE_OFFER,
   Escrow: ESCROW,
-  LoanCollateral: LOAN_COLLATERAL,
+  // LoanCollateral: LOAN_COLLATERAL,
   RevealPreimage: REVEAL_PREIMAGE,
-  RevealFactors: REVEAL_FACTORS,
-  CallOption: CALL_OPTION
+  // RevealFactors: REVEAL_FACTORS,
+  // CallOption: CALL_OPTION
 }
 
 export const INITIAL_ID_LIST = [
@@ -121,9 +121,9 @@ export const INITIAL_ID_LIST = [
   "LockWithPublicKey",
   "LockWithPublicKeyHash",
   "LockWithMultiSig",
-  "TradeOffer",
+  // "TradeOffer",
   "Escrow",
-  "LoanCollateral",
-  "CallOption",
+  // "LoanCollateral",
+  // "CallOption",
   "RevealPreimage",
 ]

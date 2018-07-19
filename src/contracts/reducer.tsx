@@ -107,7 +107,9 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
         addParameterInput(inputs, "Value", "clauseValue." + clause.name + "." + value.name)
       }
     }
-    addDefaultInput(inputs, "accountInput", "unlockValue") // Unlocked value destination. Not always used.
+      addDefaultInput(inputs, "argInput", "clauseParameters")
+
+      addDefaultInput(inputs, "accountInput", "unlockValue") // Unlocked value destination. Not always used.
     addDefaultInput(inputs, "passwordInput", "unlockValue")
     addDefaultInput(inputs, "gasInput", "unlockValue")
 
