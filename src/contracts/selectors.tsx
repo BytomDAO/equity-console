@@ -37,6 +37,7 @@ import {
   SpendFromAccount,
   WitnessComponent, SpendUnspentOutput
 } from '../core/types'
+import { SPEND_CONTRACT } from './actions';
 
 export const getState = (state: AppState): ContractsState => state.contracts
 
@@ -197,11 +198,11 @@ export const getClauseUnlockInput = createSelector(
   // getSelectedClause,
   getSpendInputMap,
   // (clause, spendInputMap) => {
-  ( spendInputMap) => {
+  (spendInputMap) => {
     let input
     // clause.valueInfo.forEach(value => {
     //   if (value.program === undefined) {
-        input = spendInputMap["unlockValue.accountInput"]
+    input = spendInputMap["unlockValue.accountInput"]
     //   }
     // })
     return input
@@ -224,13 +225,34 @@ export const getUnlockAction = createSelector(
   }
 )
 
+export const getClauseFlag = (templateName, clausename) => {
+  const type = templateName + "." + clausename
+  switch (type) {
+    case "TradeOffer.trade":
+    case "Escrow.approve":
+    case "LoanCollateral.repay":
+    case "CallOption.exercise":
+      return "00000000"
+    case "TradeOffer.cancel":
+      return "13000000"
+    case "Escrow.reject":
+      return "1a000000"
+    case "LoanCollateral.default":
+      return "1b000000"
+    case "CallOption.expire":
+      return "20000000"
+    default:
+      throw "can not find the flag of clause type:" + type
+  }
+}
+
 export const getClauseWitnessComponents = createSelector(
   getSpendInputMap,
   getClauseName,
   getClauseParameters,
   getSpendContract,
-  getSelectedClauseIndex,
-  (spendInputMap: InputMap, clauseName: string, clauseParameters, contract, clauseIndex): WitnessComponent[] => {
+  getSelectedClause,
+  (spendInputMap: InputMap, clauseName: string, clauseParameters, contract, clauseInfo): WitnessComponent[] => {
     const witness: WitnessComponent[] = []
     clauseParameters.forEach(clauseParameter => {
       const clauseParameterPrefix = "clauseParameters." + clauseName + "." + clauseParameter.name
@@ -241,7 +263,7 @@ export const getClauseWitnessComponents = createSelector(
           if (input === undefined || input.type !== "provideStringInput" || !input.value) {
             throw "provideStringInput surprisingly not found for String clause parameter"
           }
-          witness.push({type: "data", raw_data: {value: input.value}})
+          witness.push({ type: "data", raw_data: { value: input.value } })
           return
         }
         case "String": {
@@ -266,12 +288,18 @@ export const getClauseWitnessComponents = createSelector(
           const val = dataToArgString(getData(clauseParameterPrefix, spendInputMap))
           witness.push({
             type: "data",
-            value: val
+            raw_data: val
           })
           return
         }
       }
     })
+    if (contract.template.clause_info.length > 1) {
+      witness.push(
+        { type: "data", 
+          raw_data: { value: getClauseFlag(contract.template.name, clauseInfo.name) }
+        })
+    }
     return witness
   }
 )
@@ -404,7 +432,7 @@ export const getRequiredAssetAmount = createSelector(
 export const getSpendUnspentOutputAction = createSelector(
   getSpendContract,
   getClauseWitnessComponents,
-  ( contract, witness ) => {
+  (contract, witness) => {
     const outputId = contract.id
     const spendUnspentOutput: SpendUnspentOutput = {
       type: "spendUnspentOutput",
@@ -467,7 +495,7 @@ export const isFirstTime = createSelector(
 export const generateInputMap = (compiled: CompiledTemplate): InputMap => {
   let inputs: Input[] = []
   for (const param of compiled.params) {
-      switch(param.type) {
+    switch (param.type) {
       case "Sha3(PublicKey)": {
         const hashParam = {
           type: "hashType",
@@ -513,7 +541,7 @@ export const generateInputMap = (compiled: CompiledTemplate): InputMap => {
     addParameterInput(inputs, "Value", "contractValue." + compiled.value)
   }
 
-    const inputMap = {}
+  const inputMap = {}
   for (let input of inputs) {
     inputMap[input.name] = input
   }

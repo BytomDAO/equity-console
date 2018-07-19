@@ -1,6 +1,6 @@
 export type DataWitness = {
   type: "data",
-  value: string
+  raw_data?
 }
 
 export type KeyId = {

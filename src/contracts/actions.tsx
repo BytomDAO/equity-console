@@ -297,6 +297,17 @@ const updateContractInputMap = (inputMap, name, newValue, type = "") => {
 
 export const SET_UTXO_INFO = 'contracts/SET_UTXO_INFO'
 
+export const litterEndToBigEnd = (hexNum : string):string => {
+  if (hexNum.length % 2 !== 0) {
+    hexNum = "0" + hexNum
+  }
+  let newNum = ""
+  for (let i = hexNum.length - 2; i >= 0; i -= 2) {
+    newNum += hexNum.substr(i, 2)
+  }
+  return newNum
+}
+
 export const fetchUtxoInfo = () => {
   return (dispatch, getState) => {
     const state = getState()
@@ -339,6 +350,9 @@ export const fetchUtxoInfo = () => {
               const inputId = "contractParameters." + params[i].name + ".hashInput.generateHashInput.publicKeyInput"
               inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
             } else {
+              if (params[i].type === "Amount") {
+                newValue = parseInt(litterEndToBigEnd(newValue), 16).toString()
+              }
               updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
             }
           }
