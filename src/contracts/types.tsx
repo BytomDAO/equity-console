@@ -13,6 +13,7 @@ import { CompiledTemplate } from '../templates/types'
 export type Contract = {
   // lock tx id
   id: string,
+  unlockTxid: string,
   assetId: string,
   // assetAlias: string,
   amount: number,

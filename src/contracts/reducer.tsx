@@ -10,7 +10,7 @@ import { addDefaultInput, getPublicKeys } from '../inputs/data'
 import { Contract } from './types'
 
 // internal imports
-import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME,
+import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME, SPEND_CONTRACT,
   SET_UTXO_INFO,  UPDATE_CLAUSE_INPUT, SET_CLAUSE_INDEX,  UPDATE_UNLOCK_ERROR, SHOW_UNLOCK_INPUT_ERRORS, } from './actions'
 import { generateInputMap } from './selectors';
 
@@ -30,6 +30,21 @@ export const INITIAL_STATE: ContractsState = {
 
 export default function reducer(state: ContractsState = INITIAL_STATE, action): ContractsState {
   switch (action.type) {
+    case SPEND_CONTRACT: {
+      const contract = state.contractMap[action.id]
+      return {
+        ...state,
+        contractMap: {
+          ...state.contractMap,
+          [action.id]: {
+            ...contract,
+            unlockTxid: action.unlockTxid
+          }
+        },
+        idList: state.idList.filter(id => id !== action.id),
+        error: undefined
+      }
+    }
     case CREATE_CONTRACT: // reset keys etc. this is safe (the action already has this stuff)
     const controlProgram = action.controlProgram
     const template: CompiledTemplate = action.template
@@ -83,7 +98,6 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
             addParameterInput(inputs, param.type as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
         }
       }
-
       for (const value of clause.values) {
         if (value.name === template.value) {
           // This is the unlock statement.
@@ -107,6 +121,7 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
     }
     const contract: Contract = {
       id: action.utxo.id,
+      unlockTxid: '',
       assetId: action.utxo.asset_id,
       amount: action.utxo.amount,
       template,
@@ -265,7 +280,7 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
     }
     case "@@router/LOCATION_CHANGE":
       const path = action.payload.pathname.split("/")
-      if (path[1] === "ivy") {
+      if (path[1] === "equity") {
         path.shift()
       }
       if (path.length > 2 && path[1] === "unlock") {

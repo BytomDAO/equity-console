@@ -7,12 +7,18 @@ import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 import { setUtxoID, setContractName, fetchUtxoInfo } from '../actions'
+import { Contract } from '../types'
+import {getContractMap, getSpendContractId} from "../selectors"
 
 const mapStateToProps = (state) => {
+  const map = getContractMap(state)
+  const id = getSpendContractId(state)
+  const contract =  map[id]
   return {
     idList: state.templates.idList,
     contractName: state.contracts.selectedContractName,
-    utxoId: state.contracts.utxoId
+    utxoId: state.contracts.utxoId,
+    contract
   }
 }
 
@@ -30,10 +36,33 @@ const mapDispatchToContractInputProps = (dispatch) => {
   }
 }
 
+
+const SuccessMessage = (props: {  contract: Contract }) => {
+  let jsx = <small />
+  const contract = props.contract
+  if (contract && contract.unlockTxid) {
+    jsx = (
+      <div style={{margin: '25px 0'}} className="alert alert-success" role="success">
+        <span className="sr-only">Success:</span>
+        <span className="glyphicon glyphicon-ok" style={{marginRight: "5px"}}></span>
+        <div>
+          Lock Transaction: <a href={"/dashboard/transactions/" + contract.id} target="_blank">{ contract.id }</a>
+        </div>
+        <div>
+          Unlock Transaction: <a href={"/dashboard/transactions/" + contract.unlockTxid} target="_blank">{ contract.unlockTxid }</a>
+        </div>
+      </div>
+    )
+  }
+  return jsx
+}
+
+
 const LockedValueDisplay = (props: {
   idList: string[],
   contractName: string,
   utxoId: string,
+  contract: Contract,
   handleUtxoChange: (e)=>undefined,
   handleTemplateChange: (e)=>undefined,
   fetch: (e)=>undefined
@@ -43,7 +72,6 @@ const LockedValueDisplay = (props: {
   })
 
   const td = <button className="btn btn-primary" onClick={props.fetch}>Unlock</button>
-
   return (
     <DocumentTitle title="Unlock Value">
       <div>
@@ -65,6 +93,7 @@ const LockedValueDisplay = (props: {
           </div>
         </Section>
         <div>{td}</div>
+        <SuccessMessage contract={props.contract} />
       </div>
     </ DocumentTitle>
   )
