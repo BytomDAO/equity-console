@@ -547,3 +547,30 @@ export const generateInputMap = (compiled: CompiledTemplate): InputMap => {
   }
   return inputMap
 }
+
+export const generateUnlockInputMap = (compiled: CompiledTemplate): InputMap => {
+  let inputs: Input[] = []
+  for (const param of compiled.params) {
+    switch (param.type) {
+      case "Sha3(PublicKey)":
+      case "Sha3(String)":
+      case "Sha256(PublicKey)":
+      case "Sha256(String)": {
+        addParameterInput(inputs, "Hash" as ClauseParameterType, "contractParameters." + param.name)
+        break
+      }
+      default:
+        addParameterInput(inputs, param.type as ClauseParameterType, "contractParameters." + param.name)
+    }
+  }
+
+  if (compiled.value !== "") {
+    addParameterInput(inputs, "Value", "contractValue." + compiled.value)
+  }
+
+  const inputMap = {}
+  for (let input of inputs) {
+    inputMap[input.name] = input
+  }
+  return inputMap
+}

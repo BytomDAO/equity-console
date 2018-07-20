@@ -31,7 +31,7 @@ import {
   getClauseWitnessComponents,
   getSpendInputMap,
   getContractTemplateName,
-  generateInputMap,
+  generateUnlockInputMap,
   getSpendContractId,
   areSpendInputsValid
   getSelectedClause,
@@ -336,24 +336,37 @@ export const fetchUtxoInfo = () => {
             return tpl
           }
           const compiled = format(result.data)
-          const inputMap = generateInputMap(compiled)
+          const inputMap = generateUnlockInputMap(compiled)
           for (let i = 0; i < compiled.params.length; i++) {
             const params = compiled.params
             let newValue = contractArg[i]
-            if (params[i].type === "PublicKey") {
-              const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
-              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-            } else if (params[i].type === "Program") {
-              const inputId = "contractParameters." + params[i].name + "." + "programInput"
-              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-            } else if (/\w+\(\w+\)/.test(params[i].type)) {
-              const inputId = "contractParameters." + params[i].name + ".hashInput.generateHashInput.publicKeyInput"
-              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-            } else {
-              if (params[i].type === "Amount") {
-                newValue = parseInt(litterEndToBigEnd(newValue), 16).toString()
+            switch (params[i].type) {
+              case "PublicKey": {
+                const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
+                inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+                break
               }
-              updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+              case "Program":{
+                const inputId = "contractParameters." + params[i].name + "." + "programInput"
+                inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+                break
+              }
+              case "Sha3(PublicKey)":
+              case "Sha3(String)":
+              case "Sha256(PublicKey)":
+              case "Sha256(String)":{
+                const inputId = "contractParameters." + params[i].name + ".stringInput.generateStringInput"
+                inputMap[inputId] = { ...inputMap[inputId], seed: newValue }
+                break
+              }
+              case "Amount":{
+                newValue = parseInt(litterEndToBigEnd(newValue), 16).toString()
+                updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+                break
+              }
+              default:
+                updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+
             }
           }
           updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.asset_id, "asset");

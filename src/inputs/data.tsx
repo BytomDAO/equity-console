@@ -170,6 +170,7 @@ export const getInputType = (type: ClauseParameterType): PrimaryInputType => {
   switch (type) {
     case "Integer": return "numberInput"
     case "Boolean": return "booleanInput"
+    case "Hash":
     case "String": return "stringInput"
     case "PublicKey": return "publicKeyInput"
     case "Time": return "timeInput"
