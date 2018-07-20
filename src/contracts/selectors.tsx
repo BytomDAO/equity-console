@@ -238,13 +238,10 @@ export const getClauseWitnessComponents = createSelector(
         case "PublicKey": {
           const inputId = clauseParameterPrefix + ".publicKeyInput.provideStringInput"
           const input = spendInputMap[inputId]
-          if (input === undefined || input.type !== "provideStringInput") {
-            throw "provideStringInput surprisingly not found for PublicKey clause parameter"
+          if (input === undefined || input.type !== "provideStringInput" || !input.value) {
+            throw "provideStringInput surprisingly not found for String clause parameter"
           }
-          witness.push({
-            type: "data",
-            value: dataToArgString(getData(inputId, spendInputMap))
-          })
+          witness.push({type: "data", raw_data: {value: input.value}})
           return
         }
         case "String": {
