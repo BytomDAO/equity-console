@@ -272,7 +272,7 @@ export const getClauseWitnessComponents = createSelector(
           if (input === undefined || input.type !== "provideStringInput") {
             throw "provideStringInput surprisingly not found for String clause parameter"
           }
-          witness.push(JSON.parse(input.value))
+          witness.push({ type: "data", raw_data: { value: input.value } })
           return
         }
         case "Signature": {
