@@ -19,19 +19,44 @@ abstract class AbstractTemplate {
         return getGasAction(this.state)
     }
 
-    processArgument(argument): Promise<RawTxSignatureWitness> {
+    getPublicKeyInfo(pubkeyInfos) {
+        const spendContract = getSpendContract(this.state)
+        const compiled = spendContract.template
+        const params = compiled.params
+        for (const i in compiled.params) {
+            if (params[i].type === "PublicKey") {
+                const paramName = params[i].name
+                const inputId = "contractParameters." + paramName + ".publicKeyInput"
+                const pubKey = spendContract.inputMap[inputId].computedData
+                for (const j in pubkeyInfos) {
+                    if (pubkeyInfos[i].pubkey === pubKey) {
+                        return pubkeyInfos[i]
+                    }
+                }
+            }
+        }
+        throw "can not find public key info"
+    }
 
+    processArgument(argument): Promise<RawTxSignatureWitness> {
         if (argument.type === "signature") {
             this.passwords.push(argument.password)
             return client.createAccountPubkey(argument.accountId).then(resp => {
                 const xpub = resp.root_xpub
-                let keyData = resp.pubkey_infos[0]
+                const keyData = this.getPublicKeyInfo(resp.pubkey_infos)
                 return {
                     type: "raw_tx_signature",
                     raw_data: {
                         xpub, derivation_path: keyData.derivation_path
                     }
                 } as RawTxSignatureWitness
+            })
+        } else if (argument.type === "publickey_hash") {
+            return client.createAccountPubkey(argument.accountId).then(resp => {
+                const pubKey = this.getPublicKeyInfo(resp.pubkey_infos).pubkey
+                return {
+                    type: "data", raw_data: {value: pubKey}
+                }
             })
         } else {
             return new Promise(resolve => {

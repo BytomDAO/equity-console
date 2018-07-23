@@ -142,7 +142,7 @@ export const createUnlockingTx = (actions: types.Action[], passwords: string[]):
 
     const tpl = resp.data
     return multiSign(tpl, passwords).then(resp => {
-      if(!resp.data.signComplete) {
+      if(!resp.data.sign_complete) {
         return {
           status: 'sign',
           hex: JSON.stringify(resp.data.transaction)
