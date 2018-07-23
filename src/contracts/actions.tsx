@@ -31,7 +31,7 @@ import {
   getClauseWitnessComponents,
   getSpendInputMap,
   getContractTemplateName,
-  generateInputMap,
+  generateUnlockInputMap,
   getSpendContractId,
   areSpendInputsValid
   getSelectedClause,
@@ -223,15 +223,40 @@ export const spend = () => {
       if (result.status === "fail") {
         throw result.msg
       }
-      dispatch({
-        type: SPEND_CONTRACT,
-        id: contract.id,
-        unlockTxid: result.id
-      })
-      dispatch(fetch())
-      dispatch(updateIsCalling(false))
-      dispatch(showUnlockInputErrors(false))
-      dispatch(push(prefixRoute('/unlock')))
+
+      if(result.status === 'sign') {
+        dispatch(updateIsCalling(false))
+        dispatch(updateUnlockError(
+          ["Sign Compelete failed. It might be your passsword is wrong, or need more sign.",
+            <div><a key='PopupModalGeneratedTransactionID' data-toggle="modal" data-target="#myModal" >Generated Transactions JSON</a></div>,
+            <div className="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style={{color: "#333"}}>
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 className="modal-title" id="myModalLabel">Generated Json</h4>
+                  </div>
+                  <div className="modal-body" style={{wordBreak: 'break-all'}}>
+                    {result.hex}
+                  </div>
+                </div>
+              </div>
+            </div>,
+            <div><a key='SubmitTransaction' href="/dashboard/transactions/create" target="_blank">Submit Transactions</a></div>
+          ]
+        ))
+        dispatch(showUnlockInputErrors(true))
+      }else {
+        dispatch({
+          type: SPEND_CONTRACT,
+          id: contract.id,
+          unlockTxid: result.id
+        })
+        dispatch(fetch())
+        dispatch(updateIsCalling(false))
+        dispatch(showUnlockInputErrors(false))
+        dispatch(push(prefixRoute('/unlock')))
+      }
     }).catch(err => {
       console.log(err)
       dispatch(updateIsCalling(false))
@@ -339,24 +364,37 @@ export const fetchUtxoInfo = () => {
             return tpl
           }
           const compiled = format(result.data)
-          const inputMap = generateInputMap(compiled)
+          const inputMap = generateUnlockInputMap(compiled)
           for (let i = 0; i < compiled.params.length; i++) {
             const params = compiled.params
             let newValue = contractArg[i]
-            if (params[i].type === "PublicKey") {
-              const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
-              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-            } else if (params[i].type === "Program") {
-              const inputId = "contractParameters." + params[i].name + "." + "programInput"
-              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-            } else if (/\w+\(\w+\)/.test(params[i].type)) {
-              const inputId = "contractParameters." + params[i].name + ".hashInput.generateHashInput.publicKeyInput"
-              inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-            } else {
-              if (params[i].type === "Amount") {
-                newValue = parseInt(litterEndToBigEnd(newValue), 16).toString()
+            switch (params[i].type) {
+              case "PublicKey": {
+                const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
+                inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+                break
               }
-              updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+              case "Program":{
+                const inputId = "contractParameters." + params[i].name + "." + "programInput"
+                inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+                break
+              }
+              case "Sha3(PublicKey)":
+              case "Sha3(String)":
+              case "Sha256(PublicKey)":
+              case "Sha256(String)":{
+                const inputId = "contractParameters." + params[i].name + ".stringInput.generateStringInput"
+                inputMap[inputId] = { ...inputMap[inputId], seed: newValue }
+                break
+              }
+              case "Amount":{
+                newValue = parseInt(litterEndToBigEnd(newValue), 16).toString()
+                updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+                break
+              }
+              default:
+                updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+
             }
           }
           updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.asset_id, "asset");

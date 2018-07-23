@@ -105,13 +105,13 @@ const multiSign = (transaction, passwords: string[]) => {
         throw new Error(resp.msg)
       }
       if (resp.data.sign_complete) {
-        return resp.data.transaction.raw_transaction
+        return resp
       }
       passwords.pop()
       return multiSign(resp.data.transaction, passwords)
     })
   } else {
-    return transaction.data.transaction.raw_transaction
+    return transaction
   }
 }
 
@@ -141,8 +141,14 @@ export const createUnlockingTx = (actions: types.Action[], passwords: string[]):
     }
 
     const tpl = resp.data
-    return multiSign(tpl, passwords).then(raw_tx => {
-      const signTx = Object.assign({}, {'raw_transaction': raw_tx})
+    return multiSign(tpl, passwords).then(resp => {
+      if(!resp.data.signComplete) {
+        return {
+          status: 'sign',
+          hex: JSON.stringify(resp.data.transaction)
+        }
+      }
+      const signTx = Object.assign({}, {'raw_transaction': resp.data.transaction.raw_transaction})
       return client.transactions.submit(signTx).then(resp => {
         if (resp.status === 'fail') {
           throw new Error(resp.msg)

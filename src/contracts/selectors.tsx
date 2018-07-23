@@ -272,7 +272,7 @@ export const getClauseWitnessComponents = createSelector(
           if (input === undefined || input.type !== "provideStringInput") {
             throw "provideStringInput surprisingly not found for String clause parameter"
           }
-          witness.push(JSON.parse(input.value))
+          witness.push({ type: "data", raw_data: { value: input.value } })
           return
         }
         case "Signature": {
@@ -486,10 +486,10 @@ export const getUnlockError = createSelector(
   getState,
   (state: ContractsState) => {
     const error = state.error
-    if (typeof error === 'string') {
+    // if (typeof error === 'string') {
       return error
-    }
-    return parseError(error)
+    // }
+    // return parseError(error)
   }
 )
 
@@ -536,6 +536,33 @@ export const generateInputMap = (compiled: CompiledTemplate): InputMap => {
           hashFunction: "sha256" as HashFunction
         }
         addParameterInput(inputs, hashParam as ClauseParameterType, "contractParameters." + param.name)
+        break
+      }
+      default:
+        addParameterInput(inputs, param.type as ClauseParameterType, "contractParameters." + param.name)
+    }
+  }
+
+  if (compiled.value !== "") {
+    addParameterInput(inputs, "Value", "contractValue." + compiled.value)
+  }
+
+  const inputMap = {}
+  for (let input of inputs) {
+    inputMap[input.name] = input
+  }
+  return inputMap
+}
+
+export const generateUnlockInputMap = (compiled: CompiledTemplate): InputMap => {
+  let inputs: Input[] = []
+  for (const param of compiled.params) {
+    switch (param.type) {
+      case "Sha3(PublicKey)":
+      case "Sha3(String)":
+      case "Sha256(PublicKey)":
+      case "Sha256(String)": {
+        addParameterInput(inputs, "Hash" as ClauseParameterType, "contractParameters." + param.name)
         break
       }
       default:

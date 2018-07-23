@@ -25,7 +25,7 @@ const mapStateToProps = (state) => {
   return { error, display }
 }
 
-const ErrorAlert = (props: { error: string }) => {
+const ErrorAlert = (props: { error: any }) => {
   let jsx = <small />
   if (props.error) {
     jsx = (
