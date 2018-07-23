@@ -46,7 +46,7 @@ const SuccessMessage = (props: {  contract: Contract }) => {
         <span className="sr-only">Success:</span>
         <span className="glyphicon glyphicon-ok" style={{marginRight: "5px"}}></span>
         <div>
-          Lock Transaction: <a href={"/dashboard/transactions/" + contract.id} target="_blank">{ contract.id }</a>
+          Lock Transaction UTXO Id: { contract.id }
         </div>
         <div>
           Unlock Transaction: <a href={"/dashboard/transactions/" + contract.unlockTxid} target="_blank">{ contract.unlockTxid }</a>

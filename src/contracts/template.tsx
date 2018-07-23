@@ -164,11 +164,13 @@ export class LockPaymentUnlockValueTemplate extends AbstractTemplate {
 
 export class LockPaymentLockValueTemplate extends AbstractTemplate {
 
-    private controlProgram: string
+    private lenderProgram: string
+    private borrowerProgram: string
 
-    constructor(state: AppState, controlProgram: string) {
+    constructor(state: AppState, lenderProgram: string, borrowerProgram: string) {
         super(state)
-        this.controlProgram = controlProgram
+        this.lenderProgram = lenderProgram
+        this.borrowerProgram = borrowerProgram
     }
 
     buildActions(): Promise<Action[]> {
@@ -177,11 +179,11 @@ export class LockPaymentLockValueTemplate extends AbstractTemplate {
             actions.push(action)
 
             const { paymentAccountId, paymentAssetId, paymentAmount } = this.getPaymentInfo()
-            actions.push(this.buildRecipientAction(paymentAssetId, paymentAmount, this.controlProgram))
+            actions.push(this.buildRecipientAction(paymentAssetId, paymentAmount, this.lenderProgram))
 
             const { accountId, assetId, amount } = this.getDestinationInfo()
             return client.createReceiver(accountId).then((receiver) => {
-                actions.push(this.buildRecipientAction(assetId, amount, receiver.control_program))
+                actions.push(this.buildRecipientAction(assetId, amount, this.borrowerProgram))
                 actions.push(this.buildSpendAccountAction(paymentAssetId, paymentAmount, paymentAccountId))
                 actions.push(this.buildGasAction())
                 return actions
@@ -211,7 +213,7 @@ export function getActionBuildTemplate(type: string, state: AppState): AbstractT
         case "CallOption.exercise":
             return new LockPaymentUnlockValueTemplate(state, getSpendContractArgs(state)[2])
         case "LoanCollateral.repay":
-            return new LockPaymentLockValueTemplate(state, getSpendContractArgs(state)[3])
+            return new LockPaymentLockValueTemplate(state, getSpendContractArgs(state)[3], getSpendContractArgs(state)[4])
         default:
             throw "can not find action build template. type:" + type
     }
