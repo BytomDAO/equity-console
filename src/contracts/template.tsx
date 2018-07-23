@@ -1,4 +1,4 @@
-import { Action, SpendFromAccount, SpendUnspentOutput, ControlWithProgram } from "../core/types"
+import { Action, SpendFromAccount, SpendUnspentOutput, ControlWithProgram, RawTxSignatureWitness } from "../core/types"
 import { getSpendInputMap, getSpendUnspentOutputAction, getGasAction, getSpendContract, getSpendContractArgs, getSelectedClause } from "./selectors";
 import { AppState } from "../app/types";
 import { client } from "../core";
@@ -6,6 +6,8 @@ import { client } from "../core";
 abstract class AbstractTemplate {
 
     protected state: AppState
+
+    public passwords: string[] = []
 
     constructor(state: AppState) {
         this.state = state
@@ -17,8 +19,34 @@ abstract class AbstractTemplate {
         return getGasAction(this.state)
     }
 
-    buildUnSpendOutputAction(): SpendUnspentOutput {
-        return getSpendUnspentOutputAction(this.state)
+    processArgument(argument): Promise<RawTxSignatureWitness> {
+
+        if (argument.type === "signature") {
+            this.passwords.push(argument.password)
+            return client.createAccountPubkey(argument.accountId).then(resp => {
+                const xpub = resp.root_xpub
+                let keyData = resp.pubkey_infos[0]
+                return {
+                    type: "raw_tx_signature",
+                    raw_data: {
+                        xpub, derivation_path: keyData.derivation_path
+                    }
+                } as RawTxSignatureWitness
+            })
+        } else {
+            return new Promise(resolve => {
+                resolve(argument)
+            })
+        }
+    }
+
+    buildUnSpendOutputAction(): Promise<SpendUnspentOutput> {
+        const output = getSpendUnspentOutputAction(this.state)
+        const promisedArgs = output.arguments.map(arg => this.processArgument(arg))
+        return Promise.all(promisedArgs).then(args => {
+            output.arguments = args
+            return output
+        })
     }
 
     buildSpendAccountAction(asset_id: string, amount: number, account_id: string): SpendFromAccount {
@@ -65,14 +93,15 @@ abstract class AbstractTemplate {
 export class UnlockValueTemplate extends AbstractTemplate {
 
     buildActions(): Promise<Action[]> {
-        const actions: Action[] = []
-        actions.push(this.buildUnSpendOutputAction())
-
-        const { accountId, assetId, amount } = this.getDestinationInfo()
-        return client.createReceiver(accountId).then((receiver) => {
-            actions.push(this.buildRecipientAction(assetId, amount, receiver.control_program))
-            actions.push(this.buildGasAction())
-            return actions
+        return this.buildUnSpendOutputAction().then(action => {
+            const actions: Action[] = []
+            actions.push(action)
+            const { accountId, assetId, amount } = this.getDestinationInfo()
+            return client.createReceiver(accountId).then((receiver) => {
+                actions.push(this.buildRecipientAction(assetId, amount, receiver.control_program))
+                actions.push(this.buildGasAction())
+                return actions
+            })
         })
     }
 }
@@ -87,9 +116,10 @@ export class LockValueWithProgramTemplate extends AbstractTemplate {
     }
 
     buildActions(): Promise<Action[]> {
-        return new Promise((resolve) => {
+
+        return this.buildUnSpendOutputAction().then(action => {
             const actions: Action[] = []
-            actions.push(this.buildUnSpendOutputAction())
+            actions.push(action)
 
             const contract = getSpendContract(this.state)
             const assetId = contract.assetId
@@ -97,7 +127,7 @@ export class LockValueWithProgramTemplate extends AbstractTemplate {
 
             actions.push(this.buildRecipientAction(assetId, amount, this.controlProgram))
             actions.push(this.buildGasAction())
-            resolve(actions)
+            return actions
         })
     }
 }
@@ -112,19 +142,22 @@ export class LockPaymentUnlockValueTemplate extends AbstractTemplate {
     }
 
     buildActions(): Promise<Action[]> {
-        const actions: Action[] = []
-        actions.push(this.buildUnSpendOutputAction())
 
-        const { paymentAccountId, paymentAssetId, paymentAmount } = this.getPaymentInfo()
-        actions.push(this.buildRecipientAction(paymentAssetId, paymentAmount, this.controlProgram))
-        actions.push(this.buildSpendAccountAction(paymentAssetId, paymentAmount, paymentAccountId))
+        return this.buildUnSpendOutputAction().then(action => {
+            const actions: Action[] = []
+            actions.push(action)
 
-        actions.push(this.buildGasAction())
+            const { paymentAccountId, paymentAssetId, paymentAmount } = this.getPaymentInfo()
+            actions.push(this.buildRecipientAction(paymentAssetId, paymentAmount, this.controlProgram))
+            actions.push(this.buildSpendAccountAction(paymentAssetId, paymentAmount, paymentAccountId))
 
-        const { accountId, assetId, amount } = this.getDestinationInfo()
-        return client.createReceiver(accountId).then((receiver) => {
-            actions.push(this.buildRecipientAction(assetId, amount, receiver.control_program))
-            return actions
+            actions.push(this.buildGasAction())
+
+            const { accountId, assetId, amount } = this.getDestinationInfo()
+            return client.createReceiver(accountId).then((receiver) => {
+                actions.push(this.buildRecipientAction(assetId, amount, receiver.control_program))
+                return actions
+            })
         })
     }
 }
@@ -139,9 +172,9 @@ export class LockPaymentLockValueTemplate extends AbstractTemplate {
     }
 
     buildActions(): Promise<Action[]> {
-        return new Promise<Action[]>(() => {
+        return this.buildUnSpendOutputAction().then(action => {
             const actions: Action[] = []
-            actions.push(this.buildUnSpendOutputAction())
+            actions.push(action)
 
             const { paymentAccountId, paymentAssetId, paymentAmount } = this.getPaymentInfo()
             actions.push(this.buildRecipientAction(paymentAssetId, paymentAmount, this.controlProgram))

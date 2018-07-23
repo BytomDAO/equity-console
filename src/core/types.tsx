@@ -10,19 +10,16 @@ export type KeyId = {
 
 export type SignatureWitness = {
   type: "signature",
-  quorum: 1,
-  keys: KeyId[],
-  signatures: string[]
+  accountId: string,
+  password: string
 }
 
 export type RawTxSignatureWitness = {
   type: "raw_tx_signature",
-  quorum: 1,
-  keys: KeyId[],
-  signatures: string[]
+  raw_data?,
 }
 
-export type WitnessComponent = RawTxSignatureWitness | DataWitness | SignatureWitness
+export type WitnessComponent = DataWitness | SignatureWitness | RawTxSignatureWitness
 
 export type SigningInstruction = {
   position: number,

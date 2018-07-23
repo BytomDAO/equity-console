@@ -211,11 +211,14 @@ export const spend = () => {
     const clauseName = getClauseName(state)
     const contract = getSpendContract(state)
 
-    const template = getActionBuildTemplate(templateName + "." + clauseName, state)
-    template.buildActions().then(actions => {
+    const actionTemplate = getActionBuildTemplate(templateName + "." + clauseName, state)
+    actionTemplate.buildActions().then(actions => {
       const spendInputMap = getSpendInputMap(state)
       const password = spendInputMap["unlockValue.passwordInput"].value
-      return createUnlockingTx(actions, password)
+      const passwordSet = new Set(actionTemplate.passwords)
+      passwordSet.add(password)
+      const passwords = Array.from(passwordSet)
+      return createUnlockingTx(actions, passwords)
     }).then((result) => {
       if (result.status === "fail") {
         throw result.msg

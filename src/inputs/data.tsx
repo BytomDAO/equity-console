@@ -72,7 +72,6 @@ export function getData(inputId: string, inputsById: {[s: string]: Input}): Buff
       return Buffer.from(input.value, 'hex')
     }
     case "numberInput":
-    case "argInput":
     case "amountInput": {
       return parseInt(input.value, 10)
     }
@@ -242,8 +241,7 @@ export const validateInput = (input: Input): boolean => {
     case "timeInput":
       return (input.value === "timestampTimeInput")
     case "generatePublicKeyInput":
-    case "signatureInput":
-      return input.value === "choosePublicKeyInput"
+      return input.value === "accountInput"
     case "generateSignatureInput":
       return (input.value === "providePrivateKeyInput")
     case "programInput":
@@ -278,13 +276,13 @@ export const validateInput = (input: Input): boolean => {
       if (isNaN(numberValue)) return false
       if (numberValue < 0) return false
       return true
-    case "argInput":
     case "accountInput":
     case "xpubInput":
     case "pathInput":
     case "assetInput":
     case "passwordInput":
     case "gasInput":
+    case "signatureInput":
       return (input.value !== "")
     case "valueInput":
       // TODO(dan)
@@ -378,7 +376,6 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
       return "timestampTimeInput"
     case "accountInput":
     case "xpubInput":
-    case "argInput":
     case "pathInput":
     case "assetInput":
       return ""
@@ -429,7 +426,7 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
     case "publicKeyInput":
       return "accountInput"
     case "signatureInput":
-      return "choosePublicKeyInput"
+      return "accountInput"
     case "generatePublicKeyInput":
     case "generateSignatureInput":
       return "providePrivateKeyInput"
@@ -441,7 +438,6 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
       return "accountInput"
     case "accountInput":
     case "xpubInput":
-    case "argInput":
     case "pathInput":
     case "assetInput":
     case "valueInput":
@@ -556,7 +552,8 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       return
     }
     case "signatureInput": {
-      addDefaultInput(inputs, "argInput", name)
+      addDefaultInput(inputs, "accountInput", name)
+      addDefaultInput(inputs, "passwordInput", name)
       return
     }
     case "generateSignatureInput": {
@@ -606,8 +603,8 @@ export function getPublicKeys(inputsById: {[s: string]: Input}) {
     let input = inputsById[id]
     if (input.type === "publicKeyInput") {
       if (input.computedData === undefined) throw 'input.computedData unexpectedly undefined'
-      //if (input.keyData === undefined) throw 'input.keyData unexpectedly undefined'
-      mapping[input.computedData] = {}
+      if (input.keyData === undefined) throw 'input.keyData unexpectedly undefined'
+      mapping[input.computedData] = input.keyData
     }
   }
   return mapping
