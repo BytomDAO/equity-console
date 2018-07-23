@@ -387,6 +387,7 @@ export const fetchUtxoInfo = () => {
                 inputMap[inputId] = { ...inputMap[inputId], seed: newValue }
                 break
               }
+              case "Integer":
               case "Amount":{
                 newValue = parseInt(litterEndToBigEnd(newValue), 16).toString()
                 updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
