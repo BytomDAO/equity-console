@@ -33,7 +33,7 @@ import {
   ControlWithAddress,
   DataWitness,
   KeyId,
-  RawTxSignatureWitness,
+  SignatureWitness,
   SpendFromAccount,
   WitnessComponent, SpendUnspentOutput
 } from '../core/types'
@@ -276,12 +276,18 @@ export const getClauseWitnessComponents = createSelector(
           return
         }
         case "Signature": {
-          const inputId = clauseParameterPrefix + ".signatureInput.argInput"
-          const input = spendInputMap[inputId]
-          if (input === undefined || input.type !== "argInput") {
-            throw "argInput surprisingly not found"
+          const accountInputId = clauseParameterPrefix + ".signatureInput.accountInput"
+          const accountinput = spendInputMap[accountInputId]
+          if (accountinput === undefined || accountinput.type !== "accountInput") {
+            throw "accountInput surprisingly not found"
           }
-          witness.push(JSON.parse(input.value))
+          const passwordInputId = clauseParameterPrefix + ".signatureInput.passwordInput"
+          const passwordInput = spendInputMap[passwordInputId]
+          if (passwordInput === undefined || passwordInput.type !== "passwordInput") {
+            throw "passwordInput surprisingly not found"
+          }
+          const signatureWitness = {type: "signature", accountId: accountinput.value, password: passwordInput.value} as SignatureWitness
+          witness.push(signatureWitness)
           return
         }
         default: {

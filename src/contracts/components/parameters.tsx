@@ -238,7 +238,8 @@ function PathWidget(props: { input: PathInput,
 function SignatureWidget(props: {input: SignatureInput, handleChange: (e) => undefined}) {
   return (
     <div>
-      {getWidget(props.input.name + ".argInput")}
+      {getWidget(props.input.name + ".accountInput")}
+      {getWidget(props.input.name + ".passwordInput")}
     </div>
   )
 }
@@ -487,15 +488,6 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     case "accountInput": return AccountAliasWidget
     case "assetInput": return AssetAliasWidget
     case "amountInput": return AmountWidget
-    // case "assetInput": return AssetAliasWidget
-    // case "amountInput": return AmountWidget
-    // case "amountInput": return AmountWidget
-    case "argInput": return ArgWidget
-    // case "xpubInput": return XpubWidget
-    // case "path1Input":
-    // case "path2Input": {
-    //   return PathWidget
-    // }
     case "programInput": return ProgramWidget
     case "gasInput": return GasWidget
     case "passwordInput": return PasswordWidget
