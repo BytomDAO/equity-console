@@ -29,8 +29,8 @@ abstract class AbstractTemplate {
                 const inputId = "contractParameters." + paramName + ".publicKeyInput"
                 const pubKey = spendContract.inputMap[inputId].computedData
                 for (const j in pubkeyInfos) {
-                    if (pubkeyInfos[i].pubkey === pubKey) {
-                        return pubkeyInfos[i]
+                    if (pubkeyInfos[j].pubkey === pubKey) {
+                        return pubkeyInfos[j]
                     }
                 }
             }
