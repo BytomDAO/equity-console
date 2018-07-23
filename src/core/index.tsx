@@ -127,6 +127,13 @@ export const createUnlockingTx = (actions: types.Action[], password: string): Pr
         throw new Error(resp.msg)
       }
 
+      if(!resp.data.signComplete) {
+        return {
+          status: 'sign',
+          hex: JSON.stringify(resp.data.transaction)
+        }
+      }
+
       const raw_transaction = resp.data.transaction.raw_transaction
       const signTx = Object.assign({}, {'raw_transaction': raw_transaction})
       return client.transactions.submit(signTx).then(resp => {

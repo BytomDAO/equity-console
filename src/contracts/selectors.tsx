@@ -480,10 +480,10 @@ export const getUnlockError = createSelector(
   getState,
   (state: ContractsState) => {
     const error = state.error
-    if (typeof error === 'string') {
+    // if (typeof error === 'string') {
       return error
-    }
-    return parseError(error)
+    // }
+    // return parseError(error)
   }
 )
 

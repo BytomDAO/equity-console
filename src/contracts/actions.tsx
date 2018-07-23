@@ -220,15 +220,40 @@ export const spend = () => {
       if (result.status === "fail") {
         throw result.msg
       }
-      dispatch({
-        type: SPEND_CONTRACT,
-        id: contract.id,
-        unlockTxid: result.id
-      })
-      dispatch(fetch())
-      dispatch(updateIsCalling(false))
-      dispatch(showUnlockInputErrors(false))
-      dispatch(push(prefixRoute('/unlock')))
+
+      if(result.status === 'sign') {
+        dispatch(updateIsCalling(false))
+        dispatch(updateUnlockError(
+          ["Sign Compelete failed. It might be your passsword is wrong, or need more sign.",
+            <div><a key='PopupModalGeneratedTransactionID' data-toggle="modal" data-target="#myModal" >Generated Transactions JSON</a></div>,
+            <div className="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style={{color: "#333"}}>
+              <div className="modal-dialog" role="document">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 className="modal-title" id="myModalLabel">Generated Json</h4>
+                  </div>
+                  <div className="modal-body" style={{wordBreak: 'break-all'}}>
+                    {result.hex}
+                  </div>
+                </div>
+              </div>
+            </div>,
+            <div><a key='SubmitTransaction' href="/dashboard/transactions/create" target="_blank">Submit Transactions</a></div>
+          ]
+        ))
+        dispatch(showUnlockInputErrors(true))
+      }else {
+        dispatch({
+          type: SPEND_CONTRACT,
+          id: contract.id,
+          unlockTxid: result.id
+        })
+        dispatch(fetch())
+        dispatch(updateIsCalling(false))
+        dispatch(showUnlockInputErrors(false))
+        dispatch(push(prefixRoute('/unlock')))
+      }
     }).catch(err => {
       console.log(err)
       dispatch(updateIsCalling(false))
