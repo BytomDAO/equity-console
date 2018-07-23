@@ -97,7 +97,6 @@ export const createLockingTx = (actions: types.Action[], password: string): Prom
 }
 
 const multiSign = (transaction, passwords: string[]) => {
-  debugger
   if (passwords.length > 0) {
     const password = passwords[passwords.length - 1]
     const body = {password, transaction}
