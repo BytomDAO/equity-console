@@ -35,7 +35,7 @@ import {
   KeyId,
   SignatureWitness,
   SpendFromAccount,
-  WitnessComponent, SpendUnspentOutput
+  WitnessComponent, SpendUnspentOutput, PublickeyHashWitness
 } from '../core/types'
 import { SPEND_CONTRACT } from './actions';
 
@@ -260,10 +260,16 @@ export const getClauseWitnessComponents = createSelector(
         case "PublicKey": {
           const inputId = clauseParameterPrefix + ".publicKeyInput.provideStringInput"
           const input = spendInputMap[inputId]
-          if (input === undefined || input.type !== "provideStringInput" || !input.value) {
-            throw "provideStringInput surprisingly not found for String clause parameter"
+          if (input !== undefined && input.type !== "provideStringInput" && input.value) {
+            witness.push({ type: "data", raw_data: { value: input.value } })
+          } else {
+            const inputId = clauseParameterPrefix + ".publicKeyInput.accountInput"
+            const input = spendInputMap[inputId]
+            if (input == undefined || input.type !== "accountInput" || !input.value) {
+              throw "publicKeyInput surprisingly not found for String clause parameter"
+            }
+            witness.push({type: "publickey_hash", accountId: input.value})
           }
-          witness.push({ type: "data", raw_data: { value: input.value } })
           return
         }
         case "String": {

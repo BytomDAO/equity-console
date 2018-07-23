@@ -14,12 +14,17 @@ export type SignatureWitness = {
   password: string
 }
 
+export type PublickeyHashWitness = {
+  type: "publickey_hash",
+  accountId: string,
+}
+
 export type RawTxSignatureWitness = {
   type: "raw_tx_signature",
   raw_data?,
 }
 
-export type WitnessComponent = DataWitness | SignatureWitness | RawTxSignatureWitness
+export type WitnessComponent = DataWitness | SignatureWitness | RawTxSignatureWitness | PublickeyHashWitness
 
 export type SigningInstruction = {
   position: number,
