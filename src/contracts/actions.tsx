@@ -341,7 +341,6 @@ export const fetchUtxoInfo = () => {
   return (dispatch, getState) => {
     const state = getState()
     const utxoId = getUtxoId(state)
-    const source = getSourceMap(state)[getContractTemplateName(state)]
 
     client.listUpspentUtxos({
       id: utxoId,
@@ -353,6 +352,8 @@ export const fetchUtxoInfo = () => {
         const { contractArg, contractProgram } = parseInstructions(resp.instructions);
         const contractName = INITIAL_PRGRAM_NAME[contractProgram]
         dispatch(setContractName(contractName))
+
+        const source = getSourceMap(state)[contractName]
 
         const promisedCompiled = getPromiseCompiled(source)
 
