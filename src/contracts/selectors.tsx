@@ -403,16 +403,13 @@ export const getRequiredAssetAmount = createSelector(
 
 export const getSpendUnspentOutputAction = createSelector(
   getSpendContract,
-  getSpendInputMap,
-  ( contract, spendInputMap ) => {
+  getClauseWitnessComponents,
+  ( contract, witness ) => {
     const outputId = contract.id
-    const param = spendInputMap["clauseParameters.argInput"].value
-    const args = JSON.parse(param)
-
     const spendUnspentOutput: SpendUnspentOutput = {
       type: "spendUnspentOutput",
       outputId,
-      arguments: args
+      arguments: witness
     }
     return spendUnspentOutput
   }

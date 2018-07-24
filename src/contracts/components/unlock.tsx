@@ -59,8 +59,8 @@ export const Unlock = ({ error, display }) => {
     details = (
       <div className="form-wrapper with-subsections">
         <ClauseSelect />
-        {/*<ClauseValue />*/}
-        {/*<ClauseParameters />*/}
+        <ClauseValue />
+        <ClauseParameters />
         <UnlockDestination />
         <UnlockValue />
       </div>
