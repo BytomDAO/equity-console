@@ -46,7 +46,7 @@ const SuccessMessage = (props: {  contract: Contract }) => {
         <span className="sr-only">Success:</span>
         <span className="glyphicon glyphicon-ok" style={{marginRight: "5px"}}></span>
         <div>
-          Lock Transaction: <a href={"/dashboard/transactions/" + contract.id} target="_blank">{ contract.id }</a>
+          Lock Transaction UTXO Id: { contract.id }
         </div>
         <div>
           Unlock Transaction: <a href={"/dashboard/transactions/" + contract.unlockTxid} target="_blank">{ contract.unlockTxid }</a>
@@ -83,14 +83,14 @@ const LockedValueDisplay = (props: {
                    onChange={props.handleUtxoChange}/>
           </div>
 
-          <div className={"form-group"}>
+          {/* <div className={"form-group"}>
             <div className="input-group">
               <div className="input-group-addon">Contract Template</div>
               <select className="form-control with-addon" value={props.contractName} onChange={props.handleTemplateChange}>
                 {options}
               </select>
             </div>
-          </div>
+          </div> */}
         </Section>
         <div>{td}</div>
         <SuccessMessage contract={props.contract} />
