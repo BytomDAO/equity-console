@@ -239,7 +239,7 @@ function SignatureWidget(props: {input: SignatureInput, handleChange: (e) => und
   return (
     <div>
       {getWidget(props.input.name + ".accountInput")}
-      {getWidget(props.input.name + ".passwordInput")}
+      {/*{getWidget(props.input.name + ".passwordInput")}*/}
     </div>
   )
 }
