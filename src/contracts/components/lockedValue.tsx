@@ -83,14 +83,14 @@ const LockedValueDisplay = (props: {
                    onChange={props.handleUtxoChange}/>
           </div>
 
-          <div className={"form-group"}>
+          {/* <div className={"form-group"}>
             <div className="input-group">
               <div className="input-group-addon">Contract Template</div>
               <select className="form-control with-addon" value={props.contractName} onChange={props.handleTemplateChange}>
                 {options}
               </select>
             </div>
-          </div>
+          </div> */}
         </Section>
         <div>{td}</div>
         <SuccessMessage contract={props.contract} />

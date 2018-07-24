@@ -61,6 +61,7 @@ import { ProgramInput } from "../inputs/types"
 import templates from "../templates"
 import { INITIAL_ID_LIST } from "../templates/constants"
 import { getActionBuildTemplate } from './template';
+import { INITIAL_PRGRAM_NAME } from './constants';
 
 export const SHOW_UNLOCK_INPUT_ERRORS = 'contracts/SHOW_UNLOCK_INPUT_ERRORS'
 
@@ -350,6 +351,8 @@ export const fetchUtxoInfo = () => {
       client.decodeProgram(data[0].program).then(resp => {
 
         const { contractArg, contractProgram } = parseInstructions(resp.instructions);
+        const contractName = INITIAL_PRGRAM_NAME[contractProgram]
+        dispatch(setContractName(contractName))
 
         const promisedCompiled = getPromiseCompiled(source)
 
