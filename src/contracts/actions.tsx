@@ -216,10 +216,7 @@ export const spend = () => {
     actionTemplate.buildActions().then(actions => {
       const spendInputMap = getSpendInputMap(state)
       const password = spendInputMap["unlockValue.passwordInput"].value
-      const passwordSet = new Set(actionTemplate.passwords)
-      passwordSet.add(password)
-      const passwords = Array.from(passwordSet)
-      return createUnlockingTx(actions, passwords)
+      return createUnlockingTx(actions, [password])
     }).then((result) => {
       if (result.status === "fail") {
         throw result.msg
