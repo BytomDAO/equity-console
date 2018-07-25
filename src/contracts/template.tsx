@@ -29,10 +29,8 @@ abstract class AbstractTemplate {
                 const paramName = params[i].name
                 const inputId = "contractParameters." + paramName + ".publicKeyInput"
                 const pubKey = spendContract.inputMap[inputId].computedData
-                for (const j in pubkeyInfos) {
-                    if (pubkeyInfos[j].pubkey === pubKey) {
-                        return pubkeyInfos[j]
-                    }
+                if( pubkeyInfos[0].pubkey === pubKey ){
+                  return pubkeyInfos[0]
                 }
             }else if (params[i].type === "Sha3(PublicKey)") {
               const paramName = params[i].name
