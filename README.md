@@ -28,5 +28,5 @@ By default, the development server uses the following environment variables
 with default values to connect to a local instance:
 
 ```
-API_URL=http://localhost:9000
+URL=http://localhost:9000
 ```
