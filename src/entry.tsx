@@ -15,6 +15,8 @@ import {
 import thunk from 'redux-thunk'
 import LockedValue from './contracts/components/lockedValue'
 
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.css'
 import './static/playground.css'
 
 // ivy imports
@@ -24,6 +26,7 @@ import templates from './templates'
 import { prefixRoute } from './core'
 
 import Unlock from './contracts/components/unlock'
+
 
 interface ExtensionWindow extends Window {
   __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
