@@ -237,7 +237,8 @@ export type ProgramInput = {
 export type AssetInput = {
   type: "assetInput",
   value: string,
-  name: string
+  name: string,
+  computedData: string
 }
 
 export type XpubInput = {

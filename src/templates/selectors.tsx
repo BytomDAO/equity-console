@@ -88,7 +88,8 @@ export const getContractValue = createSelector(
       if (input.type === "valueInput") {
         const inputName = input.name
         const accountId = inputMap[inputName + ".accountInput"].value
-        const assetId = inputMap[inputName + ".assetInput"].value
+        const assetInput = inputMap[inputName + ".assetInput"]
+        const assetId = inputMap[assetInput.name + "." + assetInput.value].value
         const amount = parseInt(inputMap[inputName + ".amountInput"].value, 10)
         const password = inputMap[inputName + ".passwordInput"].value
         const gas = parseInt(inputMap[inputName + ".gasInput"].value, 10)

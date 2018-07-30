@@ -141,7 +141,7 @@ function AssetWidget(props: { input: AssetInput, handleChange: (e) => undefined 
   { label: "Provide Asset Id", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
-    <div>
+    <div className="input-group">
       <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
       {getChildWidget(props.input)}
     </div>
@@ -183,6 +183,7 @@ function GasWidget(props: {
         <div className="input-group-addon">Gas</div>
         <input type="text" className="form-control" style={{ width: 200 }} key={props.input.name}
           value={props.input.value} onChange={props.handleChange} />
+        Neu
       </div>
     </div>
   )
@@ -645,6 +646,7 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
     const valueType = "Value"
     props.spendInputMap[props.valueId + ".valueInput.assetInput"].value = props.assetAmount.assetId
     props.spendInputMap[props.valueId + ".valueInput.amountInput"].value = props.assetAmount.amount
+    const asset = props.assetMap[props.assetAmount.assetId]
     return (
       <section style={{ wordBreak: 'break-all' }}>
         <h4>Required Value</h4>
@@ -655,7 +657,7 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
           <div className="form-group">
             <div className="input-group">
               <div className="input-group-addon">Asset</div>
-              <input type="text" className="form-control" value={props.assetMap[props.assetAmount.assetId].alias} disabled />
+              <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.assetAmount.assetId} disabled />
             </div>
           </div>
           <div className="form-group">

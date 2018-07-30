@@ -56,11 +56,12 @@ function AssetWidget(props: { input: string }) {
   </div>
 }
 
-function AssetAliasWidgetUnconnected(props: { input: AssetAliasInput, assetMap: {[s: string]: any}}) {
+function AssetAliasWidgetUnconnected(props: { input: AssetInput, assetMap: {[s: string]: any}}) {
+  const asset = props.assetMap[props.input.computedData]
   return <div className="form-group">
     <div className="input-group">
       <div className="input-group-addon">Asset</div>
-      <input type="text" className="form-control" value={props.assetMap[props.input.value].alias} disabled />
+      <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.input.computedData} disabled />
     </div>
   </div>
 }

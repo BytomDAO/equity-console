@@ -21,7 +21,8 @@ import {
   HashFunction,
   ClauseParameter,
   ClauseParameterType,
-  ClauseParameterHash // clause parameters are a superset of contract parameters
+  ClauseParameterHash, // clause parameters are a superset of contract parameters
+  AssetInput
 } from './types'
 
 let Promise = require('prfun')
@@ -69,7 +70,7 @@ export function getData(inputId: string, inputsById: {[s: string]: Input}): Buff
     case "provideHashInput":
     case "provideSignatureInput":
     case "assetInput": {
-      return Buffer.from(input.value, 'hex')
+      return Buffer.from(input.computedData, 'hex')
     }
     case "numberInput":
     case "amountInput": {
@@ -235,7 +236,8 @@ export const validateInput = (input: Input): boolean => {
       return (input.value === "generateHashInput" ||
               input.value === "provideHashInput")
     case "publicKeyInput":
-      return (input.value === "accountInput")
+    case "programInput":
+      return (input.value === "accountInput" || input.value === "provideStringInput")
     case "generatePublicKeyInput":
       return (input.value === "generatePrivateKeyInput" ||
               input.value === "providePrivateKeyInput")
@@ -245,8 +247,6 @@ export const validateInput = (input: Input): boolean => {
       return input.value === "accountInput"
     case "generateSignatureInput":
       return (input.value === "providePrivateKeyInput")
-    case "programInput":
-      return (input.value === "accountInput")
     case "provideStringInput":
       return validateHex(input.value)
     case "provideHashInput":
@@ -281,6 +281,7 @@ export const validateInput = (input: Input): boolean => {
     case "xpubInput":
     case "pathInput":
     case "assetInput":
+    case "assetAliasInput":
     case "passwordInput":
     case "gasInput":
     case "signatureInput":
@@ -375,11 +376,12 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
       return "false"
     case "timeInput":
       return "timestampTimeInput"
+    case "assetInput":
+      return "assetAliasInput"
     case "accountInput":
+    case "assetAliasInput":
     case "xpubInput":
     case "pathInput":
-    case "assetInput":
-      return ""
     case "valueInput":
     case "assetInput":
     case "amountInput":
@@ -426,6 +428,8 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
       return "provideHashInput"
     case "publicKeyInput":
       return "accountInput"
+    case "assetInput":
+      return "assetAliasInput"
     case "signatureInput":
       return "accountInput"
     case "generatePublicKeyInput":
@@ -442,7 +446,7 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
     case "pathInput":
     case "assetInput":
     case "valueInput":
-    case "assetInput":
+    case "assetAliasInput":
     case "amountInput":
     case "passwordInput":
     case "gasInput":
@@ -458,7 +462,7 @@ export function getPromisedInputMap(inputsById: {[s: string]: Input}): Promise<{
   let newInputsById = {}
   for (let id in inputsById) {
     let input = inputsById[id]
-    if (input.type === "publicKeyInput" || input.type === "programInput") {
+    if (input.type === "publicKeyInput" || input.type === "programInput" || input.type === "assetInput") {
       newInputsById[id] = getPromiseData(id, inputsById)
     } else {
       newInputsById[id] = input
@@ -474,6 +478,14 @@ export function getPromiseCompiled(source) {
 export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}): Promise<Input> {
   let input = inputsById[inputId]
   switch (input.type) {
+    case "assetInput": {
+      let inputValue = inputsById[input.name + "." + input.value].value
+      let assetInput: AssetInput = {
+        ...input as AssetInput,
+        computedData: inputValue
+      }
+      return new Promise((resolve) => resolve(assetInput))
+    }
     case "programInput": {
       let inputValue = inputsById[input.name + "." + input.value].value
       if (input.value === "provideStringInput") {
@@ -481,9 +493,7 @@ export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}
           ...input as ProgramInput,
           computedData: inputValue
         }
-        return new Promise((resolve) => {
-          resolve(programInput)
-        })
+        return new Promise((resolve) => resolve(programInput))
       }
       return client.createReceiver(inputValue).then((receiver) => {
         let programInput: ProgramInput = {

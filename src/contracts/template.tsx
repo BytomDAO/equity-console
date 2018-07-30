@@ -47,7 +47,6 @@ abstract class AbstractTemplate {
 
     processArgument(argument): Promise<RawTxSignatureWitness> {
         if (argument.type === "signature") {
-            // this.passwords.push(argument.password)
             return client.createAccountPubkey(argument.accountId).then(resp => {
                 const xpub = resp.root_xpub
                 const keyData = this.getPublicKeyInfo(resp.pubkey_infos)
