@@ -15,6 +15,8 @@ import {
 import thunk from 'redux-thunk'
 import LockedValue from './contracts/components/lockedValue'
 
+import 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.css'
 import './static/playground.css'
 
 // ivy imports
@@ -24,6 +26,14 @@ import templates from './templates'
 import { prefixRoute } from './core'
 
 import Unlock from './contracts/components/unlock'
+
+// Set favicon
+const faviconPath = require('./static/images/favicon.png')
+const favicon = document.createElement('link')
+favicon.type = 'image/png'
+favicon.rel = 'shortcut icon'
+favicon.href = faviconPath
+document.getElementsByTagName('head')[0].appendChild(favicon)
 
 interface ExtensionWindow extends Window {
   __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any
@@ -38,7 +48,7 @@ const store = createStore(
   composeEnhancers(
     applyMiddleware(thunk),
     applyMiddleware(routerMiddleware(history))
-    // ,persistState()
+    ,persistState()
   )
 )
 

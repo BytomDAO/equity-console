@@ -2,6 +2,7 @@ import { Action, SpendFromAccount, SpendUnspentOutput, ControlWithProgram, RawTx
 import { getSpendInputMap, getSpendUnspentOutputAction, getGasAction, getSpendContract, getSpendContractArgs, getSelectedClause } from "./selectors";
 import { AppState } from "../app/types";
 import { client } from "../core";
+import {sha3_256} from "js-sha3"
 
 abstract class AbstractTemplate {
 
@@ -28,11 +29,17 @@ abstract class AbstractTemplate {
                 const paramName = params[i].name
                 const inputId = "contractParameters." + paramName + ".publicKeyInput"
                 const pubKey = spendContract.inputMap[inputId].computedData
-                for (const j in pubkeyInfos) {
-                    if (pubkeyInfos[j].pubkey === pubKey) {
-                        return pubkeyInfos[j]
-                    }
+                if( pubkeyInfos[0].pubkey === pubKey ){
+                  return pubkeyInfos[0]
                 }
+            }else if (params[i].type === "Sha3(PublicKey)") {
+              const paramName = params[i].name
+              const inputId = "contractParameters." + paramName + ".stringInput.generateStringInput"
+              const hash = spendContract.inputMap[inputId].seed
+              const pubkeyHash = sha3_256(Buffer.from( pubkeyInfos[0].pubkey, "hex"))
+              if(pubkeyHash === hash){
+                return pubkeyInfos[0]
+              }
             }
         }
         throw "can not find public key info"
@@ -40,7 +47,7 @@ abstract class AbstractTemplate {
 
     processArgument(argument): Promise<RawTxSignatureWitness> {
         if (argument.type === "signature") {
-            this.passwords.push(argument.password)
+            // this.passwords.push(argument.password)
             return client.createAccountPubkey(argument.accountId).then(resp => {
                 const xpub = resp.root_xpub
                 const keyData = this.getPublicKeyInfo(resp.pubkey_infos)
