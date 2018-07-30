@@ -136,6 +136,18 @@ function AssetAliasWidgetUnconnected(props: {
   )
 }
 
+function AssetWidget(props: { input: AssetInput, handleChange: (e) => undefined }) {
+  const options = [{ label: "Generate Asset", value: "assetAliasInput" },
+  { label: "Provide Asset Id", value: "provideStringInput" }]
+  const handleChange = (s: string) => undefined
+  return (
+    <div>
+      <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
+      {getChildWidget(props.input)}
+    </div>
+  )
+}
+
 function NumberWidget(props: {
   input: NumberInput | AmountInput,
   handleChange: (e) => undefined
@@ -239,7 +251,6 @@ function SignatureWidget(props: {input: SignatureInput, handleChange: (e) => und
   return (
     <div>
       {getWidget(props.input.name + ".accountInput")}
-      {/*{getWidget(props.input.name + ".passwordInput")}*/}
     </div>
   )
 }
@@ -491,10 +502,10 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     case "generateHashInput": return GenerateHashWidget
     case "timeInput": return TimeWidget
     case "timestampTimeInput": return TimestampTimeWidget
-    // case "programInput": return ProgramWidget
     case "valueInput": return ValueWidget
     case "accountInput": return AccountAliasWidget
-    case "assetInput": return AssetAliasWidget
+    case "assetAliasInput": return AssetAliasWidget
+    case "assetInput": return AssetWidget
     case "amountInput": return AmountWidget
     case "programInput": return ProgramWidget
     case "gasInput": return GasWidget

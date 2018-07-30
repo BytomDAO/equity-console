@@ -572,7 +572,6 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
     }
     case "signatureInput": {
       addDefaultInput(inputs, "accountInput", name)
-      addDefaultInput(inputs, "passwordInput", name)
       return
     }
     case "generateSignatureInput": {
@@ -591,6 +590,10 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       addDefaultInput(inputs, "accountInput", name)
       addDefaultInput(inputs, "provideStringInput", name)
       return
+    }
+    case "assetInput": {
+      addDefaultInput(inputs, "assetAliasInput", name)
+      addDefaultInput(inputs, "provideStringInput", name)
     }
     default:
       return
