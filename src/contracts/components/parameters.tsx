@@ -388,7 +388,15 @@ function GenerateHashWidget(props: {
 }
 
 function ProgramWidget(props: { input: ProgramInput, handleChange: (e) => undefined }) {
-  return <div>{getChildWidget(props.input)}</div>
+  const options = [{ label: "Generate Program", value: "accountInput" },
+  { label: "Provide Program", value: "provideStringInput" }]
+  const handleChange = (s: string) => undefined
+  return (
+    <div>
+      <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
+      {getChildWidget(props.input)}
+    </div>
+  )
 }
 
 function TimeWidget(props: { input: TimeInput, handleChange: (e) => undefined }) {

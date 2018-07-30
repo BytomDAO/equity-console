@@ -475,8 +475,17 @@ export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}
   let input = inputsById[inputId]
   switch (input.type) {
     case "programInput": {
-      let accountId = inputsById[input.name + ".accountInput"].value
-      return client.createReceiver(accountId).then((receiver) => {
+      let inputValue = inputsById[input.name + "." + input.value].value
+      if (input.value === "provideStringInput") {
+        let programInput: ProgramInput = {
+          ...input as ProgramInput,
+          computedData: inputValue
+        }
+        return new Promise((resolve) => {
+          resolve(programInput)
+        })
+      }
+      return client.createReceiver(inputValue).then((receiver) => {
         let programInput: ProgramInput = {
           ...input as ProgramInput,
           computedData: receiver.control_program
@@ -485,8 +494,17 @@ export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}
       })
     }
     case "publicKeyInput": {
-      let accountId = inputsById[input.name + ".accountInput"].value
-      return client.createAccountPubkey(accountId).then((publicKey) => {
+      let inputValue = inputsById[input.name + "." + input.value].value
+      if (input.value === "provideStringInput") {
+        let publicKeyInput: PublicKeyInput = {
+          ...input as PublicKeyInput,
+          computedData: inputValue
+        }
+        return new Promise((resolve) => {
+          resolve(publicKeyInput)
+        })
+      }
+      return client.createAccountPubkey(inputValue).then((publicKey) => {
         let publicKeyInput: PublicKeyInput = {
           ...input as PublicKeyInput,
           computedData: publicKey.pubkey_infos[0].pubkey,
@@ -571,6 +589,7 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
     }
     case "programInput": {
       addDefaultInput(inputs, "accountInput", name)
+      addDefaultInput(inputs, "provideStringInput", name)
       return
     }
     default:
