@@ -380,6 +380,11 @@ export const fetchUtxoInfo = () => {
                 inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
                 break
               }
+              case "Asset": {
+                const inputId = "contractParameters." + params[i].name + "." + "assetInput"
+                inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+                break
+              }
               case "Sha3(PublicKey)":
               case "Sha3(String)":
               case "Sha256(PublicKey)":
@@ -399,7 +404,8 @@ export const fetchUtxoInfo = () => {
 
             }
           }
-          updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.asset_id, "asset");
+          const assetValueId = "contractValue." + compiled.value + ".valueInput.assetInput"
+          inputMap[assetValueId] = {...inputMap[assetValueId], computedData: utxo.asset_id}
           updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
 
           return inputMap

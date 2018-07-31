@@ -287,12 +287,12 @@ export const getClauseWitnessComponents = createSelector(
           if (accountinput === undefined || accountinput.type !== "accountInput") {
             throw "accountInput surprisingly not found"
           }
-          const passwordInputId = clauseParameterPrefix + ".signatureInput.passwordInput"
-          const passwordInput = spendInputMap[passwordInputId]
-          if (passwordInput === undefined || passwordInput.type !== "passwordInput") {
-            throw "passwordInput surprisingly not found"
-          }
-          const signatureWitness = {type: "signature", accountId: accountinput.value, password: passwordInput.value} as SignatureWitness
+          // const passwordInputId = clauseParameterPrefix + ".signatureInput.passwordInput"
+          // const passwordInput = spendInputMap[passwordInputId]
+          // if (passwordInput === undefined || passwordInput.type !== "passwordInput") {
+          //   throw "passwordInput surprisingly not found"
+          // }
+          const signatureWitness = {type: "signature", accountId: accountinput.value} as SignatureWitness
           witness.push(signatureWitness)
           return
         }
@@ -398,14 +398,13 @@ export const getRequiredAssetAmount = createSelector(
     if (valueArg === undefined) {
       return undefined
     }
-
     const assetInput = inputMap["contractParameters." + valueArg.asset + ".assetInput"]
     const amountInput = inputMap["contractParameters." + valueArg.amount + ".amountInput"]
     if (!(assetInput && amountInput)) {
       return undefined
     }
     return {
-      assetId: assetInput.value,
+      assetId: assetInput.computedData,
       amount: amountInput.value
     }
   }

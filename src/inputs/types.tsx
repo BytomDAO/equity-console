@@ -50,14 +50,14 @@ export type Input = ParameterInput | StringInput | HashInput | PublicKeyInput | 
                     AmountInput | ProgramInput | AssetInput | ChoosePublicKeyInput |PathInput | XpubInput
 
 export type ComplexInput = StringInput | HashInput | GenerateHashInput | PublicKeyInput | TimeInput | ParameterInput | GeneratePublicKeyInput |
-                           SignatureInput | GenerateSignatureInput | ProgramInput
+                           SignatureInput | GenerateSignatureInput | ProgramInput | AssetInput
 
 export type InputType = "parameterInput" | "stringInput" | "generateStringInput" | "provideStringInput" | "hashInput" |
                         "generateHashInput" | "provideHashInput" | "publicKeyInput" | "generatePublicKeyInput" | "providePublicKeyInput" |
                         "generatePrivateKeyInput" | "providePrivateKeyInput" | "numberInput" | "booleanInput" | "timeInput" |
                         "timestampTimeInput" | "signatureInput" | "generateSignatureInput" | "provideSignatureInput" | "programInput" |
                         "valueInput" | "accountInput" | "assetInput" | "programInput" | "assetInput" | "amountInput" | "choosePublicKeyInput" |
-                        "passwordInput" | "xpubInput" | "pathInput" | "gasInput"
+                        "passwordInput" | "xpubInput" | "pathInput" | "gasInput" | "assetAliasInput"
 
 export type PrimaryInputType = "stringInput" | "hashInput" | "publicKeyInput" | "numberInput" | "booleanInput" | "timeInput" | "signatureInput" |
                                "valueInput" | "programInput" | "assetInput" | "amountInput"
@@ -216,7 +216,7 @@ export type AccountAliasInput = {
 }
 
 export type AssetAliasInput = {
-  type: "assetInput",
+  type: "assetAliasInput",
   value: string,
   name: string
 }
@@ -237,7 +237,8 @@ export type ProgramInput = {
 export type AssetInput = {
   type: "assetInput",
   value: string,
-  name: string
+  name: string,
+  computedData: string
 }
 
 export type XpubInput = {

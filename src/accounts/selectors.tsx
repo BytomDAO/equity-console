@@ -47,13 +47,13 @@ export const getBalanceSelector = (namePrefix: string) => {
       if (namePrefix.startsWith("contract")) {
         acctInput = inputMap[namePrefix + ".accountInput"]
         assetInput = inputMap[namePrefix + ".assetInput"]
+        assetInput = inputMap[assetInput.name + "." + assetInput.value]
       } else if (namePrefix.startsWith("clause")) {
         // THIS IS A HACK
         const spendInputMap = contracts.contractMap[contracts.utxoId].spendInputMap
         acctInput = spendInputMap[namePrefix + ".valueInput.accountInput"]
         assetInput = spendInputMap[namePrefix + ".valueInput.assetInput"]
       }
-
       let balance
       if (acctInput && acctInput.value && assetInput && assetInput.value) {
         balance = balanceMap[acctInput.value][assetInput.value]

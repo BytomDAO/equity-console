@@ -136,6 +136,18 @@ function AssetAliasWidgetUnconnected(props: {
   )
 }
 
+function AssetWidget(props: { input: AssetInput, handleChange: (e) => undefined }) {
+  const options = [{ label: "Generate Asset", value: "assetAliasInput" },
+  { label: "Provide Asset Id", value: "provideStringInput" }]
+  const handleChange = (s: string) => undefined
+  return (
+    <div className="input-group">
+      <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
+      {getChildWidget(props.input)}
+    </div>
+  )
+}
+
 function NumberWidget(props: {
   input: NumberInput | AmountInput,
   handleChange: (e) => undefined
@@ -171,6 +183,7 @@ function GasWidget(props: {
         <div className="input-group-addon">Gas</div>
         <input type="text" className="form-control" style={{ width: 200 }} key={props.input.name}
           value={props.input.value} onChange={props.handleChange} />
+        <span style={{ lineHeight: '34px', paddingLeft: '10px'}}>Neu</span>
       </div>
     </div>
   )
@@ -239,7 +252,6 @@ function SignatureWidget(props: {input: SignatureInput, handleChange: (e) => und
   return (
     <div>
       {getWidget(props.input.name + ".accountInput")}
-      {/*{getWidget(props.input.name + ".passwordInput")}*/}
     </div>
   )
 }
@@ -388,7 +400,15 @@ function GenerateHashWidget(props: {
 }
 
 function ProgramWidget(props: { input: ProgramInput, handleChange: (e) => undefined }) {
-  return <div>{getChildWidget(props.input)}</div>
+  const options = [{ label: "Generate Program", value: "accountInput" },
+  { label: "Provide Program", value: "provideStringInput" }]
+  const handleChange = (s: string) => undefined
+  return (
+    <div>
+      <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
+      {getChildWidget(props.input)}
+    </div>
+  )
 }
 
 function TimeWidget(props: { input: TimeInput, handleChange: (e) => undefined }) {
@@ -483,10 +503,10 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     case "generateHashInput": return GenerateHashWidget
     case "timeInput": return TimeWidget
     case "timestampTimeInput": return TimestampTimeWidget
-    // case "programInput": return ProgramWidget
     case "valueInput": return ValueWidget
     case "accountInput": return AccountAliasWidget
-    case "assetInput": return AssetAliasWidget
+    case "assetAliasInput": return AssetAliasWidget
+    case "assetInput": return AssetWidget
     case "amountInput": return AmountWidget
     case "programInput": return ProgramWidget
     case "gasInput": return GasWidget
@@ -626,6 +646,7 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
     const valueType = "Value"
     props.spendInputMap[props.valueId + ".valueInput.assetInput"].value = props.assetAmount.assetId
     props.spendInputMap[props.valueId + ".valueInput.amountInput"].value = props.assetAmount.amount
+    const asset = props.assetMap[props.assetAmount.assetId]
     return (
       <section style={{ wordBreak: 'break-all' }}>
         <h4>Required Value</h4>
@@ -636,7 +657,7 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
           <div className="form-group">
             <div className="input-group">
               <div className="input-group-addon">Asset</div>
-              <input type="text" className="form-control" value={props.assetMap[props.assetAmount.assetId].alias} disabled />
+              <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.assetAmount.assetId} disabled />
             </div>
           </div>
           <div className="form-group">
