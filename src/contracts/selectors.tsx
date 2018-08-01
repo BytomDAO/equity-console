@@ -1,6 +1,7 @@
 // external imports
 import { createSelector } from 'reselect'
 import { sha3_256 } from 'js-sha3'
+import { calGas } from './decimals'
 
 // ivy imports
 import { client, parseError } from '../core'
@@ -458,7 +459,10 @@ export const getGasAction = createSelector(
   getSpendInputMap,
   (spendInputMap) => {
     const accountId = spendInputMap["unlockValue.accountInput"].value
-    const gas = parseInt(spendInputMap["unlockValue.gasInput"].value, 10)
+    const btmUnit = spendInputMap["unlockValue.gasInput.btmUnitInput"].value
+    const gasAmount = spendInputMap["unlockValue.gasInput"].value
+
+    const gas = calGas(gasAmount, btmUnit)
     const gasAction = {
       accountId: accountId,
       amount: gas,

@@ -556,6 +556,14 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       })
       break
     }
+    case "btmUnitInput":{
+      inputs.push({
+        type: "btmUnitInput",
+        value: 'btm',
+        name: name
+      })
+      break
+    }
     default:
       inputs.push({
         type: inputType as any,
