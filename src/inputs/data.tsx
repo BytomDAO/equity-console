@@ -154,7 +154,6 @@ export const isComplexType = (inputType: InputType) => {
     case "generateSignatureInput":
     case "signatureInput":
     case "programInput":
-    case "programInput":
       return true
     default:
       return false
@@ -284,6 +283,7 @@ export const validateInput = (input: Input): boolean => {
     case "assetAliasInput":
     case "passwordInput":
     case "gasInput":
+    case "btmUnitInput":
     case "signatureInput":
       return (input.value !== "")
     case "valueInput":
@@ -387,6 +387,7 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
     case "amountInput":
     case "passwordInput":
     case "gasInput":
+    case "btmUnitInput":
       return ""
     case "signatureInput":
     case "choosePublicKeyInput":
@@ -450,6 +451,7 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
     case "amountInput":
     case "passwordInput":
     case "gasInput":
+    case "btmUnitInput":
     case "choosePublicKeyInput":
       return ""
     case "generatePrivateKeyInput":
@@ -554,6 +556,14 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       })
       break
     }
+    case "btmUnitInput":{
+      inputs.push({
+        type: "btmUnitInput",
+        value: 'btm',
+        name: name
+      })
+      break
+    }
     default:
       inputs.push({
         type: inputType as any,
@@ -604,7 +614,11 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
     case "assetInput": {
       addDefaultInput(inputs, "assetAliasInput", name)
       addDefaultInput(inputs, "provideStringInput", name)
+      return
     }
+    case "gasInput": {
+      addDefaultInput(inputs, "btmUnitInput", name)
+     }
     default:
       return
   }
