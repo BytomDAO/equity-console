@@ -27,7 +27,7 @@ export type ClauseParameterHash = {
   hashFunction: HashFunction
 }
 
-export type ClauseParameterType = "Signature" | ClauseParameterHash | ContractParameterType
+export type ClauseParameterType = "Signature" | "OriginString" | ClauseParameterHash | ContractParameterType
 
 export type ContractParameterType = "PublicKey" | "String" | "Integer" | "Time" | "Boolean" |
                                     "Program" | "Asset" | "Amount" | "Value" | ContractParameterHash
@@ -57,10 +57,10 @@ export type InputType = "parameterInput" | "stringInput" | "generateStringInput"
                         "generatePrivateKeyInput" | "providePrivateKeyInput" | "numberInput" | "booleanInput" | "timeInput" |
                         "timestampTimeInput" | "signatureInput" | "generateSignatureInput" | "provideSignatureInput" | "programInput" |
                         "valueInput" | "accountInput" | "assetInput" | "programInput" | "assetInput" | "amountInput" | "choosePublicKeyInput" |
-                        "passwordInput" | "xpubInput" | "pathInput" | "gasInput" | "assetAliasInput"
+                        "passwordInput" | "xpubInput" | "pathInput" | "gasInput" | "assetAliasInput" | "provideOriginInput"
 
 export type PrimaryInputType = "stringInput" | "hashInput" | "publicKeyInput" | "numberInput" | "booleanInput" | "timeInput" | "signatureInput" |
-                               "valueInput" | "programInput" | "assetInput" | "amountInput"
+                               "valueInput" | "programInput" | "assetInput" | "amountInput" | "provideOriginInput"
 
 export type InputContext = "contractParameters"|"clauseParameters"|"clauseValue"|"contractValue"|"unlockValue"
 

@@ -13,6 +13,8 @@ import { getSpendContract, getClauseUnlockInput } from '../selectors'
 // const UnlockDestination = (props: { assetMap, contract, unlockInput: Input }) => {
 const UnlockDestination = (props: { assetMap, contract }) => {
   // if ( props.contract === undefined || props.assetMap === undefined) {
+  const asset = props.assetMap[props.contract.assetId]
+  const assetAlias = asset ? asset.alias : props.contract.assetId
   if ( props.contract === undefined ) {
     return <div></div>
   } else {
@@ -23,7 +25,7 @@ const UnlockDestination = (props: { assetMap, contract }) => {
         <div className="form-group">
           <div className="input-group">
             <div className="input-group-addon">Asset</div>
-            <input type="text" className="form-control" value={props.assetMap[props.contract.assetId].alias} disabled />
+            <input type="text" className="form-control" value={assetAlias} disabled />
           </div>
         </div>
         <div className="form-group">

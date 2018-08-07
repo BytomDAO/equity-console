@@ -389,7 +389,7 @@ export const fetchUtxoInfo = () => {
               case "Sha3(String)":
               case "Sha256(PublicKey)":
               case "Sha256(String)":{
-                const inputId = "contractParameters." + params[i].name + ".stringInput.generateStringInput"
+                const inputId = "contractParameters." + params[i].name + ".stringInput.provideOriginInput"
                 inputMap[inputId] = { ...inputMap[inputId], seed: newValue }
                 break
               }

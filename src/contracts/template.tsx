@@ -232,7 +232,6 @@ export function getActionBuildTemplate(type: string, state: AppState): AbstractT
         case "RevealPreimage.reveal":
             return new UnlockValueTemplate(state)
         case "Escrow.approve":
-            console.log("find template")
             return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[2])
         case "Escrow.reject":
             return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[1])

@@ -95,7 +95,7 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
             break
           }
           default:
-            addParameterInput(inputs, param.type as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
+            addParameterInput(inputs, param.type === "String" ? "OriginString" : param.type as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
         }
       }
       for (const value of clause.values) {

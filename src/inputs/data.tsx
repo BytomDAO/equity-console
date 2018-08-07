@@ -1,6 +1,7 @@
 //external imports
 import * as React from 'react'
 import { createSelector } from 'reselect'
+import { strToHexCharCode } from '../contracts/util'
 
 import {
   Input,
@@ -50,7 +51,7 @@ export const computeDataForInput = (id: string, inputMap: InputMap): string => {
   return data.toString('hex')
 }
 
-export function getData(inputId: string, inputsById: {[s: string]: Input}): Buffer|number {
+export function getData(inputId: string, inputsById: { [s: string]: Input }): Buffer | number {
   let input = inputsById[inputId]
   if (!validateInput(input)) throw "invalid input: " + input.name
   switch (input.type) {
@@ -69,6 +70,7 @@ export function getData(inputId: string, inputsById: {[s: string]: Input}): Buff
     case "providePublicKeyInput":
     case "provideHashInput":
     case "provideSignatureInput":
+      return Buffer.from(input.value, 'hex')
     case "assetInput": {
       return Buffer.from(input.computedData, 'hex')
     }
@@ -86,10 +88,13 @@ export function getData(inputId: string, inputsById: {[s: string]: Input}): Buff
       let generated = getGenerateStringInputValue(input)
       return Buffer.from(generated, 'hex')
     }
+    case "provideOriginInput": {
+      return Buffer.from(strToHexCharCode(input.value), "hex")
+    }
     case "generateHashInput": {
       let childData = getData(getChild(input), inputsById)
       if (typeof childData === "number") throw "should not generate hash of a number"
-      switch(input.hashType.hashFunction) {
+      switch (input.hashType.hashFunction) {
         case "sha256": return sha256(childData)
         case "sha3": return Buffer.from(sha3_256(childData), "hex")
         default: throw "unexpected hash function"
@@ -136,6 +141,7 @@ export const isPrimaryInputType = (str: string): str is PrimaryInputType => {
     case "programInput":
     case "assetInput":
     case "amountInput":
+    case "provideOriginInput":
       return true
     default:
       return false
@@ -172,6 +178,7 @@ export const getInputType = (type: ClauseParameterType): PrimaryInputType => {
     case "Boolean": return "booleanInput"
     case "Hash":
     case "String": return "stringInput"
+    case "OriginString": return "provideOriginInput"
     case "PublicKey": return "publicKeyInput"
     case "Time": return "timeInput"
     case "Signature": return "signatureInput"
@@ -199,10 +206,10 @@ export const isValidInput = (id: string, inputMap: InputMap): boolean => {
       return isValidInput(getChild(input), inputMap)
     case "valueInput":
       return isValidInput(input.name + ".accountInput", inputMap) &&
-             isValidInput(input.name + ".assetInput", inputMap) &&
-             isValidInput(input.name + ".amountInput", inputMap) &&
-             isValidInput(input.name + ".passwordInput", inputMap) &&
-             isValidInput(input.name + ".gasInput", inputMap)
+        isValidInput(input.name + ".assetInput", inputMap) &&
+        isValidInput(input.name + ".amountInput", inputMap) &&
+        isValidInput(input.name + ".passwordInput", inputMap) &&
+        isValidInput(input.name + ".gasInput", inputMap)
     default: return validateInput(input)
   }
 }
@@ -231,16 +238,16 @@ export const validateInput = (input: Input): boolean => {
       return isPrimaryInputType(input.value)
     case "stringInput":
       return (input.value === "generateStringInput" ||
-              input.value === "provideStringInput")
+        input.value === "provideStringInput")
     case "hashInput":
       return (input.value === "generateHashInput" ||
-              input.value === "provideHashInput")
+        input.value === "provideHashInput")
     case "publicKeyInput":
     case "programInput":
       return (input.value === "accountInput" || input.value === "provideStringInput")
     case "generatePublicKeyInput":
       return (input.value === "generatePrivateKeyInput" ||
-              input.value === "providePrivateKeyInput")
+        input.value === "providePrivateKeyInput")
     case "timeInput":
       return (input.value === "timestampTimeInput")
     case "generatePublicKeyInput":
@@ -265,7 +272,7 @@ export const validateInput = (input: Input): boolean => {
     }
     case "booleanInput":
       return (input.value === "true" ||
-              input.value === "false")
+        input.value === "false")
     case "numberInput":
       numberValue = parseInt(input.value, 10)
       if (isNaN(numberValue)) return false
@@ -285,13 +292,14 @@ export const validateInput = (input: Input): boolean => {
     case "passwordInput":
     case "gasInput":
     case "signatureInput":
+    case "provideOriginInput":
       return (input.value !== "")
     case "valueInput":
       // TODO(dan)
       return true
     case "choosePublicKeyInput":
       return input.keyMap != undefined
-      // return (input.keyMap !== undefined) && (input.keyMap[input.value] !== undefined)
+    // return (input.keyMap !== undefined) && (input.keyMap[input.value] !== undefined)
     default:
       throw 'input type not valid ' + input.type
   }
@@ -306,7 +314,7 @@ export const getGenerateStringInputValue = (input: GenerateStringInput) => {
 
 function addHashInputs(inputs: Input[], type: ClauseParameterHash, parentName: string) {
   let name = parentName + ".generateHashInput"
-  let value = getInputType(type.inputType)
+  let value = getInputType("OriginString")
   let generateHashInput: GenerateHashInput = {
     type: "generateHashInput",
     hashType: type,
@@ -314,7 +322,7 @@ function addHashInputs(inputs: Input[], type: ClauseParameterHash, parentName: s
     name: name
   }
   inputs.push(generateHashInput)
-  addInputForType(inputs, type.inputType, name)
+  addInputForType(inputs, "OriginString", name)
 
   let hashType = generateHashInput.hashType.inputType
 
@@ -366,8 +374,8 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
       return "generatePrivateKeyInput"
     case "publicKeyInput":
       return "accountInput"
-      // return "generatePublicKeyInput"
-      // return "generateSignatureInput"
+    // return "generatePublicKeyInput"
+    // return "generateSignatureInput"
     case "generateSignatureInput":
       return "providePrivateKeyInput"
     case "programInput":
@@ -378,6 +386,7 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
       return "timestampTimeInput"
     case "assetInput":
       return "assetAliasInput"
+    case "provideOriginInput":
     case "accountInput":
     case "assetAliasInput":
     case "xpubInput":
@@ -458,7 +467,7 @@ export function getDefaultClauseParameterValue(inputType: InputType): string {
 }
 
 
-export function getPromisedInputMap(inputsById: {[s: string]: Input}): Promise<{[s: string]: Input}> {
+export function getPromisedInputMap(inputsById: { [s: string]: Input }): Promise<{ [s: string]: Input }> {
   let newInputsById = {}
   for (let id in inputsById) {
     let input = inputsById[id]
@@ -472,10 +481,10 @@ export function getPromisedInputMap(inputsById: {[s: string]: Input}): Promise<{
 }
 
 export function getPromiseCompiled(source) {
-  return  Promise.props(client.compile(source));
+  return Promise.props(client.compile(source));
 }
 
-export function getPromiseData(inputId: string, inputsById: {[s: string]: Input}): Promise<Input> {
+export function getPromiseData(inputId: string, inputsById: { [s: string]: Input }): Promise<Input> {
   let input = inputsById[inputId]
   switch (input.type) {
     case "assetInput": {
@@ -630,8 +639,8 @@ export function addParameterInput(inputs: Input[], valueType: ClauseParameterTyp
   addInputForType(inputs, valueType, name)
 }
 
-export function getPublicKeys(inputsById: {[s: string]: Input}) {
-  let mapping : KeyMap = {}
+export function getPublicKeys(inputsById: { [s: string]: Input }) {
+  let mapping: KeyMap = {}
   for (let id in inputsById) {
     let input = inputsById[id]
     if (input.type === "publicKeyInput") {
