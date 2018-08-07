@@ -7,6 +7,7 @@ import { Input, InputMap } from '../inputs/types'
 import { parseError } from '../core'
 import { SpendFromAccount } from '../core/types'
 import { isValidInput, getData } from '../inputs/data'
+import { calGas } from '../contracts/decimals'
 
 // internal imports
 import { TemplateState, SourceMap } from './types'
@@ -92,7 +93,10 @@ export const getContractValue = createSelector(
         const assetId = inputMap[assetInput.name + "." + assetInput.value].value
         const amount = parseInt(inputMap[inputName + ".amountInput"].value, 10)
         const password = inputMap[inputName + ".passwordInput"].value
-        const gas = parseInt(inputMap[inputName + ".gasInput"].value, 10)
+        const btmUnit = inputMap[inputName + ".gasInput.btmUnitInput"].value
+        const gasAmount = inputMap[inputName + ".gasInput"].value
+
+        const gas = calGas(gasAmount, btmUnit)
         if (isNaN(amount) || amount < 0 || !accountId || !assetId) {
           return []
         }

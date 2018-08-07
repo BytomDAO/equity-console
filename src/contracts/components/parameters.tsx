@@ -179,12 +179,38 @@ function GasWidget(props: {
 }) {
   return (
     <div className={"form-group " + props.errorClass}>
-      <div className="input-group">
+      <div className="input-group"  style={{ width: 400 }} >
         <div className="input-group-addon">Gas</div>
-        <input type="text" className="form-control" style={{ width: 200 }} key={props.input.name}
+        <input id="gasInput" type="text" className="form-control" key={props.input.name}
           value={props.input.value} onChange={props.handleChange} />
-        <span style={{ lineHeight: '34px', paddingLeft: '10px'}}>Neu</span>
+        <div className="input-group-addon">
+          {getWidget(props.input.name + ".btmUnitInput")}
+        </div>
       </div>
+    </div>
+  )
+}
+
+function BtmUnitWidget(props: {
+  input: StringInput,
+  handleChange: (e) => undefined
+}) {
+  return (
+    <div>
+      <select
+        id="gas-unit"
+        key={props.input.name}
+        value={props.input.value}
+        onChange={props.handleChange}
+        style={{
+          minWidth: '70px',
+          border: 'none'
+        }}
+        >
+          <option value="btm">BTM</option>
+          <option value="mbtm">mBTM</option>
+          <option value="neu">NEU</option>
+      </select>
     </div>
   )
 }
@@ -508,6 +534,7 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     case "amountInput": return AmountWidget
     case "programInput": return ProgramWidget
     case "gasInput": return GasWidget
+    case "btmUnitInput": return BtmUnitWidget
     case "passwordInput": return PasswordWidget
     case "signatureInput": return SignatureWidget
     case "choosePublicKeyInput": return ChoosePublicKeyWidget
