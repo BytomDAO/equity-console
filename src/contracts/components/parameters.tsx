@@ -183,7 +183,7 @@ function GasWidget(props: {
         <div className="input-group-addon">Gas</div>
         <input type="text" className="form-control" style={{ width: 200 }} key={props.input.name}
           value={props.input.value} onChange={props.handleChange} />
-        Neu
+        <span style={{ lineHeight: '34px', paddingLeft: '10px'}}>Neu</span>
       </div>
     </div>
   )
