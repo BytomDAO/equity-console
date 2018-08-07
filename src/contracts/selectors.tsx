@@ -7,6 +7,7 @@ import { calGas } from './decimals'
 import { client, parseError } from '../core'
 import { AppState } from '../app/types'
 import { CompiledTemplate } from '../templates/types'
+import { strToHexCharCode } from './util'
 
 import {
   Contract,
@@ -274,13 +275,20 @@ export const getClauseWitnessComponents = createSelector(
           return
         }
         case "String": {
-          const inputId = clauseParameterPrefix + ".stringInput.provideStringInput"
-          const input = spendInputMap[inputId]
-          if (input === undefined || input.type !== "provideStringInput") {
-            throw "provideStringInput surprisingly not found for String clause parameter"
+          let inputId = clauseParameterPrefix + ".stringInput.provideStringInput"
+          let input = spendInputMap[inputId]
+          if (input !== undefined) {
+            witness.push({ type: "data", raw_data: { value: input.value } })
+            return
+          } else {
+            inputId = clauseParameterPrefix + ".provideOriginInput"
+            input = spendInputMap[inputId]
+            if (input !== undefined) {
+              witness.push({ type: "data", raw_data: { value: strToHexCharCode(input.value) } })
+              return
+            }
           }
-          witness.push({ type: "data", raw_data: { value: input.value } })
-          return
+          throw "surprisingly not found for String clause parameter"
         }
         case "Signature": {
           const accountInputId = clauseParameterPrefix + ".signatureInput.accountInput"

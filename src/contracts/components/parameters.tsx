@@ -482,12 +482,9 @@ function ChoosePublicKeyWidget(props: {
 }
 
 function StringWidget(props: { input: StringInput, handleChange: (e) => undefined }) {
-  const options = [{ label: "Generate String", value: "generateStringInput" },
-  { label: "Provide String (Hex)", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
     <div>
-      <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
       {getChildWidget(props.input)}
     </div>
   )
@@ -516,6 +513,7 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     // case "booleanInput": return BooleanWidget
     case "stringInput": return StringWidget
     case "generateStringInput": return GenerateStringWidget
+    case "provideOriginInput":
     case "provideStringInput": return TextWidget
     case "publicKeyInput": return PublicKeyWidget
     // case "generateSignatureInput": return GenerateSignatureWidget

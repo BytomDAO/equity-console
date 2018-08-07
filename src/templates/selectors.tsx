@@ -198,7 +198,6 @@ export const getContractArgs = (state, inputMap) => {
     }
     return contractArgs
   } catch (e) {
-    console.log(e)
     return []
   }
 }
