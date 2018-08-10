@@ -36,3 +36,5 @@ export const INITIAL_PRGRAM_NAME = {
    "557a641b000000007b7b51557ac16951c3c251557ac163260000007bcd9f6900c3c251567ac1": "LoanCollateral",
     "557a6420000000547acda069547a547aae7cac69007c7b51547ac1632c000000547acd9f6900c3c251567ac1": "CallOption"
 }
+
+export const BTM_ASSET_ID = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
