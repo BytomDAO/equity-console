@@ -1,13 +1,18 @@
 import { createSelector } from 'reselect'
 
 import * as app from '../app/types'
+import { BTM_ASSET_ID } from '../contracts/constants'
 import { State, Item, ItemMap } from './types'
 
 const getState = (state: app.AppState): State => state.assets
 
 export const getItemMap = createSelector(
   getState,
-  (state: State): ItemMap => state.itemMap
+  (state: State): ItemMap => {
+    const itemMap = state.itemMap
+    itemMap[BTM_ASSET_ID] = { id: BTM_ASSET_ID, alias: "BTM" }
+    return itemMap
+  }
 )
 
 export const getIdList = createSelector(

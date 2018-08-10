@@ -10,6 +10,7 @@ import { getItemMap as getAssetMap, getItemList as getAssets } from '../../asset
 import { Item as Account } from '../../accounts/types'
 import { getBalanceMap, getItemList as getAccounts, getBalanceSelector } from '../../accounts/selectors'
 import { getState as getContractsState, getClauseValueId, getRequiredAssetAmount } from '../../contracts/selectors'
+import { BTM_ASSET_ID } from '../../contracts/constants'
 import {
   Input, InputContext, ParameterInput, NumberInput, BooleanInput, StringInput,
   ProvideStringInput, GenerateStringInput, HashInput,
@@ -46,6 +47,7 @@ function ParameterWidget(props: { input: ParameterInput, handleChange: (e) => un
 
 function mapToInputProps(showError: boolean, inputsById: { [s: string]: Input }, id: string) {
   const input = inputsById[id]
+  const inputContext = id.split(".")[0]
   if (input === undefined) {
     throw "bad input ID: " + id
   }
@@ -65,6 +67,7 @@ function mapToInputProps(showError: boolean, inputsById: { [s: string]: Input },
 
   return {
     input,
+    inputContext,
     errorClass
   }
 }
@@ -111,6 +114,16 @@ const AssetAliasWidget = connect(
   (state) => ({ assets: getAssets(state) })
 )(AssetAliasWidgetUnconnected)
 
+const AssetAliasWithBTMWidget = connect(
+  (state) => {
+    const assets = getAssets(state)
+    const assetsWithBTM: Asset[] = []
+    Object.assign(assetsWithBTM, assets)
+    assetsWithBTM.push({ id: BTM_ASSET_ID, alias: "BTM" })
+    return { assets: assetsWithBTM }
+  }
+)(AssetAliasWidgetUnconnected)
+
 function AssetAliasWidgetUnconnected(props: {
   input: AssetAliasInput,
   errorClass: string,
@@ -136,8 +149,8 @@ function AssetAliasWidgetUnconnected(props: {
   )
 }
 
-function AssetWidget(props: { input: AssetInput, handleChange: (e) => undefined }) {
-  const options = [{ label: "Generate Asset", value: "assetAliasInput" },
+function AssetWidget(props: { input: AssetInput, inputContext: InputContext, handleChange: (e) => undefined }) {
+  const options = [{ label: "Generate Asset", value: props.inputContext === "contractValue" ? "assetAliasInput" : "assetAliasWithBTMInput" },
   { label: "Provide Asset Id", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
@@ -179,7 +192,7 @@ function GasWidget(props: {
 }) {
   return (
     <div className={"form-group " + props.errorClass}>
-      <div className="input-group"  style={{ width: 400 }} >
+      <div className="input-group" style={{ width: 400 }} >
         <div className="input-group-addon">Gas</div>
         <input id="gasInput" type="text" className="form-control" key={props.input.name}
           value={props.input.value} onChange={props.handleChange} />
@@ -206,10 +219,10 @@ function BtmUnitWidget(props: {
           minWidth: '70px',
           border: 'none'
         }}
-        >
-          <option value="btm">BTM</option>
-          <option value="mbtm">mBTM</option>
-          <option value="neu">NEU</option>
+      >
+        <option value="btm">BTM</option>
+        <option value="mbtm">mBTM</option>
+        <option value="neu">NEU</option>
       </select>
     </div>
   )
@@ -235,46 +248,48 @@ function XpubWidget(props: {
 }
 
 function ArgWidget(props: {
-    input: StringInput,
-    errorClass: string,
-  handleChange: (e)=>undefined }) {
-    return (
+  input: StringInput,
+  errorClass: string,
+  handleChange: (e) => undefined
+}) {
+  return (
+    <div className={"form-group" + props.errorClass}>
+      <label><span className='type-label'>Please filled in an arrary of JSON object</span></label>
+      <div className="input-group">
+        <div className="input-group-addon">Arguments</div>
+        <input type="text" className="form-control with-addon"
+          key={props.input.name}
+          value={props.input.value}
+          onChange={props.handleChange}
+        />
+      </div>
+    </div>
+  )
+}
+
+function PathWidget(props: {
+  input: PathInput,
+  errorClass: string,
+  handleChange: (e) => undefined
+}) {
+  return (
+    <div>
+      <span className="type-label">{props.input.name.split(".")[1]}</span>
       <div className={"form-group" + props.errorClass}>
-        <label><span className='type-label'>Please filled in an arrary of JSON object</span></label>
         <div className="input-group">
-          <div className="input-group-addon">Arguments</div>
+          <div className="input-group-addon">Path</div>
           <input type="text" className="form-control with-addon"
-                 key={props.input.name}
-                 value={props.input.value}
-                 onChange={props.handleChange}
+            key={props.input.name}
+            value={props.input.value}
+            onChange={props.handleChange}
           />
         </div>
       </div>
-    )
+    </div>
+  )
 }
 
-function PathWidget(props: { input: PathInput,
-    errorClass: string,
-  handleChange: (e)=>undefined
-}) {
-    return (
-      <div>
-        <span className="type-label">{props.input.name.split(".")[1]}</span>
-        <div className={"form-group" + props.errorClass}>
-          <div className="input-group">
-            <div className="input-group-addon">Path</div>
-            <input type="text" className="form-control with-addon"
-                   key={props.input.name}
-                   value={props.input.value}
-                   onChange={props.handleChange}
-            />
-          </div>
-        </div>
-      </div>
-    )
-}
-
-function SignatureWidget(props: {input: SignatureInput, handleChange: (e) => undefined}) {
+function SignatureWidget(props: { input: SignatureInput, handleChange: (e) => undefined }) {
   return (
     <div>
       {getWidget(props.input.name + ".accountInput")}
@@ -530,6 +545,7 @@ function getWidgetType(type: InputType): ((props: { input: Input, handleChange: 
     case "valueInput": return ValueWidget
     case "accountInput": return AccountAliasWidget
     case "assetAliasInput": return AssetAliasWidget
+    case "assetAliasWithBTMInput": return AssetAliasWithBTMWidget
     case "assetInput": return AssetWidget
     case "amountInput": return AmountWidget
     case "programInput": return ProgramWidget
@@ -707,7 +723,7 @@ function ClauseParametersUnconnected(props: { parameterIds: string[] }) {
   let parameterInputs = props.parameterIds.map((id) => {
     return <div key={id} className="argument">{getWidget(id)}</div>
   })
-  return <section style={{wordBreak: 'break-all'}}>
+  return <section style={{ wordBreak: 'break-all' }}>
     <h4>Clause Arguments</h4>
     <form className="form">
       {parameterInputs}

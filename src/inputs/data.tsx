@@ -2,6 +2,7 @@
 import * as React from 'react'
 import { createSelector } from 'reselect'
 import { strToHexCharCode } from '../contracts/util'
+import { BTM_ASSET_ID } from '../contracts/constants'
 
 import {
   Input,
@@ -287,13 +288,16 @@ export const validateInput = (input: Input): boolean => {
     case "xpubInput":
     case "pathInput":
     case "assetInput":
-    case "assetAliasInput":
     case "passwordInput":
     case "gasInput":
     case "btmUnitInput":
     case "signatureInput":
+    case "assetAliasWithBTMInput":
     case "provideOriginInput":
       return (input.value !== "")
+    case "assetAliasInput": {
+      return input.value !== "" && input.value !== BTM_ASSET_ID
+    }
     case "valueInput":
       // TODO(dan)
       return true
@@ -349,7 +353,7 @@ function addHashInput(inputs: Input[], type: ClauseParameterHash, parentName: st
 
 
 
-export function getDefaultContractParameterValue(inputType: InputType): string {
+export function getDefaultContractParameterValue(inputType: InputType, inputContext: InputContext): string {
   switch (inputType) {
     case "parameterInput":
     case "generateHashInput":
@@ -385,7 +389,10 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
     case "timeInput":
       return "timestampTimeInput"
     case "assetInput":
-      return "assetAliasInput"
+      if (inputContext === "contractValue") {
+        return "assetAliasInput"
+      }
+      return "assetAliasWithBTMInput"
     case "provideOriginInput":
     case "accountInput":
     case "assetAliasInput":
@@ -405,12 +412,12 @@ export function getDefaultContractParameterValue(inputType: InputType): string {
   }
 }
 
-export function getDefaultUnlockValue(inputType: InputType): string {
+export function getDefaultUnlockValue(inputType: InputType, inputContext: InputContext): string {
   switch (inputType) {
     case "programInput":
       return "generateProgramInput"
     default: // fall back for now
-      return getDefaultContractParameterValue(inputType)
+      return getDefaultContractParameterValue(inputType, inputContext)
   }
 }
 
@@ -542,17 +549,19 @@ export function getPromiseData(inputId: string, inputsById: { [s: string]: Input
 }
 
 export function getDefaultValue(inputType, name): string {
-  switch (getInputNameContext(name)) {
+  const inputContext = getInputNameContext(name)
+  switch (inputContext) {
     case "clauseParameters": return getDefaultClauseParameterValue(inputType)
-    case "contractParameters": return getDefaultContractParameterValue(inputType)
-    case "contractValue": return getDefaultContractParameterValue(inputType)
+    case "contractParameters": return getDefaultContractParameterValue(inputType, inputContext)
+    case "contractValue": return getDefaultContractParameterValue(inputType, inputContext)
     case "clauseValue": return getDefaultClauseParameterValue(inputType)
-    case "unlockValue": return getDefaultUnlockValue(inputType)
+    case "unlockValue": return getDefaultUnlockValue(inputType, inputContext)
   }
 }
 
 export function addDefaultInput(inputs: Input[], inputType: InputType, parentName) {
   let name = parentName + "." + inputType
+  let inputContext = parentName.split(".").shift() as InputContext
   let value = getDefaultValue(inputType, name)
   switch (inputType) {
     case "generateStringInput": {
@@ -621,7 +630,11 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       return
     }
     case "assetInput": {
-      addDefaultInput(inputs, "assetAliasInput", name)
+      if (inputContext === "contractValue") {
+        addDefaultInput(inputs, "assetAliasInput", name)
+      } else {
+        addDefaultInput(inputs, "assetAliasWithBTMInput", name)
+      }
       addDefaultInput(inputs, "provideStringInput", name)
       return
     }
