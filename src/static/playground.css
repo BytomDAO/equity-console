@@ -5,22 +5,13 @@
   src: url("fonts/nitti-normal.woff");
 }
 
-@font-face {
-  font-family: "Nitti Grotesk";
-  src: url("fonts/nittigrotesk-normal.woff");
-}
-
-@font-face {
-  font-family: "Nitti Grotesk";
-  font-weight: bold;
-  src: url("fonts/nittigrotesk-medium.woff");
-}
-
 body {
   color: #20252d;
   padding-top: 80px;
-  font-family: Nitti Grotesk, sans-serif;
-  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+  SimSun, sans-serif;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -32,10 +23,14 @@ h5 {
   color: #20252d;
 }
 
+label{
+    font-weight: 600;
+}
+
 small,
 .small {
   font-size: 90%;
-  font-weight: bold;
+  font-weight: 500;
   color: #20252d;
 }
 
@@ -44,7 +39,7 @@ small,
   border: 0;
   margin-bottom: 30px;
   font-size: 100%;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .glyphicon-question-sign {
@@ -61,7 +56,7 @@ small,
 }
 
 .dropdown-menu {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .container {
@@ -77,7 +72,7 @@ tr:last-of-type td {
 }
 
 .table {
-  font-size: 16px;
+  font-size: 14px;
   margin-bottom: 0;
 }
 
@@ -122,8 +117,8 @@ tr:last-of-type td {
 .panel-title {
   line-height: 34px;
   color: #20252d;
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 500;
   background: #f5f5f8;
 }
 
@@ -137,8 +132,8 @@ tr:last-of-type td {
 
 .panel-body.inner h1 {
   margin: 0 0 10px 0;
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .radio {
@@ -157,7 +152,7 @@ tr:last-of-type td {
 
 .form-control {
   max-width: 300px;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .form-control.string-input {
@@ -175,7 +170,7 @@ tr:last-of-type td {
 .form-control,
 .input-group-addon {
   border-radius: 2px;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .input-group select.with-addon {
@@ -221,13 +216,13 @@ select:hover {
 
 .btn {
   border-radius: 2px;
-  font-size: 16px;
+  font-size: 14px;
   padding: 5px 12px;
   min-width: 75px;
 }
 
 .btn-lg {
-  font-size: 20px;
+  font-size: 18px;
   padding: 8px 16px;
 }
 
@@ -327,8 +322,8 @@ code {
   padding: 40px;
   text-align: center;
   color: #bfbfbf;
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .contracts-table th {
