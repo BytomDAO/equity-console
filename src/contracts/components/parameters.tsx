@@ -78,29 +78,32 @@ function mapStateToContractInputProps(state, ownProps: { id: string }) {
     throw "inputMap should not be undefined when contract inputs are being rendered"
   }
   const showError = getshowLockInputMessages(state)
-  return mapToInputProps(showError, inputMap, ownProps.id)
+  const lang= state.lang
+  return Object.assign({},mapToInputProps(showError, inputMap, ownProps.id), {lang})
 }
 
 const AccountAliasWidget = connect(
-  (state) => ({ accounts: getAccounts(state) })
+  (state) => ({ accounts: getAccounts(state),lang: state.lang })
 )(AccountAliasWidgetUnconnected)
 
 function AccountAliasWidgetUnconnected(props: {
   input: AccountAliasInput,
+  lang: string,
   errorClass: string,
   handleChange: (e) => undefined,
   accounts: Account[]
 }) {
+  const lang = props.lang
   const options = props.accounts.map(account => <option key={account.id} value={account.id}>{account.alias}</option>)
   if (options.length === 0) {
-    options.push(<option key="" value="">No Accounts Available</option>)
+    options.push(<option key="" value="">{ lang ==='zh'? '没有可用账户信息' :'No Accounts Available'}</option>)
   } else {
-    options.unshift(<option key="" value="">Select Account</option>)
+    options.unshift(<option key="" value="">{ lang ==='zh'? '请选择账户' :'Select Account'}</option>)
   }
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">Account</div>
+        <div className="input-group-addon">{ lang==='zh'? '账户':'Account' }</div>
         <select id={props.input.name} className="form-control with-addon"
           value={props.input.value} onChange={props.handleChange}>
           {options}
@@ -111,35 +114,38 @@ function AccountAliasWidgetUnconnected(props: {
 }
 
 const AssetAliasWidget = connect(
-  (state) => ({ assets: getAssets(state) })
+  (state) => ({ assets: getAssets(state),lang: state.lang  })
 )(AssetAliasWidgetUnconnected)
 
 const AssetAliasWithBTMWidget = connect(
   (state) => {
+    const lang = state.lang
     const assets = getAssets(state)
     const assetsWithBTM: Asset[] = []
     Object.assign(assetsWithBTM, assets)
     assetsWithBTM.push({ id: BTM_ASSET_ID, alias: "BTM" })
-    return { assets: assetsWithBTM }
+    return { assets: assetsWithBTM, lang }
   }
 )(AssetAliasWidgetUnconnected)
 
 function AssetAliasWidgetUnconnected(props: {
   input: AssetAliasInput,
+  lang: string,
   errorClass: string,
   handleChange: (e) => undefined,
   assets: Asset[]
 }) {
+  const lang = props.lang
   const options = props.assets.map(asset => <option key={asset.id} value={asset.id}>{asset.alias}</option>)
   if (options.length === 0) {
-    options.push(<option key="" value="">No Assets Available</option>)
+    options.push(<option key="" value="">{ lang ==='zh'? '没有可用资产信息' : 'No Assets Available'}</option>)
   } else {
-    options.unshift(<option key="" value="">Select Asset</option>)
+    options.unshift(<option key="" value="">{ lang ==='zh'? '请选择资产' : 'Select Asset'}</option>)
   }
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">Asset</div>
+        <div className="input-group-addon">{ lang==='zh'? '资产': 'Asset' }</div>
         <select id={props.input.name} className="form-control with-addon"
           value={props.input.value} onChange={props.handleChange}>
           {options}
@@ -149,9 +155,10 @@ function AssetAliasWidgetUnconnected(props: {
   )
 }
 
-function AssetWidget(props: { input: AssetInput, inputContext: InputContext, handleChange: (e) => undefined }) {
-  const options = [{ label: "Generate Asset", value: props.inputContext === "contractValue" ? "assetAliasInput" : "assetAliasWithBTMInput" },
-  { label: "Provide Asset Id", value: "provideStringInput" }]
+function AssetWidget(props: { input: AssetInput, lang: string, inputContext: InputContext, handleChange: (e) => undefined }) {
+  const lang = props.lang
+  const options = [{ label: lang==='zh'?'选择资产':"Generate Asset", value: props.inputContext === "contractValue" ? "assetAliasInput" : "assetAliasWithBTMInput" },
+  { label:lang==='zh'?'输入资产ID':"Provide Asset Id", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
     <div className="input-group">
@@ -172,12 +179,13 @@ function NumberWidget(props: {
 function PasswordWidget(props: {
   input: StringInput,
   errorClass: string,
+  lang: string,
   handleChange: (e) => undefined
 }) {
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">password</div>
+        <div className="input-group-addon">{props.lang==='zh'? '密码' :'Password'}</div>
         <input type="password" className="form-control" style={{ width: 200 }} key={props.input.name}
           value={props.input.value} onChange={props.handleChange} />
       </div>
@@ -299,13 +307,14 @@ function SignatureWidget(props: { input: SignatureInput, handleChange: (e) => un
 
 function AmountWidget(props: {
   input: AmountInput,
+  lang: string,
   errorClass: string,
   handleChange: (e) => undefined
 }) {
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">Amount</div>
+        <div className="input-group-addon">{props.lang==='zh'? '数量' :'Amount'}</div>
         <NumberWidget input={props.input} handleChange={props.handleChange} />
       </div>
     </div>
@@ -358,10 +367,12 @@ function TextWidget(props: {
 
 function PublicKeyWidget(props: {
   input: PublicKeyInput,
+  lang: string,
   handleChange: (e) => undefined
 }) {
-  const options = [{ label: "Generate Public Key", value: "accountInput" },
-  { label: "Provide Public Key", value: "provideStringInput" }]
+  const lang = props.lang
+  const options = [{ label: lang==='zh'? '生成公钥': "Generate Public Key", value: "accountInput" },
+  { label: lang ==='zh'?'输入公钥':"Provide Public Key", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
     <div>
@@ -371,9 +382,10 @@ function PublicKeyWidget(props: {
   )
 }
 
-function HashWidget(props: { input: HashInput, handleChange: (e) => undefined }) {
-  const options = [{ label: "Generate Hash", value: "generateHashInput" },
-  { label: "Provide Hash", value: "provideHashInput" }]
+function HashWidget(props: { input: HashInput, lang:string, handleChange: (e) => undefined }) {
+  const lang = props.lang
+  const options = [{ label: lang==='zh'?'生成Hash':"Generate Hash", value: "generateHashInput" },
+  { label: lang==='zh'?'提供Hash' :"Provide Hash", value: "provideHashInput" }]
   const handleChange = (s: string) => undefined
   return (
     <div>
@@ -386,7 +398,8 @@ function HashWidget(props: { input: HashInput, handleChange: (e) => undefined })
 function mapStateToSpendInputProps(state, ownProps: { id: string }) {
   const inputsById = getSpendInputMap(state)
   const showError = getShowUnlockInputErrors(state)
-  return mapToInputProps(showError, inputsById, ownProps.id)
+  const lang = state.lang
+  return Object.assign({},mapToInputProps(showError, inputsById, ownProps.id), {lang})
 }
 
 function mapDispatchToSpendInputProps(dispatch, ownProps: { id: string }) {
@@ -440,9 +453,10 @@ function GenerateHashWidget(props: {
   )
 }
 
-function ProgramWidget(props: { input: ProgramInput, handleChange: (e) => undefined }) {
-  const options = [{ label: "Generate Program", value: "accountInput" },
-  { label: "Provide Program", value: "provideStringInput" }]
+function ProgramWidget(props: { input: ProgramInput, lang:string, handleChange: (e) => undefined }) {
+  const lang = props.lang
+  const options = [{ label: lang==='zh'?'生成合约程序':"Generate Program", value: "accountInput" },
+  { label: lang==='zh'?'输入合约程序':"Provide Program", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
     <div>
@@ -522,7 +536,7 @@ function GenerateStringWidget(props: {
   )
 }
 
-function getWidgetType(type: InputType): ((props: { input: Input, handleChange: (e) => undefined }) => JSX.Element) {
+function getWidgetType(type: InputType): ((props: { input: Input, lang: string, handleChange: (e) => undefined }) => JSX.Element) {
   switch (type) {
     case "numberInput": return NumberWidget
     // case "booleanInput": return BooleanWidget
@@ -589,18 +603,18 @@ function InsufficientFundsAlertUnconnected({ namePrefix, balance, inputMap, cont
 }
 
 const BalanceWidget = connect(
-  (state, ownProps: { namePrefix: string }) => ({ balance: getBalanceSelector(ownProps.namePrefix)(state) })
+  (state, ownProps: { namePrefix: string }) => ({ balance: getBalanceSelector(ownProps.namePrefix)(state) ,lang: state.lang})
 )(BalanceWidgetUnconnected)
 
-function BalanceWidgetUnconnected({ namePrefix, balance }) {
+function BalanceWidgetUnconnected({ namePrefix, balance, lang }) {
   let jsx = <small />
   if (balance !== undefined) {
-    jsx = <small className="value-balance">{balance} available</small>
+    jsx = <small className="value-balance">{balance} {lang==='zh'?'可用':'available'}</small>
   }
   return jsx
 }
 
-function ValueWidget(props: { input: ValueInput, handleChange: (e) => undefined }) {
+function ValueWidget(props: { input: ValueInput,  handleChange: (e) => undefined }) {
   return (
     <div>
       {/*<EmptyCoreAlert />*/}
@@ -608,7 +622,7 @@ function ValueWidget(props: { input: ValueInput, handleChange: (e) => undefined 
       {getWidget(props.input.name + ".accountInput")}
       {getWidget(props.input.name + ".assetInput")}
       {getWidget(props.input.name + ".amountInput")}
-      <BalanceWidget namePrefix={props.input.name} />
+      <BalanceWidget namePrefix={props.input.name}/>
       {getWidget(props.input.name + ".passwordInput")}
       {getWidget(props.input.name + ".gasInput")}
     </div>
@@ -671,7 +685,8 @@ function mapStateToClauseValueProps(state) {
     assetMap: getAssetMap(state),
     assetAmount: getRequiredAssetAmount(state),
     balanceMap: getBalanceMap(state),
-    spendInputMap: getSpendInputMap(state)
+    spendInputMap: getSpendInputMap(state),
+    lang: state.lang
   }
 }
 
@@ -679,7 +694,8 @@ export const ClauseValue = connect(
   mapStateToClauseValueProps
 )(ClauseValueUnconnected)
 
-function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount, assetMap, valueId: string }) {
+function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount, assetMap, lang, valueId: string }) {
+  const lang = props.lang
   if (props.valueId === undefined || props.assetAmount === undefined) {
     return <div />
   } else {
@@ -697,7 +713,7 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
           {getWidget(props.valueId + ".valueInput.accountInput")}
           <div className="form-group">
             <div className="input-group">
-              <div className="input-group-addon">Asset</div>
+              <div className="input-group-addon">{lang==='zh'?'资产':'Asset'}</div>
               <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.assetAmount.assetId} disabled />
             </div>
           </div>
@@ -715,7 +731,7 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
 }
 
 export const ClauseParameters = connect(
-  (state) => ({ parameterIds: getClauseParameterIds(state) })
+  (state) => ({ parameterIds: getClauseParameterIds(state) , lang: state.lang})
 )(ClauseParametersUnconnected)
 
 function ClauseParametersUnconnected(props: { parameterIds: string[] }) {
@@ -724,7 +740,7 @@ function ClauseParametersUnconnected(props: { parameterIds: string[] }) {
     return <div key={id} className="argument">{getWidget(id)}</div>
   })
   return <section style={{ wordBreak: 'break-all' }}>
-    <h4>Clause Arguments</h4>
+    <h4>Clause {props.lang ==='zh'?'参数':'Arguments'}</h4>
     <form className="form">
       {parameterInputs}
     </form></section>

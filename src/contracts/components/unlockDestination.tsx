@@ -11,8 +11,9 @@ import { getItemMap as getAssetMap } from '../../assets/selectors'
 import { getSpendContract, getClauseUnlockInput } from '../selectors'
 
 // const UnlockDestination = (props: { assetMap, contract, unlockInput: Input }) => {
-const UnlockDestination = (props: { assetMap, contract }) => {
+const UnlockDestination = (props: { assetMap, contract, lang }) => {
   // if ( props.contract === undefined || props.assetMap === undefined) {
+  const lang = props.lang
   const asset = props.assetMap[props.contract.assetId]
   const assetAlias = asset ? asset.alias : props.contract.assetId
   if ( props.contract === undefined ) {
@@ -24,13 +25,13 @@ const UnlockDestination = (props: { assetMap, contract }) => {
         {getWidget("unlockValue.accountInput")}
         <div className="form-group">
           <div className="input-group">
-            <div className="input-group-addon">Asset</div>
+            <div className="input-group-addon">{lang==='zh'?'资产':'Asset'}</div>
             <input type="text" className="form-control" value={assetAlias} disabled />
           </div>
         </div>
         <div className="form-group">
           <div className="input-group">
-            <div className="input-group-addon">Amount</div>
+            <div className="input-group-addon">{lang==='zh'?'数量':'Amount'}</div>
             <input type="text" className="form-control" value={props.contract.amount} disabled />
           </div>
         </div>
@@ -40,5 +41,5 @@ const UnlockDestination = (props: { assetMap, contract }) => {
 }
 
 export default connect(
-  (state) => ({ assetMap: getAssetMap(state), unlockInput: getClauseUnlockInput(state), contract: getSpendContract(state) })
+  (state) => ({ assetMap: getAssetMap(state), unlockInput: getClauseUnlockInput(state), contract: getSpendContract(state), lang: state.lang })
 )(UnlockDestination)

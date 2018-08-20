@@ -22,7 +22,8 @@ const mapStateToProps = (state) => {
   const map = getContractMap(state)
   const id = getSpendContractId(state)
   const display = map[id] !== undefined && map[id].contractProgram === contractProgram
-  return { error, display }
+  const lang = state.lang
+  return { error, display, lang }
 }
 
 const ErrorAlert = (props: { error: any }) => {
@@ -39,16 +40,16 @@ const ErrorAlert = (props: { error: any }) => {
   return jsx
 }
 
-export const Unlock = ({ error, display }) => {
-  let summary = (<div className="table-placeholder">No Contract Found</div>)
-  let details = (<div className="table-placeholder">No Details Found</div>)
+export const Unlock = ({ error, display, lang }) => {
+  let summary = (<div className="table-placeholder">{lang==='zh'?'没有找到相应的合约':'No Contract Found'}</div>)
+  let details = (<div className="table-placeholder">{lang==='zh'?'没有找到具体的合约信息':'No Details Found'}</div>)
   let button
 
   if (display) {
     summary = (
       <div className="form-wrapper with-subsections">
         <section>
-          <h4>Contract Template</h4>
+          <h4>{lang==='zh'?'合约模版':'Contract Template'}</h4>
           <DisplaySpendContract />
         </section>
         <ContractValue />
@@ -74,7 +75,7 @@ export const Unlock = ({ error, display }) => {
   return (
     <DocumentTitle title="Unlock Value">
       <div>
-        <Section name="Contract Summary">
+        <Section name={lang ==='zh'?'合约概括':"Contract Summary"}>
           {summary}
         </Section>
         <Section name="Unlocking Details">

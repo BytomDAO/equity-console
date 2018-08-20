@@ -56,17 +56,17 @@ function AssetWidget(props: { input: string }) {
   </div>
 }
 
-function AssetAliasWidgetUnconnected(props: { input: AssetInput, assetMap: {[s: string]: any}}) {
+function AssetAliasWidgetUnconnected(props: { input: AssetInput, lang: string, assetMap: {[s: string]: any}}) {
   const asset = props.assetMap[props.input.computedData]
   return <div className="form-group">
     <div className="input-group">
-      <div className="input-group-addon">Asset</div>
+      <div className="input-group-addon">{props.lang==='zh'?'资产':'Asset'}</div>
       <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.input.computedData} disabled />
     </div>
   </div>
 }
 
-let AssetAliasWidget = connect(
+const AssetAliasWidget = connect(
   (state) => ({ assetMap: getAssetMap(state) })
 )(AssetAliasWidgetUnconnected)
 
@@ -74,14 +74,14 @@ function AccountAliasWidgetUnconnected(props: { input: AccountAliasInput, accoun
   return <pre>{props.accountMap[props.input.value].alias}</pre>
 }
 
-let AccountAliasWidget = connect(
+const AccountAliasWidget = connect(
   (state) => ({ accountMap: getAccountMap(state) })
 )(AccountAliasWidgetUnconnected)
 
-function AmountWidget(props: { input: Input }) {
+function AmountWidget(props: { input: Input, lang: string }) {
 return <div className="form-group">
   <div className="input-group">
-    <div className="input-group-addon">Amount</div>
+    <div className="input-group-addon">{props.lang==='zh'?'数量':'Amount'}</div>
     <input type="text" className="form-control" value={props.input.value} disabled />
   </div>
 </div>
@@ -153,13 +153,14 @@ function getWidgetType(type: InputType): ((props: { input: Input }) => JSX.Eleme
 function getWidget(id: string): JSX.Element {
   let type = id.split(".").pop() as InputType
   let widgetTypeConnected = connect(
-    (state) => ({ input: getInputSelector(id)(state) })
+    (state) => ({ input: getInputSelector(id)(state), lang: state.lang })
   )(getWidgetType(type))
   if (type === "generateHashInput" || type === "generatePublicKeyInput") {
     widgetTypeConnected = connect(
       (state) => {
         return {
           input: getInputSelector(id)(state),
+          lang: state.lang,
           computedValue: computeDataForInput(id, getInputMap(state))
         }
       }
@@ -189,7 +190,7 @@ export const ContractValue = connect(
   mapStateToContractValueProps
 )(ContractValueUnconnected)
 
-function SpendInputsUnconnected(props: { spendInputIds: string[] }) {
+function SpendInputsUnconnected(props: { spendInputIds: string[] , lang: string}) {
   if (props.spendInputIds.length === 0) return <div />
   const spendInputWidgets = props.spendInputIds.map((id) => {
     return <div key={id} className="argument">
@@ -198,7 +199,7 @@ function SpendInputsUnconnected(props: { spendInputIds: string[] }) {
   })
   return (
     <section style={{ wordBreak: 'break-all'}}>
-      <h4>Contract Arguments</h4>
+      <h4>{props.lang ==='zh'?'合约参数':'Contract Arguments'}</h4>
       <form className="form">
         {spendInputWidgets}
       </form>
@@ -207,7 +208,7 @@ function SpendInputsUnconnected(props: { spendInputIds: string[] }) {
 }
 
 const SpendInputs = connect(
-  (state) => ({ spendInputIds: getParameterIds(state) })
+  (state) => ({ spendInputIds: getParameterIds(state), lang: state.lang })
 )(SpendInputsUnconnected)
 
 export default SpendInputs

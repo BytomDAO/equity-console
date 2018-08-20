@@ -5,7 +5,8 @@ import {loadTemplate, showLockInputMessages} from '../actions'
 
 const mapStateToProps = (state) => {
   return {
-    idList: state.templates.idList
+    idList: state.templates.idList,
+    lang: state.lang
   }
 }
 
@@ -16,7 +17,7 @@ const mapDispatchToProps = (dispatch) => ({
   }
 })
 
-const LoadTemplate = ({idList, handleClick}) => {
+const LoadTemplate = ({idList, handleClick, lang}) => {
   const options = idList.slice(1).map(id => {
     return <li key={id}><a onClick={(e) => handleClick(e, id)} href='#'>{id}</a></li>
   })
@@ -26,7 +27,7 @@ const LoadTemplate = ({idList, handleClick}) => {
               type="button" id="dropdownMenu1"
               data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
         <span className="glyphicon glyphicon-open"></span>
-        Load
+        {lang ==='zh'? '加载模版' : 'Load'}
       </button>
       <ul className="dropdown-menu" aria-labelledby="dropdownMenu1">
         {options}

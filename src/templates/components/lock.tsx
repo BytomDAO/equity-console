@@ -17,7 +17,8 @@ const mapStateToProps = (state) => {
   const contractParameters = getContractParameters(state)
   const hasParams = contractParameters && contractParameters.length > 0
   const result = getLockMessage(state)
-  return { source, instantiable, hasParams, result }
+  const lang = state.lang
+  return { source, instantiable, hasParams, result, lang }
 }
 
 const ErrorAlert = (props: { result: object }) => {
@@ -44,14 +45,14 @@ const ErrorAlert = (props: { result: object }) => {
   return jsx
 }
 
-const Lock = ({ source, instantiable, hasParams, result }) => {
+const Lock = ({ source, instantiable, hasParams, result , lang}) => {
   let instantiate
   let contractParams
   if (instantiable) {
     contractParams = <div />
     if (hasParams) {
       contractParams = (
-        <Section name="Contract Arguments">
+        <Section name={lang==='zh'?'合约参数':"Contract Arguments"}>
           <div className="form-wrapper">
             <ContractParameters />
           </div>

@@ -9,16 +9,17 @@ import Ace from './ace'
 const mapStateToProps = (state) => {
   return {
     compiled: getCompiled(state),
-    source: state.templates.source
+    source: state.templates.source,
+    lang: state.lang
   }
 }
 
-const Editor = ({ compiled, source }) => {
+const Editor = ({ compiled, source, lang }) => {
   return (
     <div>
       <div className="panel panel-default">
         <div className="panel-heading clearfix">
-          <h1 className="panel-title pull-left">Contract Template</h1>
+          <h1 className="panel-title pull-left">{ lang ==='zh'? '合约模版' :'Contract Template' }</h1>
           <ul className="panel-heading-btns pull-right">
             <li><LoadTemplate /></li>
           </ul>
