@@ -11,3 +11,14 @@ export const seed = () => {
     dispatch(assets.actions.fetch())
   }
 }
+
+export const SETLANG: string = "app/SET_LANG"
+
+export const setlang = (lang: string) => {
+  return (dispath) => {
+    dispath({
+      type: SETLANG,
+      param: lang
+    })
+  }
+}

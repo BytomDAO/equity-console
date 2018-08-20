@@ -16,6 +16,8 @@ export const client = new Client({
   url
 })
 
+export const DefaultLang:string = window.navigator.language.startsWith('zh') ? 'zh' : 'en'
+
 // Parses an error from Chain Core
 export const parseError = (err) => {
   if (err === undefined) {

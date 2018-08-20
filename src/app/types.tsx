@@ -8,5 +8,6 @@ export type AppState = {
   assets: assets.State,
   contracts: contracts.ContractsState
   templates: templates.TemplateState,
-  routing: any
+  routing: any,
+  lang: any
 }

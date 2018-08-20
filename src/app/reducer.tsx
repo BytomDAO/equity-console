@@ -6,12 +6,24 @@ import assets from '../assets'
 import contracts from '../contracts'
 import templates from '../templates'
 
+import { SETLANG } from './actions'
+
+import { DefaultLang } from '../core/index'
+
+export const lang = (state = DefaultLang, action) => {
+  if (action.type === SETLANG) {
+    return action.param
+  }
+  return state
+}
+
 export default function (state, action) {
   return combineReducers({
     accounts: accounts.reducer,
     assets: assets.reducer,
     contracts: contracts.reducer,
     templates: templates.reducer,
-    routing: routerReducer
+    routing: routerReducer,
+    lang
   })(state, action)
 }
