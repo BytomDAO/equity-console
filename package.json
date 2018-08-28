@@ -23,6 +23,7 @@
     "css-loader": "^0.28.1",
     "fetch-ponyfill": "~3.0.2",
     "file-loader": "~0.9.0",
+    "https-proxy-agent": "^2.2.0",
     "jquery": "^3.2.1",
     "js-sha3": "^0.5.7",
     "json-loader": "^0.5.4",
