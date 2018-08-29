@@ -127,3 +127,15 @@ export const INITIAL_ID_LIST = [
   "CallOption",
   "RevealPreimage",
 ]
+
+export const INITIAL_ID_CHINESE_LIST = {
+  LockWithPublicKey: '单签合约',
+  LockWithPublicKeyHash: '单签地址合约',
+  LockWithMultiSig: '多签合约',
+  TradeOffer: '币币交易合约',
+  Escrow: '第三方托管合约',
+  LoanCollateral: '借贷合约',
+  CallOption: '看涨合约',
+  RevealPreimage: '猜谜合约'
+}
+

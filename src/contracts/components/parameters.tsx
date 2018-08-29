@@ -740,7 +740,7 @@ function ClauseParametersUnconnected(props: { parameterIds: string[] }) {
     return <div key={id} className="argument">{getWidget(id)}</div>
   })
   return <section style={{ wordBreak: 'break-all' }}>
-    <h4>Clause {props.lang ==='zh'?'参数':'Arguments'}</h4>
+    <h4>{props.lang ==='zh'?'函数参数':'Clause Arguments'}</h4>
     <form className="form">
       {parameterInputs}
     </form></section>

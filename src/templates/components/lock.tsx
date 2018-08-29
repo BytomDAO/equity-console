@@ -64,7 +64,7 @@ const Lock = ({ source, instantiable, hasParams, result , lang}) => {
 
     instantiate = (
       <div>
-        <Section name="Value to Lock">
+        <Section name={ lang==='zh'?'锁定资产':"Value to Lock" }>
           <div className="form-wrapper">
             <ContractValue />
           </div>
@@ -79,7 +79,7 @@ const Lock = ({ source, instantiable, hasParams, result , lang}) => {
   }
 
   return (
-    <DocumentTitle title="Lock Value">
+    <DocumentTitle title={ lang==='zh'?'合约锁定':"Lock Value"}>
       <div>
         <Editor />
         {instantiate}

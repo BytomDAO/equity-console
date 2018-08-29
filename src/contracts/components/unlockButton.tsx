@@ -7,7 +7,8 @@ import { spend } from '../actions'
 import { areSpendInputsValid, getIsCalling } from '../selectors'
 
 const mapStateToProps = (state) => ({
-  isCalling: getIsCalling(state)
+  isCalling: getIsCalling(state),
+  lang: state.lang
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -16,10 +17,10 @@ const mapDispatchToProps = (dispatch) => ({
   }
 })
 
-const UnlockButton = (props: {isCalling: boolean, handleSpendClick: (e)=>undefined} ) => {
+const UnlockButton = (props: {isCalling: boolean, lang: string, handleSpendClick: (e)=>undefined} ) => {
   return <button className="btn btn-primary btn-lg form-button"
                  disabled={props.isCalling}
-                 onClick={props.handleSpendClick}>Unlock Value</button>
+                 onClick={props.handleSpendClick}> {props.lang==='zh'?'解锁资产':'Unlock Value'}</button>
 }
 
 export default connect(

@@ -21,7 +21,7 @@ const UnlockDestination = (props: { assetMap, contract, lang }) => {
   } else {
     return (
       <section>
-        <h4>Unlocked Value Destination</h4>
+        <h4>{lang==='zh'?'资产解锁目标账户':'Unlocked Value Destination'}</h4>
         {getWidget("unlockValue.accountInput")}
         <div className="form-group">
           <div className="input-group">

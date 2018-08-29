@@ -73,12 +73,12 @@ export const Unlock = ({ error, display, lang }) => {
   }
 
   return (
-    <DocumentTitle title="Unlock Value">
+    <DocumentTitle title={lang ==='zh'?'合约解锁':"Unlock Value"}>
       <div>
         <Section name={lang ==='zh'?'合约概括':"Contract Summary"}>
           {summary}
         </Section>
-        <Section name="Unlocking Details">
+        <Section name={lang ==='zh'?'解锁详情':"Unlocking Details"}>
           {details}
         </Section>
         <ErrorAlert error={error} />

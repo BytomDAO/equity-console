@@ -15,6 +15,7 @@ const mapStateToProps = (state) => {
   const id = getSpendContractId(state)
   const contract =  map[id]
   return {
+    lang: state.lang,
     idList: state.templates.idList,
     contractName: state.contracts.selectedContractName,
     utxoId: state.contracts.utxoId,
@@ -60,6 +61,7 @@ const SuccessMessage = (props: {  contract: Contract }) => {
 
 const LockedValueDisplay = (props: {
   idList: string[],
+  lang:string,
   contractName: string,
   utxoId: string,
   contract: Contract,
@@ -67,17 +69,17 @@ const LockedValueDisplay = (props: {
   handleTemplateChange: (e)=>undefined,
   fetch: (e)=>undefined
 }) => {
+  const lang = props.lang
   const options = props.idList.slice(1).map(id => {
     return <option key={id} value={id}>{id}</option>
   })
 
-  const td = <button className="btn btn-primary" onClick={props.fetch}>Unlock</button>
+  const td = <button className="btn btn-lg btn-primary" onClick={props.fetch}>{ lang==='zh'?'解锁资产':'Unlock'}</button>
   return (
-    <DocumentTitle title="Unlock Value">
+    <DocumentTitle title={ lang==='zh'?'合约解锁':"Unlock Value"}>
       <div>
-        <Section name="UTXO Params">
+        <Section name="UTXO ID">
           <div className={"form-group"}>
-            <label>UTXO ID:</label>
             <input type="text" className="form-control string-input"
                    value={props.utxoId}
                    onChange={props.handleUtxoChange}/>

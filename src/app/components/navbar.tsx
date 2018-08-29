@@ -35,8 +35,8 @@ const Navbar = (props: { path: string , lang: string, setlang: (e)=>undefined}) 
           </a>
         </div>
         <ul className="nav navbar-nav navbar-right">
-          <li className={props.path === 'unlock' ? '' : 'active'} ><Link to={prefixRoute('/')}>Lock Value</Link></li>
-          <li className={props.path === 'unlock' ? 'active' : ''} ><Link to={prefixRoute('/unlock')}>Unlock Value</Link></li>
+          <li className={props.path === 'unlock' ? '' : 'active'} ><Link to={prefixRoute('/')}>{props.lang === 'zh'? '合约锁定':'Lock Value'}</Link></li>
+          <li className={props.path === 'unlock' ? 'active' : ''} ><Link to={prefixRoute('/unlock')}>{props.lang === 'zh'? '合约解锁':'Unlock Value'}</Link></li>
 
           <li className="dropdown">
             <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">

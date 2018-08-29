@@ -12,11 +12,12 @@ import { Input } from "../../inputs/types"
 
 const ClauseSelect = (props: {
   contractId: string, clauses: ClauseInfo[],
-  setClauseIndex: (number) => undefined, spendIndex: number
+  setClauseIndex: (number) => undefined, spendIndex: number,
+  lang: string
 }) => {
   return (
     <section>
-      <h4>Clause</h4>
+      <h4>{props.lang==='zh'?'函数':'Clause'}</h4>
       <select className="form-control" value={props.spendIndex} onChange={(e) => props.setClauseIndex(e.target.value)}>
         {props.clauses.map((clause, i) => <option key={clause.name} value={i}>{clause.name}</option>)}
       </select>
@@ -28,7 +29,8 @@ export default connect(
   (state) => ({
     spendIndex: getSelectedClauseIndex(state),
     clauses: getSpendContract(state).template.clause_info,
-    contractId: getSpendContractId(state)
+    contractId: getSpendContractId(state),
+    lang: state.lang
   }),
   { setClauseIndex }
 )(ClauseSelect)

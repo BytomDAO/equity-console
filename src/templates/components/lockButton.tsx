@@ -6,12 +6,11 @@ import { connect } from 'react-redux'
 import { create } from '../../contracts/actions'
 import { getIsCalling } from '../../contracts/selectors'
 
-// internal imports
-import { getContractValue } from '../selectors'
 
 const mapStateToProps = (state) => {
   return {
-    isCalling: getIsCalling(state)
+    isCalling: getIsCalling(state),
+    lang: state.lang
   }
 }
 
@@ -23,11 +22,12 @@ const mapDispatchToProps = (dispatch) => ({
 
 type Props = {
   isCalling: boolean,
+  lang:string,
   handleClick: (e) => undefined
 }
 
-const LockButton = ({ isCalling, handleClick }: Props) => {
-  const td = <td><button className="btn btn-primary btn-lg form-button" disabled={isCalling} onClick={handleClick}>Lock Value</button></td>
+const LockButton = ({ isCalling, lang, handleClick }: Props) => {
+  const td = <td><button className="btn btn-primary btn-lg form-button" disabled={isCalling} onClick={handleClick}>{lang==='zh'?'锁定资产':'Lock Value'}</button></td>
   return <div><table><tbody><tr>{td}</tr></tbody></table></div>
 }
 

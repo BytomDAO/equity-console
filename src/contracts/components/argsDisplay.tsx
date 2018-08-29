@@ -171,14 +171,15 @@ function getWidget(id: string): JSX.Element {
 
 function mapStateToContractValueProps(state) {
   return {
+    lang: state.lang,
     valueId: getSpendContractValueId(state)
   }
 }
 
-function ContractValueUnconnected(props: { valueId: string }) {
+function ContractValueUnconnected(props: { valueId: string , lang: string}) {
   return (
     <section style={{wordBreak: 'break-all'}}>
-      <h4>Locked Value</h4>
+      <h4>{props.lang ==='zh'?'锁定资产':'Locked Value'}</h4>
       <form className="form">
         <div className="argument">{getWidget(props.valueId)}</div>
       </form>
