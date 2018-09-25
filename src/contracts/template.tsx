@@ -128,7 +128,7 @@ export class UnlockValueTemplate extends AbstractTemplate {
             const actions: Action[] = []
             actions.push(action)
             const { accountId, assetId, amount } = this.getDestinationInfo()
-            return client.createReceiver(accountId).then((receiver) => {
+            return client.listReceiver(accountId).then((receiver) => {
                 actions.push(this.buildRecipientAction(assetId, amount, receiver.control_program))
                 actions.push(this.buildGasAction())
                 return actions
@@ -185,7 +185,7 @@ export class LockPaymentUnlockValueTemplate extends AbstractTemplate {
             actions.push(this.buildGasAction())
 
             const { accountId, assetId, amount } = this.getDestinationInfo()
-            return client.createReceiver(accountId).then((receiver) => {
+            return client.listReceiver(accountId).then((receiver) => {
                 actions.push(this.buildRecipientAction(assetId, amount, receiver.control_program))
                 return actions
             })
@@ -213,7 +213,7 @@ export class LockPaymentLockValueTemplate extends AbstractTemplate {
             actions.push(this.buildRecipientAction(paymentAssetId, paymentAmount, this.lenderProgram))
 
             const { accountId, assetId, amount } = this.getDestinationInfo()
-            return client.createReceiver(accountId).then((receiver) => {
+            return client.listReceiver(accountId).then((receiver) => {
                 actions.push(this.buildRecipientAction(assetId, amount, this.borrowerProgram))
                 actions.push(this.buildSpendAccountAction(paymentAssetId, paymentAmount, paymentAccountId))
                 actions.push(this.buildGasAction())

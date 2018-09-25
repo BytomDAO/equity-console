@@ -513,7 +513,7 @@ export function getPromiseData(inputId: string, inputsById: { [s: string]: Input
         }
         return new Promise((resolve) => resolve(programInput))
       }
-      return client.createReceiver(inputValue).then((receiver) => {
+      return client.listReceiver(inputValue).then((receiver) => {
         let programInput: ProgramInput = {
           ...input as ProgramInput,
           computedData: receiver.control_program

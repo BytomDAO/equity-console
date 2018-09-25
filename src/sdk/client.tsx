@@ -27,6 +27,12 @@ class Client {
     return this.connection.request('/list-balances')
   }
 
+  public listAddress(accountId) {
+    return this.connection
+      .request('/list-addresses', {account_id: accountId})
+      .then(resp => resp.data)
+  }
+
   public createAccountPubkey(accountId) {
     return this.connection
       .request('/list-pubkeys', {account_id: accountId})
@@ -56,6 +62,17 @@ class Client {
       } else {
         return []
       }
+    })
+  }
+
+  public listReceiver(accountId) {
+    return this.listAddress(accountId).
+      then(resp =>{
+        if(resp.length === 0){
+          return this.createReceiver(accountId)
+        }else{
+          return resp[0]
+        }
     })
   }
 }
