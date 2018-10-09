@@ -12,7 +12,7 @@ const mapStateToProps = (state) => {
 
 const Opcodes = ({ opcodes, lang }) => {
   return (
-    <div className="panel-body inner">
+    <div className="card-body inner">
       <h1>{lang==='zh'?'编译结果':'Compiled'}</h1>
       <pre className="wrap">
         { opcodes }

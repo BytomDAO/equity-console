@@ -232,7 +232,7 @@ export const spend = () => {
                 <div className="modal-content">
                   <div className="modal-header">
                     <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 className="modal-title" id="myModalLabel">Generated Json</h4>
+                    <h5 className="modal-title" id="myModalLabel">Generated Json</h5>
                   </div>
                   <div className="modal-body" style={{wordBreak: 'break-all'}}>
                     {result.hex}

@@ -49,7 +49,7 @@ export const Unlock = ({ error, display, lang }) => {
     summary = (
       <div className="form-wrapper with-subsections">
         <section>
-          <h4>{lang==='zh'?'合约模版':'Contract Template'}</h4>
+          <h5>{lang==='zh'?'合约模版':'Contract Template'}</h5>
           <DisplaySpendContract />
         </section>
         <ContractValue />

@@ -50,7 +50,9 @@ function ValueWidget(props: { input: ValueInput }) {
 function AssetWidget(props: { input: string }) {
   return <div className="form-group">
     <div className="input-group">
-      <div className="input-group-addon">Asset</div>
+      <div className="input-group-prepend">
+        <span className="input-group-text">Asset</span>
+      </div>
       <input type="text" className="form-control" value={props.input} disabled />
     </div>
   </div>
@@ -60,7 +62,7 @@ function AssetAliasWidgetUnconnected(props: { input: AssetInput, lang: string, a
   const asset = props.assetMap[props.input.computedData]
   return <div className="form-group">
     <div className="input-group">
-      <div className="input-group-addon">{props.lang==='zh'?'资产':'Asset'}</div>
+      <div className="input-group-prepend"><span className="input-group-text">{props.lang==='zh'?'资产':'Asset'}</span></div>
       <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.input.computedData} disabled />
     </div>
   </div>
@@ -81,7 +83,9 @@ const AccountAliasWidget = connect(
 function AmountWidget(props: { input: Input, lang: string }) {
 return <div className="form-group">
   <div className="input-group">
-    <div className="input-group-addon">{props.lang==='zh'?'数量':'Amount'}</div>
+    <div className="input-group-prepend">
+      <span className="input-group-text">{props.lang==='zh'?'数量':'Amount'}</span>
+    </div>
     <input type="text" className="form-control" value={props.input.value} disabled />
   </div>
 </div>
@@ -179,7 +183,7 @@ function mapStateToContractValueProps(state) {
 function ContractValueUnconnected(props: { valueId: string , lang: string}) {
   return (
     <section style={{wordBreak: 'break-all'}}>
-      <h4>{props.lang ==='zh'?'锁定资产':'Locked Value'}</h4>
+      <h5>{props.lang ==='zh'?'锁定资产':'Locked Value'}</h5>
       <form className="form">
         <div className="argument">{getWidget(props.valueId)}</div>
       </form>
@@ -200,7 +204,7 @@ function SpendInputsUnconnected(props: { spendInputIds: string[] , lang: string}
   })
   return (
     <section style={{ wordBreak: 'break-all'}}>
-      <h4>{props.lang ==='zh'?'合约参数':'Contract Arguments'}</h4>
+      <h5>{props.lang ==='zh'?'合约参数':'Contract Arguments'}</h5>
       <form className="form">
         {spendInputWidgets}
       </form>

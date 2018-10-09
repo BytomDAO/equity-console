@@ -103,7 +103,9 @@ function AccountAliasWidgetUnconnected(props: {
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">{ lang==='zh'? '账户':'Account' }</div>
+        <div className="input-group-prepend">
+          <span className="input-group-text">{ lang==='zh'? '账户':'Account' }</span>
+        </div>
         <select id={props.input.name} className="form-control with-addon"
           value={props.input.value} onChange={props.handleChange}>
           {options}
@@ -145,7 +147,7 @@ function AssetAliasWidgetUnconnected(props: {
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">{ lang==='zh'? '资产': 'Asset' }</div>
+        <div className="input-group-prepend"><span className="input-group-text">{ lang==='zh'? '资产': 'Asset' }</span></div>
         <select id={props.input.name} className="form-control with-addon"
           value={props.input.value} onChange={props.handleChange}>
           {options}
@@ -161,7 +163,7 @@ function AssetWidget(props: { input: AssetInput, lang: string, inputContext: Inp
   { label:lang==='zh'?'输入资产ID':"Provide Asset Id", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
-    <div className="input-group">
+    <div className="input-group flex-column">
       <RadioSelect options={options} selected={props.input.value} name={props.input.name} handleChange={props.handleChange} />
       {getChildWidget(props.input)}
     </div>
@@ -185,7 +187,7 @@ function PasswordWidget(props: {
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">{props.lang==='zh'? '密码' :'Password'}</div>
+        <div className="input-group-prepend"><span className="input-group-text">{props.lang==='zh'? '密码' :'Password'}</span></div>
         <input type="password" className="form-control" style={{ width: 200 }} key={props.input.name}
           value={props.input.value} onChange={props.handleChange} />
       </div>
@@ -201,11 +203,13 @@ function GasWidget(props: {
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group" style={{ width: 400 }} >
-        <div className="input-group-addon">Gas</div>
-        <input id="gasInput" type="text" className="form-control" key={props.input.name}
+        <div className="input-group-prepend">
+          <span className="input-group-text">Gas</span>
+        </div>
+        <input id="gasInput" type="text" className="form-control" key={props.input.name} style={{ width: 200 }}
           value={props.input.value} onChange={props.handleChange} />
-        <div className="input-group-addon">
-          {getWidget(props.input.name + ".btmUnitInput")}
+        <div className="input-group-prepend">
+          <span className="input-group-text">{getWidget(props.input.name + ".btmUnitInput")}</span>
         </div>
       </div>
     </div>
@@ -244,7 +248,9 @@ function XpubWidget(props: {
   return (
     <div className={"form-group" + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">Root Xpub</div>
+        <div className="input-group-prepend">
+          <span className="input-group-text">Root Xpub</span>
+        </div>
         <input type="text" className="form-control with-addon"
           key={props.input.name}
           value={props.input.value}
@@ -264,7 +270,7 @@ function ArgWidget(props: {
     <div className={"form-group" + props.errorClass}>
       <label><span className='type-label'>Please filled in an arrary of JSON object</span></label>
       <div className="input-group">
-        <div className="input-group-addon">Arguments</div>
+        <div className="input-group-prepend"><span className="input-group-text">Arguments</span></div>
         <input type="text" className="form-control with-addon"
           key={props.input.name}
           value={props.input.value}
@@ -285,7 +291,7 @@ function PathWidget(props: {
       <span className="type-label">{props.input.name.split(".")[1]}</span>
       <div className={"form-group" + props.errorClass}>
         <div className="input-group">
-          <div className="input-group-addon">Path</div>
+          <div className="input-group-prepend"><span className="input-group-text">Path</span></div>
           <input type="text" className="form-control with-addon"
             key={props.input.name}
             value={props.input.value}
@@ -314,7 +320,7 @@ function AmountWidget(props: {
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">{props.lang==='zh'? '数量' :'Amount'}</div>
+        <div className="input-group-prepend"><span className="input-group-text">{props.lang==='zh'? '数量' :'Amount'}</span></div>
         <NumberWidget input={props.input} handleChange={props.handleChange} />
       </div>
     </div>
@@ -501,7 +507,7 @@ function ChoosePublicKeyWidget(props: {
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-addon">Public Key</div>
+        <div className="input-group-prepend"><span className="input-group-text">Public Key</span></div>
         <select id={props.input.name} className="form-control with-addon" value={props.input.value} onChange={props.handleChange}>
           {options}
         </select>
@@ -528,7 +534,7 @@ function GenerateStringWidget(props: {
   return (
     <div>
       <div className={"input-group " + props.errorClass}>
-        <div className="input-group-addon">Length</div>
+        <div className="input-group-prepend"><span className="input-group-text">Length</span></div>
         <input type="text" className="form-control" style={{ width: 200 }} key={props.input.name} value={props.input.value} onChange={props.handleChange} />
       </div>
       <ComputedValue computeFor={props.id} />
@@ -706,20 +712,20 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
     const asset = props.assetMap[props.assetAmount.assetId]
     return (
       <section style={{ wordBreak: 'break-all' }}>
-        <h4>Required Value</h4>
+        <h5>Required Value</h5>
         <form className="form">
           <label>{parameterName}: <span className='type-label'>{valueType}</span></label>
           <InsufficientFundsAlert namePrefix={props.valueId} />
           {getWidget(props.valueId + ".valueInput.accountInput")}
           <div className="form-group">
             <div className="input-group">
-              <div className="input-group-addon">{lang==='zh'?'资产':'Asset'}</div>
+              <div className="input-group-prepend"><span className="input-group-text">{lang==='zh'?'资产':'Asset'}</span></div>
               <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.assetAmount.assetId} disabled />
             </div>
           </div>
           <div className="form-group">
             <div className="input-group">
-              <div className="input-group-addon">Amount</div>
+              <div className="input-group-prepend"><span className="input-group-text">Amount</span></div>
               <input type="text" className="form-control" value={props.assetAmount.amount} disabled />
             </div>
           </div>
@@ -740,7 +746,7 @@ function ClauseParametersUnconnected(props: { parameterIds: string[] }) {
     return <div key={id} className="argument">{getWidget(id)}</div>
   })
   return <section style={{ wordBreak: 'break-all' }}>
-    <h4>{props.lang ==='zh'?'函数参数':'Clause Arguments'}</h4>
+    <h5>{props.lang ==='zh'?'函数参数':'Clause Arguments'}</h5>
     <form className="form">
       {parameterInputs}
     </form></section>

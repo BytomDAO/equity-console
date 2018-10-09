@@ -17,10 +17,10 @@ const mapStateToProps = (state) => {
 const Editor = ({ compiled, source, lang }) => {
   return (
     <div>
-      <div className="panel panel-default">
-        <div className="panel-heading clearfix">
-          <h1 className="panel-title pull-left">{ lang ==='zh'? '合约模版' :'Contract Template' }</h1>
-          <ul className="panel-heading-btns pull-right">
+      <div className="card panel-default">
+        <div className="card-header clearfix">
+          <h1 className="card-title float-left">{ lang ==='zh'? '合约模版' :'Contract Template' }</h1>
+          <ul className="panel-heading-btns float-right">
             <li><LoadTemplate /></li>
           </ul>
         </div>

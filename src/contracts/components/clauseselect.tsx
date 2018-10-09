@@ -17,7 +17,7 @@ const ClauseSelect = (props: {
 }) => {
   return (
     <section>
-      <h4>{props.lang==='zh'?'函数':'Clause'}</h4>
+      <h5>{props.lang==='zh'?'函数':'Clause'}</h5>
       <select className="form-control" value={props.spendIndex} onChange={(e) => props.setClauseIndex(e.target.value)}>
         {props.clauses.map((clause, i) => <option key={clause.name} value={i}>{clause.name}</option>)}
       </select>

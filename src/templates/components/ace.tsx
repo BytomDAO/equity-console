@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch) => {
 
 const Ace = ({source, handleChange}) => {
   return (
-    <div className="panel-body">
+    <div className="card-body">
       <AceEditor
         mode="ivy"
         theme="monokai"

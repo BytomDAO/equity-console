@@ -21,7 +21,7 @@ const mapDispatchToProps = (dispatch) => ({
 
 const LoadTemplate = ({idList, handleClick, lang}) => {
   const options = idList.slice(1).map(id => {
-    return <li key={id}><a onClick={(e) => handleClick(e, id)} href='#'>{lang ==='zh'?INITIAL_ID_CHINESE_LIST[id]:id}</a></li>
+    return <li className="dropdown-item" key={id}><a onClick={(e) => handleClick(e, id)} href='#'>{lang ==='zh'?INITIAL_ID_CHINESE_LIST[id]:id}</a></li>
   })
   return (
     <div className="dropdown">

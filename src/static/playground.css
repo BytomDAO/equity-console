@@ -47,10 +47,6 @@ small,
   font-size: 11px;
 }
 
-.navbar-brand {
-  padding: 10px 0 0 15px;
-}
-
 .page-footer {
   color: #bfbfbf;
 }
@@ -87,11 +83,12 @@ tr:last-of-type td {
   border-radius: 2px;
 }
 
-.panel-default > .panel-heading {
+.panel-default > .card-header {
   background-image: none !important;
   color: #20252d;
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
+    padding-bottom: 0px;
 }
 
 .panel-heading-btns {
@@ -103,18 +100,21 @@ tr:last-of-type td {
 .panel-heading-btns li {
   display: inline-block;
   margin: 0;
-  padding: 0;
 }
 
 .panel-heading-btns .dropdown-menu li {
   display: block;
 }
 
+.dropdown-item a{
+    color: #20252d;
+}
+
 .panel-heading-btns li a {
   display: block;
 }
 
-.panel-title {
+.card-title {
   line-height: 34px;
   color: #20252d;
   font-size: 16px;
@@ -122,26 +122,26 @@ tr:last-of-type td {
   background: #f5f5f8;
 }
 
-.panel-body {
+.card-body {
   padding: 25px;
 }
 
-.panel-body.inner {
+.card-body.inner {
   padding-top: 5px;
 }
 
-.panel-body.inner h1 {
+.card-body.inner h1 {
   margin: 0 0 10px 0;
   font-size: 14px;
   font-weight: 500;
 }
 
-.radio {
+.form-check {
   margin-top: 5px;
   margin-bottom: 15px;
 }
 
-.radio label {
+.form-check label {
   line-height: 24px;
   color: #747c89;
 }
@@ -163,12 +163,12 @@ tr:last-of-type td {
   max-width: 100%;
 }
 
-.form-inline input {
+.form-check-label{
   margin-right: 10px;
 }
 
 .form-control,
-.input-group-addon {
+.input-group-text{
   border-radius: 2px;
   font-size: 14px;
 }
@@ -208,7 +208,7 @@ select:hover {
   margin-bottom: 20px;
 }
 
-.input-group-addon {
+.input-group-text{
   min-width: 100px;
   text-align: left;
   background: #f5f5f8;
@@ -242,7 +242,10 @@ select:hover {
 .btn-primary:focus,
 .btn-primary.active,
 .btn-primary:active,
-.open > .dropdown-toggle.btn-primary {
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:not(:disabled):not(.disabled).active,
+.show > .btn-primary.dropdown-toggle
+{
   background: #00bfaa !important;
   border-color: #00bfaa !important;
   opacity: 0.8;
@@ -302,6 +305,7 @@ pre {
   border-radius: 2px;
   margin-bottom: 0;
   font-family: Nitti, Menlo, Monaco, Consolas, "Courier New", monospace;
+    border: 1px solid #ccc;
 }
 
 pre.wrap {
@@ -348,12 +352,12 @@ code {
   border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.navbar-inverse .navbar-nav > .active > a,
-.navbar-inverse .navbar-nav > .active > a:focus,
-.navbar-inverse .navbar-nav > .active > a:hover,
-.navbar-inverse .navbar-nav > .open > a,
-.navbar-inverse .navbar-nav > .open > a:focus,
-.navbar-inverse .navbar-nav > .open > a:hover {
+.navbar-dark .navbar-nav > .active > a,
+.navbar-dark .navbar-nav > .active > a:focus,
+.navbar-dark .navbar-nav > .active > a:hover,
+.navbar-dark .navbar-nav > .show > a,
+.navbar-dark .navbar-nav > .show > a:focus,
+.navbar-dark .navbar-nav > .show > a:hover {
   background: none;
   box-shadow: none;
 }
@@ -362,7 +366,7 @@ code {
   border-top: none;
 }
 
-section h4 {
+section h5 {
   margin-top: 15px;
   margin-bottom: 15px;
   padding-top: 15px;
@@ -377,7 +381,7 @@ section h4 {
   margin: 0px;
 }
 
-.form-wrapper section:first-of-type h4 {
+.form-wrapper section:first-of-type h5 {
   margin-top: 0px;
   padding-top: 10px;
   border-top: none;
@@ -484,4 +488,10 @@ section h4 {
 .ace_variable,
 .ace_language {
   color: #bfd472 !important;
+}
+
+.input-group > .form-control,
+.input-group > .custom-select,
+.input-group > .custom-file {
+    flex: inherit;
 }

@@ -14,12 +14,12 @@ type Props = {
 
 export default function RadioSelect(props: Props) {
   return (
-    <div className="radio">
+    <div className="form-check form-check-inline">
       { props.options.map(option => {
           let checked = (props.selected === option.value)
           return (
-            <label className="radio-inline" key={option.value}>
-              <input type="radio" name={name} value={option.value} checked={checked} onChange={props.handleChange} />
+            <label className="form-check-label" key={option.value}>
+              <input className="form-check-input" type="radio" name={name} value={option.value} checked={checked} onChange={props.handleChange} />
               {option.label}
             </label>
           )
