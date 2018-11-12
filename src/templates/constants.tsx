@@ -6,54 +6,54 @@ export const BASE_TEMPLATE = `contract ContractName() locks value {
   }
 }`
 
-export const LOCK_WITH_PUBLIC_KEY = `contract LockWithPublicKey(publicKey: PublicKey) locks value {
+export const LOCK_WITH_PUBLIC_KEY = `contract LockWithPublicKey(publicKey: PublicKey) locks valueAmount of valueAsset {
   clause spend(sig: Signature) {
     verify checkTxSig(publicKey, sig)
-    unlock value
+    unlock valueAmount of valueAsset
   }
 }`
 
-export const LOCK_WITH_PUBLIC_KEY_HASH = `contract LockWithPublicKeyHash(pubKeyHash: Hash) locks value {
+export const LOCK_WITH_PUBLIC_KEY_HASH = `contract LockWithPublicKeyHash(pubKeyHash: Hash) locks valueAmount of valueAsset {
   clause spend(pubKey: PublicKey, sig: Signature) {
     verify sha3(pubKey) == pubKeyHash
     verify checkTxSig(pubKey, sig)
-    unlock value
+    unlock valueAmount of valueAsset
   }
 }`
 
 export const LOCK_WITH_MULTISIG = `contract LockWithMultiSig(publicKey1: PublicKey,
                           publicKey2: PublicKey,
-                          publicKey3: PublicKey) locks value {
+                          publicKey3: PublicKey) locks valueAmount of valueAsset {
   clause spend(sig1: Signature, sig2: Signature) {
     verify checkTxMultiSig([publicKey1, publicKey2, publicKey3], [sig1, sig2])
-    unlock value
+    unlock valueAmount of valueAsset
   }
 }`
 
 export const TRADE_OFFER = `contract TradeOffer(assetRequested: Asset,
                     amountRequested: Amount,
                     seller: Program,
-                    cancelKey: PublicKey) locks offered {
-  clause trade() requires payment: amountRequested of assetRequested {
-    lock payment with seller
-    unlock offered
+                    cancelKey: PublicKey) locks valueAmount of valueAsset {
+  clause trade() {
+    lock amountRequested of assetRequested with seller
+    unlock valueAmount of valueAsset
   }
   clause cancel(sellerSig: Signature) {
     verify checkTxSig(cancelKey, sellerSig)
-    unlock offered
+    unlock valueAmount of valueAsset
   }
 }`
 
 export const ESCROW = `contract Escrow(agent: PublicKey,
                 sender: Program,
-                recipient: Program) locks value {
+                recipient: Program) locks valueAmount of valueAsset {
   clause approve(sig: Signature) {
     verify checkTxSig(agent, sig)
-    lock value with recipient
+    lock valueAmount of valueAsset with recipient
   }
   clause reject(sig: Signature) {
     verify checkTxSig(agent, sig)
-    lock value with sender
+    lock valueAmount of valueAsset with sender
   }
 }`
 
@@ -61,21 +61,21 @@ export const LOAN_COLLATERAL =`contract LoanCollateral(assetLoaned: Asset,
                         amountLoaned: Amount,
                         blockHeight: Integer,
                         lender: Program,
-                        borrower: Program) locks collateral {
-  clause repay() requires payment: amountLoaned of assetLoaned {
-    lock payment with lender
-    lock collateral with borrower
+                        borrower: Program) locks valueAmount of valueAsset {
+  clause repay() {
+    lock amountLoaned of assetLoaned with lender
+    lock valueAmount of valueAsset with borrower
   }
   clause default() {
     verify above(blockHeight)
-    lock collateral with lender
+    lock valueAmount of valueAsset with lender
   }
 }`
 
-export const REVEAL_PREIMAGE = `contract RevealPreimage(hash: Hash) locks value {
+export const REVEAL_PREIMAGE = `contract RevealPreimage(hash: Hash) locks valueAmount of valueAsset {
   clause reveal(string: String) {
     verify sha3(string) == hash
-    unlock value
+    unlock valueAmount of valueAsset
   }
 }`
 
@@ -90,16 +90,16 @@ export const CALL_OPTION = `contract CallOption(strikePrice: Amount,
                     strikeCurrency: Asset,
                     seller: Program,
                     buyerKey: PublicKey,
-                    blockHeight: Integer) locks underlying {
-  clause exercise(buyerSig: Signature) requires payment: strikePrice of strikeCurrency {
+                    blockHeight: Integer) locks valueAmount of valueAsset {
+  clause exercise(buyerSig: Signature) {
     verify below(blockHeight)
     verify checkTxSig(buyerKey, buyerSig)
-    lock payment with seller
-    unlock underlying
+    lock strikePrice of strikeCurrency with seller
+    unlock valueAmount of valueAsset
   }
   clause expire() {
     verify above(blockHeight)
-    lock underlying with seller
+    lock valueAmount of valueAsset with seller
   }
 }`
 

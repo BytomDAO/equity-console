@@ -187,5 +187,5 @@ export const createUnlockingTx = (actions: types.Action[], passwords: string[]):
     //     }
     //   })
     // })
-  })
+  }).catch(err => { throw err })
 }

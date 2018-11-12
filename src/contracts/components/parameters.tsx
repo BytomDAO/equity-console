@@ -714,7 +714,6 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
       <section style={{ wordBreak: 'break-all' }}>
         <h5>Required Value</h5>
         <form className="form">
-          <label>{parameterName}: <span className='type-label'>{valueType}</span></label>
           <InsufficientFundsAlert namePrefix={props.valueId} />
           {getWidget(props.valueId + ".valueInput.accountInput")}
           <div className="form-group">

@@ -9,6 +9,7 @@ import { connect } from 'react-redux'
 import { setUtxoID, setContractName, fetchUtxoInfo } from '../actions'
 import { Contract } from '../types'
 import {getContractMap, getSpendContractId} from "../selectors"
+import {client} from "../../core"
 
 const mapStateToProps = (state) => {
   const map = getContractMap(state)
@@ -84,15 +85,6 @@ const LockedValueDisplay = (props: {
                    value={props.utxoId}
                    onChange={props.handleUtxoChange}/>
           </div>
-
-          {/* <div className={"form-group"}>
-            <div className="input-group">
-              <div className="input-group-prepend">Contract Template</div>
-              <select className="form-control with-addon" value={props.contractName} onChange={props.handleTemplateChange}>
-                {options}
-              </select>
-            </div>
-          </div> */}
         </Section>
         <div>{td}</div>
         <SuccessMessage contract={props.contract} />

@@ -181,7 +181,7 @@ export const create = () => {
         {
           _success: [
             "transactions has been submited successfully.",
-            <a key='transactionID' href={"/dashboard/transactions/" + utxo.transactionId} target="_blank"> {utxo.transactionId}</a>
+            <a key='transactionID' href={'/dashboard/transactions/' + utxo.transactionId} target="_blank"> {utxo.transactionId}</a>
           ]
         }))
       dispatch(showLockInputMessages(true))
@@ -231,8 +231,8 @@ export const spend = () => {
               <div className="modal-dialog" role="document">
                 <div className="modal-content">
                   <div className="modal-header">
-                    <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h5 className="modal-title" id="myModalLabel">Generated Json</h5>
+                    <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                   </div>
                   <div className="modal-body" style={{wordBreak: 'break-all'}}>
                     {result.hex}

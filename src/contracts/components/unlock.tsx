@@ -81,7 +81,7 @@ export const Unlock = ({ error, display, lang }) => {
         <Section name={lang ==='zh'?'解锁详情':"Unlocking Details"}>
           {details}
         </Section>
-        <ErrorAlert error={error} />
+        <ErrorAlert error={(error && error.message) ||error} />
         {button}
       </div>
     </DocumentTitle>
