@@ -334,6 +334,8 @@ export const litterEndToBigEnd = (hexNum : string):string => {
   return newNum
 }
 
+export const CLEAN_CONTRACT = 'contracts/CLEAN_CONTRACT'
+
 export const fetchUtxoInfo = () => {
   return (dispatch, getState) => {
     const state = getState()
@@ -343,91 +345,98 @@ export const fetchUtxoInfo = () => {
       id: utxoId,
       smart_contract: true
     }).then(data => {
-      const utxo = data[0];
-      client.decodeProgram(data[0].program).then(resp => {
-
-        const { contractArg, contractProgram } = parseInstructions(resp.instructions);
-        const contractName = INITIAL_PRGRAM_NAME[contractProgram]
-        dispatch(setContractName(contractName))
-
-        const source = getSourceMap(state)[contractName]
-
-        const promisedCompiled = getPromiseCompiled(source)
-
-        const promisedInputMap = promisedCompiled.then(result => {
-          if (result.status === 'fail') {
-            throw new Error(result.data)
-          }
-          const format = (tpl: CompiledTemplate) => {
-            if (tpl.error !== '') {
-              tpl.clause_info = tpl.params = []
-            }
-            return tpl
-          }
-          const compiled = format(result.data)
-          const inputMap = generateUnlockInputMap(compiled)
-          for (let i = 0; i < compiled.params.length; i++) {
-            const params = compiled.params
-            let newValue = contractArg[i]
-            switch (params[i].type) {
-              case "PublicKey": {
-                const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
-                inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-                break
-              }
-              case "Program":{
-                const inputId = "contractParameters." + params[i].name + "." + "programInput"
-                inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-                break
-              }
-              case "Asset": {
-                const inputId = "contractParameters." + params[i].name + "." + "assetInput"
-                inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
-                break
-              }
-              case "Sha3(PublicKey)":
-              case "Sha3(String)":
-              case "Sha256(PublicKey)":
-              case "Sha256(String)":{
-                const inputId = "contractParameters." + params[i].name + ".stringInput.provideOriginInput"
-                inputMap[inputId] = { ...inputMap[inputId], seed: newValue }
-                break
-              }
-              case "Integer":
-              case "Amount":{
-                newValue = parseInt(litterEndToBigEnd(newValue), 16).toString()
-                updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
-                break
-              }
-              default:
-                updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
-
-            }
-          }
-          const assetValueId = "contractValue." + compiled.value + ".valueInput.assetInput"
-          inputMap[assetValueId] = {...inputMap[assetValueId], computedData: utxo.asset_id}
-          updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
-
-          return inputMap
+      if(data.length === 0){
+        dispatch({
+          type: CLEAN_CONTRACT,
+          id: utxoId
         })
+      }else{
+        const utxo = data[0];
+        client.decodeProgram(data[0].program).then(resp => {
 
-        Promise.all([promisedInputMap, promisedCompiled]).then(([inputMap, compiled]) => {
-          if (compiled.status !== "success") {
-            throw "compile failed";
-          }
-          const template = compiled.data
-          dispatch({
-            type: CREATE_CONTRACT,
-            controlProgram: template.program,
-            contractProgram,
-            source,
-            template,
-            inputMap,
-            utxo,
-            contractArg
+          const { contractArg, contractProgram } = parseInstructions(resp.instructions);
+          const contractName = INITIAL_PRGRAM_NAME[contractProgram]
+          dispatch(setContractName(contractName))
+
+          const source = getSourceMap(state)[contractName]
+
+          const promisedCompiled = getPromiseCompiled(source)
+
+          const promisedInputMap = promisedCompiled.then(result => {
+            if (result.status === 'fail') {
+              throw new Error(result.data)
+            }
+            const format = (tpl: CompiledTemplate) => {
+              if (tpl.error !== '') {
+                tpl.clause_info = tpl.params = []
+              }
+              return tpl
+            }
+            const compiled = format(result.data)
+            const inputMap = generateUnlockInputMap(compiled)
+            for (let i = 0; i < compiled.params.length; i++) {
+              const params = compiled.params
+              let newValue = contractArg[i]
+              switch (params[i].type) {
+                case "PublicKey": {
+                  const inputId = "contractParameters." + params[i].name + "." + "publicKeyInput"
+                  inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+                  break
+                }
+                case "Program":{
+                  const inputId = "contractParameters." + params[i].name + "." + "programInput"
+                  inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+                  break
+                }
+                case "Asset": {
+                  const inputId = "contractParameters." + params[i].name + "." + "assetInput"
+                  inputMap[inputId] = { ...inputMap[inputId], computedData: newValue }
+                  break
+                }
+                case "Sha3(PublicKey)":
+                case "Sha3(String)":
+                case "Sha256(PublicKey)":
+                case "Sha256(String)":{
+                  const inputId = "contractParameters." + params[i].name + ".stringInput.provideOriginInput"
+                  inputMap[inputId] = { ...inputMap[inputId], seed: newValue }
+                  break
+                }
+                case "Integer":
+                case "Amount":{
+                  newValue = parseInt(litterEndToBigEnd(newValue), 16).toString()
+                  updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+                  break
+                }
+                default:
+                  updateContractInputMap(inputMap, "contractParameters." + params[i].name, newValue);
+
+              }
+            }
+            const assetValueId = "contractValue." + compiled.value + ".valueInput.assetInput"
+            inputMap[assetValueId] = {...inputMap[assetValueId], computedData: utxo.asset_id}
+            updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
+
+            return inputMap
+          })
+
+          Promise.all([promisedInputMap, promisedCompiled]).then(([inputMap, compiled]) => {
+            if (compiled.status !== "success") {
+              throw "compile failed";
+            }
+            const template = compiled.data
+            dispatch({
+              type: CREATE_CONTRACT,
+              controlProgram: template.program,
+              contractProgram,
+              source,
+              template,
+              inputMap,
+              utxo,
+              contractArg
+            })
           })
         })
-      })
+      }
     })
     dispatch(push(prefixRoute('/unlock/' + utxoId)))
   }

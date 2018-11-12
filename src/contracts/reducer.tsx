@@ -10,7 +10,7 @@ import { addDefaultInput, getPublicKeys } from '../inputs/data'
 import { Contract } from './types'
 
 // internal imports
-import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME, SPEND_CONTRACT,
+import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME, SPEND_CONTRACT, CLEAN_CONTRACT,
   SET_UTXO_INFO,  UPDATE_CLAUSE_INPUT, SET_CLAUSE_INDEX,  UPDATE_UNLOCK_ERROR, SHOW_UNLOCK_INPUT_ERRORS, } from './actions'
 import { generateInputMap } from './selectors';
 
@@ -31,18 +31,25 @@ export const INITIAL_STATE: ContractsState = {
 export default function reducer(state: ContractsState = INITIAL_STATE, action): ContractsState {
   switch (action.type) {
     case SPEND_CONTRACT: {
-      const contract = state.contractMap[action.id]
       return {
         ...state,
         contractMap: {
           ...state.contractMap,
           [action.id]: {
-            ...contract,
             unlockTxid: action.unlockTxid
           }
         },
         idList: state.idList.filter(id => id !== action.id),
         error: undefined
+      }
+    }
+    case CLEAN_CONTRACT: {
+      return {
+        ...state,
+        contractMap: {
+          ...state.contractMap,
+          [action.id]: undefined
+        },
       }
     }
     case CREATE_CONTRACT: // reset keys etc. this is safe (the action already has this stuff)
