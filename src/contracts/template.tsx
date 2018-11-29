@@ -1,8 +1,10 @@
 import { Action, SpendFromAccount, SpendUnspentOutput, ControlWithProgram, RawTxSignatureWitness } from "../core/types"
-import { getSpendInputMap, getSpendUnspentOutputAction, getGasAction, getSpendContract, getSpendContractArgs, getSelectedClause } from "./selectors";
+import { getSpendInputMap, getSpendUnspentOutputAction, getGasAction, getSpendContract, getSpendContractArgs, getSelectedClause, getSpendContractSource } from "./selectors";
 import { AppState } from "../app/types";
 import { client } from "../core";
 import {sha3_256} from "js-sha3"
+import {computeDataForInput, getPromisedInputMap} from "../inputs/data"
+import {getContractArgs, getContractValue, getSource} from "../templates/selectors"
 
 abstract class AbstractTemplate {
 
@@ -16,11 +18,12 @@ abstract class AbstractTemplate {
 
     abstract buildActions(): Promise<Action[]>
 
-    buildGasAction(): SpendFromAccount {
+    public buildGasAction(): SpendFromAccount {
         return getGasAction(this.state)
     }
 
-    getPublicKeyInfo(pubkeyInfos) {
+    public getPublicKeyInfo(pubkeyInfos) {
+      return new Promise((resolve, reject) => {
         const spendContract = getSpendContract(this.state)
         const compiled = spendContract.template
         const params = compiled.params
@@ -30,7 +33,7 @@ abstract class AbstractTemplate {
                 const inputId = "contractParameters." + paramName + ".publicKeyInput"
                 const pubKey = spendContract.inputMap[inputId].computedData
                 if( pubkeyInfos[0].pubkey === pubKey ){
-                  return pubkeyInfos[0]
+                  resolve(pubkeyInfos[0])
                 }
             }else if (params[i].type === "Sha3(PublicKey)") {
               const paramName = params[i].name
@@ -38,32 +41,39 @@ abstract class AbstractTemplate {
               const hash = spendContract.inputMap[inputId].seed
               const pubkeyHash = sha3_256(Buffer.from( pubkeyInfos[0].pubkey, "hex"))
               if(pubkeyHash === hash){
-                return pubkeyInfos[0]
+                resolve(pubkeyInfos[0])
               }
             }
         }
-        throw "can not find public key info"
+        reject( "can not find public key info")
+      })
     }
 
     processArgument(argument): Promise<RawTxSignatureWitness> {
         if (argument.type === "signature") {
-            return client.createAccountPubkey(argument.accountId).then(resp => {
-                const xpub = resp.root_xpub
-                const keyData = this.getPublicKeyInfo(resp.pubkey_infos)
-                return {
-                    type: "raw_tx_signature",
-                    raw_data: {
-                        xpub, derivation_path: keyData.derivation_path
-                    }
-                } as RawTxSignatureWitness
+          let xpub
+          return client.createAccountPubkey(argument.accountId)
+            .then(resp => {
+              xpub = resp.root_xpub
+              return this.getPublicKeyInfo(resp.pubkey_infos)
             })
-        } else if (argument.type === "publickey_hash") {
-            return client.createAccountPubkey(argument.accountId).then(resp => {
-                const pubKey = this.getPublicKeyInfo(resp.pubkey_infos).pubkey
-                return {
-                    type: "data", raw_data: {value: pubKey}
+            .then(keyData=>{
+               return {
+                type: "raw_tx_signature",
+                   raw_data: {
+                   xpub, derivation_path: keyData.derivation_path
                 }
-            })
+               } as RawTxSignatureWitness
+             })
+            .catch((e) => {throw e})
+        } else if (argument.type === "publickey_hash") {
+          return client.createAccountPubkey(argument.accountId)
+            .then(resp => this.getPublicKeyInfo(resp.pubkey_infos))
+            .then(keyInfo =>{
+              return {
+                 type: "data", raw_data: {value: keyInfo.pubKey}
+              }
+            }).catch((e) => {throw e})
         } else {
             return new Promise(resolve => {
                 resolve(argument)
@@ -72,12 +82,21 @@ abstract class AbstractTemplate {
     }
 
     buildUnSpendOutputAction(): Promise<SpendUnspentOutput> {
-        const output = getSpendUnspentOutputAction(this.state)
-        const promisedArgs = output.arguments.map(arg => this.processArgument(arg))
-        return Promise.all(promisedArgs).then(args => {
-            output.arguments = args
-            return output
-        })
+      return new Promise((resolve, reject) => {
+        try {
+          const output = getSpendUnspentOutputAction(this.state)
+          const promisedArgs = output.arguments.map(arg => this.processArgument(arg).catch((e) => {reject (e)}))
+          return Promise.all(promisedArgs).then(args => {
+              output.arguments = args
+              resolve(output)
+          }).catch((e) => {
+            reject (e)
+          })
+        } catch (e) {
+          reject (e)
+        }
+
+      })
     }
 
     buildSpendAccountAction(asset_id: string, amount: number, account_id: string): SpendFromAccount {
@@ -132,8 +151,9 @@ export class UnlockValueTemplate extends AbstractTemplate {
                 actions.push(this.buildRecipientAction(assetId, amount, receiver.control_program))
                 actions.push(this.buildGasAction())
                 return actions
-            })
-        })
+            }).catch((e) => {throw e})
+        }).catch((e) => {
+          throw e})
     }
 }
 
@@ -160,6 +180,62 @@ export class LockValueWithProgramTemplate extends AbstractTemplate {
             actions.push(this.buildGasAction())
             return actions
         })
+    }
+}
+
+export class PriceChangerChangePrice extends AbstractTemplate {
+
+    constructor(state: AppState) {
+        super(state)
+    }
+
+    buildActions(): Promise<Action[]> {
+      const state = this.state
+      const source = getSpendContractSource(state)
+      const spendContractArgs = getSpendContractArgs(state)
+
+      const spendInputMap = getSpendInputMap(state)
+      const newAmount = parseInt(spendInputMap["clauseParameters.changePrice.newAmount.amountInput"].value)
+      const newAsset = spendInputMap["clauseParameters.changePrice.newAsset.assetInput.assetAliasInput"].value
+      const sellerKey = spendContractArgs[2]
+      const sellerProg = spendContractArgs[3]
+      const args = [newAmount, newAsset, sellerKey, sellerProg].map(param => {
+        if (param instanceof Buffer) {
+          return { "string": param.toString('hex') }
+        }
+
+        if (typeof param === 'string') {
+          return { "string": param }
+        }
+
+        if (typeof param === 'number') {
+          return { "integer": param }
+        }
+
+        if (typeof param === 'boolean') {
+          return { 'boolean': param }
+        }
+        throw 'unsupported argument type ' + (typeof param)
+      })
+      return client.compile(source, args).then(result=>{
+        if(result.status ==='fail'){
+          throw new Error(result.data)
+        }
+        const controlProgram = result.data.program
+        return this.buildUnSpendOutputAction().then(action => {
+          const actions: Action[] = []
+          actions.push(action)
+
+          const contract = getSpendContract(state)
+          const assetId = contract.assetId
+          const amount = contract.amount
+
+          actions.push(this.buildRecipientAction(assetId, amount, controlProgram))
+          actions.push(this.buildGasAction())
+          return actions
+        })
+      })
+
     }
 }
 
@@ -224,6 +300,7 @@ export class LockPaymentLockValueTemplate extends AbstractTemplate {
 }
 
 export function getActionBuildTemplate(type: string, state: AppState): AbstractTemplate {
+  try{
     switch (type) {
         case "LockWithPublicKey.spend":
         case "LockWithPublicKeyHash.spend":
@@ -231,14 +308,17 @@ export function getActionBuildTemplate(type: string, state: AppState): AbstractT
         case "TradeOffer.cancel":
         case "RevealPreimage.reveal":
             return new UnlockValueTemplate(state)
+        case "PriceChanger.changePrice":
+            return new PriceChangerChangePrice(state)
+        case "CallOption.expire":
         case "Escrow.approve":
             return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[2])
         case "Escrow.reject":
             return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[1])
-        case "CallOption.expire":
-            return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[2])
         case "LoanCollateral.default":
             return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[3])
+        case "PriceChanger.redeem":
+            return new LockPaymentUnlockValueTemplate(state, getSpendContractArgs(state)[3])
         case "TradeOffer.trade":
         case "CallOption.exercise":
             return new LockPaymentUnlockValueTemplate(state, getSpendContractArgs(state)[2])
@@ -247,4 +327,7 @@ export function getActionBuildTemplate(type: string, state: AppState): AbstractT
         default:
             throw "can not find action build template. type:" + type
     }
+  } catch (e){
+    throw e
+  }
 }

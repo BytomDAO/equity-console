@@ -234,15 +234,14 @@ export const getClauseFlag = (templateName, clausename) => {
     case "Escrow.approve":
     case "LoanCollateral.repay":
     case "CallOption.exercise":
-      return "00000000"
+    case "PriceChanger.changePrice":
+      return 0
     case "TradeOffer.cancel":
-      return "13000000"
     case "Escrow.reject":
-      return "1a000000"
     case "LoanCollateral.default":
-      return "1b000000"
     case "CallOption.expire":
-      return "20000000"
+    case "PriceChanger.redeem":
+      return 1
     default:
       throw "can not find the flag of clause type:" + type
   }
@@ -290,6 +289,24 @@ export const getClauseWitnessComponents = createSelector(
           }
           throw "surprisingly not found for String clause parameter"
         }
+        case "Amount": {
+          const inputId = clauseParameterPrefix + ".amountInput"
+          const input = spendInputMap[inputId]
+          if (input !== undefined) {
+            witness.push({ type: "integer", raw_data: { value: parseInt(input.value) } })
+            return
+          }
+          throw "surprisingly not found for Integer clause parameter"
+        }
+        case "Asset": {
+          const inputId = clauseParameterPrefix + ".assetInput.assetAliasInput"
+          const input = spendInputMap[inputId]
+          if (input !== undefined) {
+            witness.push({ type: "data", raw_data: { value: input.value } })
+            return
+          }
+          throw "surprisingly not found for Integer clause parameter"
+        }
         case "Signature": {
           const accountInputId = clauseParameterPrefix + ".signatureInput.accountInput"
           const accountinput = spendInputMap[accountInputId]
@@ -317,7 +334,7 @@ export const getClauseWitnessComponents = createSelector(
     })
     if (contract.template.clause_info.length > 1) {
       witness.push(
-        { type: "data", 
+        { type: "integer",
           raw_data: { value: getClauseFlag(contract.template.name, clauseInfo.name) }
         })
     }
@@ -364,6 +381,11 @@ export const areSpendInputsValid = createSelector(
     })
     return (invalid.length === 0) && (unlockInput === undefined || isValidInput('unlockValue.accountInput', spendInputMap))
   }
+)
+
+export const getSpendContractSource = createSelector(
+  getSpendContract,
+  (contract) => contract.template && contract.template.source
 )
 
 export const getSpendContractValueId = createSelector(

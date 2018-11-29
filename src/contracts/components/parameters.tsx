@@ -159,7 +159,7 @@ function AssetAliasWidgetUnconnected(props: {
 
 function AssetWidget(props: { input: AssetInput, lang: string, inputContext: InputContext, handleChange: (e) => undefined }) {
   const lang = props.lang
-  const options = [{ label: lang==='zh'?'选择资产':"Generate Asset", value: props.inputContext === "contractValue" ? "assetAliasInput" : "assetAliasWithBTMInput" },
+  const options = [{ label: lang==='zh'?'选择资产':"Generate Asset", value: (props.inputContext === "contractValue" || props.inputContext === "clauseParameters")? "assetAliasInput" : "assetAliasWithBTMInput" },
   { label:lang==='zh'?'输入资产ID':"Provide Asset Id", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (

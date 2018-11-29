@@ -630,7 +630,7 @@ export function addDefaultInput(inputs: Input[], inputType: InputType, parentNam
       return
     }
     case "assetInput": {
-      if (inputContext === "contractValue") {
+      if (inputContext === "contractValue" || inputContext === "clauseParameters") {
         addDefaultInput(inputs, "assetAliasInput", name)
       } else {
         addDefaultInput(inputs, "assetAliasWithBTMInput", name)
