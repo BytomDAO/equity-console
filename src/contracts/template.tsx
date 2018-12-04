@@ -3,8 +3,6 @@ import { getSpendInputMap, getSpendUnspentOutputAction, getGasAction, getSpendCo
 import { AppState } from "../app/types";
 import { client } from "../core";
 import {sha3_256} from "js-sha3"
-import {computeDataForInput, getPromisedInputMap} from "../inputs/data"
-import {getContractArgs, getContractValue, getSource} from "../templates/selectors"
 
 abstract class AbstractTemplate {
 

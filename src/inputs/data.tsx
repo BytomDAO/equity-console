@@ -1,6 +1,5 @@
 //external imports
 import * as React from 'react'
-import { createSelector } from 'reselect'
 import { strToHexCharCode } from '../contracts/util'
 import { BTM_ASSET_ID } from '../contracts/constants'
 
@@ -20,8 +19,6 @@ import {
   ProvideHashInput,
   KeyMap,
   isHash,
-  HashFunction,
-  ClauseParameter,
   ClauseParameterType,
   ClauseParameterHash, // clause parameters are a superset of contract parameters
   AssetInput

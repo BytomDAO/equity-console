@@ -14,8 +14,6 @@ import { Input, ParameterInput, NumberInput, BooleanInput, StringInput, ProvideS
          InputType, ComplexInput, ValueInput, AssetAliasInput, AccountAliasInput, AssetInput,
          AmountInput, ProgramInput } from '../../inputs/types'
 
-// import { getParameterIds } from '../../templates/selectors'
-
 // internal imports
 import { getInputMap, getInputSelector, getSpendContractValueId, getParameterIds } from '../selectors'
 

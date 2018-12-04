@@ -9,7 +9,6 @@ import { connect } from 'react-redux'
 import { setUtxoID, setContractName, fetchUtxoInfo } from '../actions'
 import { Contract } from '../types'
 import {getContractMap, getSpendContractId} from "../selectors"
-import {client} from "../../core"
 
 const mapStateToProps = (state) => {
   const map = getContractMap(state)
