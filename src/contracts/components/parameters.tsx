@@ -12,14 +12,14 @@ import { getBalanceMap, getItemList as getAccounts, getBalanceSelector } from '.
 import { getState as getContractsState, getClauseValueId, getRequiredAssetAmount } from '../../contracts/selectors'
 import { BTM_ASSET_ID } from '../../contracts/constants'
 import {
-  Input, InputContext, ParameterInput, NumberInput, BooleanInput, StringInput,
+  Input, InputContext, ParameterInput, NumberInput, StringInput,
   ProvideStringInput, GenerateStringInput, HashInput,
-  TimeInput, TimestampTimeInput,
-  PublicKeyInput, GeneratePublicKeyInput, ProvidePublicKeyInput, GeneratePrivateKeyInput, GenerateHashInput,
-  ProvideHashInput, InputType, ComplexInput, GenerateSignatureInput,
+  TimeInput,
+  PublicKeyInput, ProvidePublicKeyInput, GenerateHashInput,
+  ProvideHashInput, InputType, ComplexInput,
   ProvideSignatureInput, ProvidePrivateKeyInput,
   ValueInput, AccountAliasInput, AssetAliasInput, AssetInput, AmountInput,
-  ProgramInput, ChoosePublicKeyInput, KeyData, PathInput, SignatureInput
+  ProgramInput, ChoosePublicKeyInput, KeyData, SignatureInput
 } from '../../inputs/types'
 import {
   validateInput, computeDataForInput, getChild,
@@ -159,7 +159,7 @@ function AssetAliasWidgetUnconnected(props: {
 
 function AssetWidget(props: { input: AssetInput, lang: string, inputContext: InputContext, handleChange: (e) => undefined }) {
   const lang = props.lang
-  const options = [{ label: lang==='zh'?'选择资产':"Generate Asset", value: props.inputContext === "contractValue" ? "assetAliasInput" : "assetAliasWithBTMInput" },
+  const options = [{ label: lang==='zh'?'选择资产':"Generate Asset", value: (props.inputContext === "contractValue" || props.inputContext === "clauseParameters")? "assetAliasInput" : "assetAliasWithBTMInput" },
   { label:lang==='zh'?'输入资产ID':"Provide Asset Id", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
@@ -240,69 +240,6 @@ function BtmUnitWidget(props: {
   )
 }
 
-function XpubWidget(props: {
-  input: StringInput,
-  errorClass: string,
-  handleChange: (e) => undefined
-}) {
-  return (
-    <div className={"form-group" + props.errorClass}>
-      <div className="input-group">
-        <div className="input-group-prepend">
-          <span className="input-group-text">Root Xpub</span>
-        </div>
-        <input type="text" className="form-control with-addon"
-          key={props.input.name}
-          value={props.input.value}
-          onChange={props.handleChange}
-        />
-      </div>
-    </div>
-  )
-}
-
-function ArgWidget(props: {
-  input: StringInput,
-  errorClass: string,
-  handleChange: (e) => undefined
-}) {
-  return (
-    <div className={"form-group" + props.errorClass}>
-      <label><span className='type-label'>Please filled in an arrary of JSON object</span></label>
-      <div className="input-group">
-        <div className="input-group-prepend"><span className="input-group-text">Arguments</span></div>
-        <input type="text" className="form-control with-addon"
-          key={props.input.name}
-          value={props.input.value}
-          onChange={props.handleChange}
-        />
-      </div>
-    </div>
-  )
-}
-
-function PathWidget(props: {
-  input: PathInput,
-  errorClass: string,
-  handleChange: (e) => undefined
-}) {
-  return (
-    <div>
-      <span className="type-label">{props.input.name.split(".")[1]}</span>
-      <div className={"form-group" + props.errorClass}>
-        <div className="input-group">
-          <div className="input-group-prepend"><span className="input-group-text">Path</span></div>
-          <input type="text" className="form-control with-addon"
-            key={props.input.name}
-            value={props.input.value}
-            onChange={props.handleChange}
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function SignatureWidget(props: { input: SignatureInput, handleChange: (e) => undefined }) {
   return (
     <div>
@@ -336,8 +273,8 @@ function mapDispatchToContractInputProps(dispatch, ownProps: { id: string }) {
 }
 
 export function getWidget(id: string): JSX.Element {
-  let inputContext = id.split(".").shift() as InputContext
-  let type = id.split(".").pop() as InputType
+  const inputContext = id.split(".").shift() as InputContext
+  const type = id.split(".").pop() as InputType
   let widgetTypeConnected
   if (inputContext === "contractParameters" || inputContext === "contractValue") {
     widgetTypeConnected = connect(
@@ -417,9 +354,9 @@ function mapDispatchToSpendInputProps(dispatch, ownProps: { id: string }) {
 }
 
 function mapToComputedProps(state, ownProps: { computeFor: string }) {
-  let inputsById = getInputMap(state)
+  const inputsById = getInputMap(state)
   if (inputsById === undefined) throw "inputMap should not be undefined when contract inputs are being rendered"
-  let input = inputsById[ownProps.computeFor]
+  const input = inputsById[ownProps.computeFor]
   if (input === undefined) throw "bad input ID: " + ownProps.computeFor
   if (input.type === "generateHashInput" ||
     input.type === "generateStringInput") {

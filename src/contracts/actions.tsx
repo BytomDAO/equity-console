@@ -2,14 +2,11 @@
 import { push } from 'react-router-redux'
 import React from 'react'
 
-import { getItemMap } from '../assets/selectors';
-import { getItem } from '../accounts/selectors';
 import { fetch } from '../accounts/actions';
 import {
   setSource,
   updateLockMessage,
   showLockInputMessages,
-  fetchCompiled
 } from '../templates/actions'
 import {
   areInputsValid,
@@ -17,49 +14,30 @@ import {
   getSourceMap,
   getContractValue,
   getInputMap,
-  getCompiled,
   getContractArgs,
-  getContractParameters,
-  getTemplate,
 } from '../templates/selectors'
 
 import {
   getUtxoId,
   getSpendContract,
-  getSpendUnspentOutputAction,
-  getUnlockAction,
-  getClauseWitnessComponents,
   getSpendInputMap,
   getContractTemplateName,
   generateUnlockInputMap,
   getSpendContractId,
-  areSpendInputsValid
-  getSelectedClause,
+  areSpendInputsValid,
   getClauseName,
 } from './selectors'
 
 import {
-  Contract
-} from './types'
-
-import {
   Action,
-  ControlWithAddress,
   ControlWithProgram,
-  DataWitness,
-  KeyId,
-  SignatureWitness, SpendFromAccount,
-  SpendUnspentOutput,
-  WitnessComponent
+  SpendFromAccount
 } from '../core/types'
 
 import { getPromisedInputMap, getPromiseCompiled } from '../inputs/data'
 
 import { client, prefixRoute, createLockingTx, createUnlockingTx } from '../core'
 import { CompiledTemplate } from '../templates/types';
-import { ProgramInput } from "../inputs/types"
-import templates from "../templates"
-import { INITIAL_ID_LIST } from "../templates/constants"
 import { getActionBuildTemplate } from './template';
 import { INITIAL_PRGRAM_NAME } from './constants';
 
@@ -212,7 +190,13 @@ export const spend = () => {
     const clauseName = getClauseName(state)
     const contract = getSpendContract(state)
 
-    const actionTemplate = getActionBuildTemplate(templateName + "." + clauseName, state)
+    let actionTemplate
+    try{
+      actionTemplate = getActionBuildTemplate(templateName + "." + clauseName, state)
+    } catch (e) {
+      dispatch(updateIsCalling(false))
+      return dispatch(updateUnlockError(e))
+    }
     actionTemplate.buildActions().then(actions => {
       const spendInputMap = getSpendInputMap(state)
       const password = spendInputMap["unlockValue.passwordInput"].value
@@ -299,8 +283,16 @@ const parseInstructions = (instructions: string) => {
       break
     }
   }
-  const contractProgram = instructionsArray[contractArg.length + 1].split(/(\s+)/)[2]
-  contractArg.reverse()
+
+  const contractIndicator = instructionsArray[contractArg.length + 1]
+  let contractProgram
+  if(contractIndicator.startsWith('OVER ')){
+    contractProgram = instructionsArray[contractArg.length - 1].split(/(\s+)/)[2]
+    contractArg.reverse().shift()
+  }else {
+    contractProgram = contractIndicator.split(/(\s+)/)[2]
+    contractArg.reverse()
+  }
   return { contractArg, contractProgram }
 }
 
@@ -355,6 +347,7 @@ export const fetchUtxoInfo = () => {
         client.decodeProgram(data[0].program).then(resp => {
 
           const { contractArg, contractProgram } = parseInstructions(resp.instructions);
+
           const contractName = INITIAL_PRGRAM_NAME[contractProgram]
           dispatch(setContractName(contractName))
 

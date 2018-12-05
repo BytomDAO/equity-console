@@ -1,18 +1,16 @@
 import { ContractsState } from './types'
 import { CompiledTemplate } from '../templates/types'
-import {ClauseParameterType, Input, InputMap, HashFunction, ContractParameterType} from '../inputs/types'
+import { ClauseParameterType, Input, HashFunction } from '../inputs/types'
 import { addParameterInput } from '../inputs/data'
 import { INITIAL_SOURCE_PRGRAM } from './constants'
 
 // ivy imports
-import { AppState } from '../app/types'
-import { addDefaultInput, getPublicKeys } from '../inputs/data'
+import { addDefaultInput } from '../inputs/data'
 import { Contract } from './types'
 
 // internal imports
 import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME, SPEND_CONTRACT, CLEAN_CONTRACT,
-  SET_UTXO_INFO,  UPDATE_CLAUSE_INPUT, SET_CLAUSE_INDEX,  UPDATE_UNLOCK_ERROR, SHOW_UNLOCK_INPUT_ERRORS, } from './actions'
-import { generateInputMap } from './selectors';
+  UPDATE_CLAUSE_INPUT, SET_CLAUSE_INDEX,  UPDATE_UNLOCK_ERROR, SHOW_UNLOCK_INPUT_ERRORS, } from './actions'
 
 export const INITIAL_STATE: ContractsState = {
   contractMap: {},
@@ -189,15 +187,15 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
     case UPDATE_CLAUSE_INPUT: {
       // gotta find a way to make this logic shorter
       // maybe further normalizing it; maybe Immutable.js or cursors or something
-      let oldContract = state.contractMap[action.contractId]
-      let oldSpendInputMap = oldContract.spendInputMap
-      let oldInput = oldSpendInputMap[action.name]
+      const oldContract = state.contractMap[action.contractId]
+      const oldSpendInputMap = oldContract.spendInputMap
+      const oldInput = oldSpendInputMap[action.name]
       if (oldInput === undefined) throw "unexpectedly undefined clause input"
-      let newInput = {
+      const newInput = {
         ...oldInput,
         value: action.newValue
       }
-      let newSpendInputMap = {
+      const newSpendInputMap = {
         ...oldSpendInputMap,
         [action.name]: newInput
       }

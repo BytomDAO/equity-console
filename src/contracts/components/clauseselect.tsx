@@ -3,12 +3,9 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 
 // internal imports
-import { getSpendContract, getSpendContractId, getSelectedClauseIndex, getClauseUnlockInput } from '../selectors'
-// import { setClauseIndex } from '../actions'
+import { getSpendContract, getSpendContractId, getSelectedClauseIndex } from '../selectors'
 import { ClauseInfo } from '../../templates/types'
-import { getWidget } from "./parameters"
 import { setClauseIndex } from '../actions'
-import { Input } from "../../inputs/types"
 
 const ClauseSelect = (props: {
   contractId: string, clauses: ClauseInfo[],

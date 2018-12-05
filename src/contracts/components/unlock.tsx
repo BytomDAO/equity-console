@@ -26,6 +26,7 @@ const mapStateToProps = (state) => {
   return { error, display, lang }
 }
 
+
 const ErrorAlert = (props: { error: any }) => {
   let jsx = <small />
   if (props.error) {
@@ -40,52 +41,64 @@ const ErrorAlert = (props: { error: any }) => {
   return jsx
 }
 
-export const Unlock = ({ error, display, lang }) => {
-  let summary = (<div className="table-placeholder">{lang==='zh'?'没有找到相应的合约':'No Contract Found'}</div>)
-  let details = (<div className="table-placeholder">{lang==='zh'?'没有找到具体的合约信息':'No Details Found'}</div>)
-  let button
-
-  if (display) {
-    summary = (
-      <div className="form-wrapper with-subsections">
-        <section>
-          <h5>{lang==='zh'?'合约模版':'Contract Template'}</h5>
-          <DisplaySpendContract />
-        </section>
-        <ContractValue />
-        <SpendInputs />
-      </div>
-    )
-
-    details = (
-      <div className="form-wrapper with-subsections">
-        <ClauseSelect />
-        <ClauseValue />
-        <ClauseParameters />
-        <UnlockDestination />
-        <UnlockValue />
-      </div>
-    )
-
-    button = (
-      <UnlockButton />
-    )
+class Unlock extends React.Component{
+  componentDidMount() {
+    if(!this.props.display){
+      this.props.dispatch(fetchUtxoInfo())
+    }
   }
 
-  return (
-    <DocumentTitle title={lang ==='zh'?'合约解锁':"Unlock Value"}>
-      <div>
-        <Section name={lang ==='zh'?'合约概括':"Contract Summary"}>
-          {summary}
-        </Section>
-        <Section name={lang ==='zh'?'解锁详情':"Unlocking Details"}>
-          {details}
-        </Section>
-        <ErrorAlert error={(error && error.message) ||error} />
-        {button}
-      </div>
-    </DocumentTitle>
-  )
+  render(){
+    const lang = this.props.lang
+    const display = this.props.display
+    const error = this.props.error
+
+    let summary = (<div className="table-placeholder">{lang==='zh'?'没有找到相应的合约':'No Contract Found'}</div>)
+    let details = (<div className="table-placeholder">{lang==='zh'?'没有找到具体的合约信息':'No Details Found'}</div>)
+    let button
+
+    if (display) {
+      summary = (
+        <div className="form-wrapper with-subsections">
+          <section>
+            <h5>{lang==='zh'?'合约模版':'Contract Template'}</h5>
+            <DisplaySpendContract />
+          </section>
+          <ContractValue />
+          <SpendInputs />
+        </div>
+      )
+
+      details = (
+        <div className="form-wrapper with-subsections">
+          <ClauseSelect />
+          <ClauseValue />
+          <ClauseParameters />
+          <UnlockDestination />
+          <UnlockValue />
+        </div>
+      )
+
+      button = (
+        <UnlockButton />
+      )
+    }
+
+    return (
+      <DocumentTitle title={lang ==='zh'?'合约解锁':"Unlock Value"}>
+        <div>
+          <Section name={lang ==='zh'?'合约概括':"Contract Summary"}>
+            {summary}
+          </Section>
+          <Section name={lang ==='zh'?'解锁详情':"Unlocking Details"}>
+            {details}
+          </Section>
+          <ErrorAlert error={(error && error.message) ||error} />
+          {button}
+        </div>
+      </DocumentTitle>
+    )
+  }
 }
 
 export default connect(

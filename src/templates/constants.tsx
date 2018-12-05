@@ -103,6 +103,21 @@ export const CALL_OPTION = `contract CallOption(strikePrice: Amount,
   }
 }`
 
+
+export const PRICE_CHANGER = `contract PriceChanger(askAmount: Amount, 
+              askAsset: Asset, 
+              sellerKey: PublicKey, 
+              sellerProg: Program) locks valueAmount of valueAsset {
+  clause changePrice(newAmount: Amount, newAsset: Asset, sig: Signature) {
+    verify checkTxSig(sellerKey, sig)
+    lock valueAmount of valueAsset with PriceChanger(newAmount, newAsset, sellerKey, sellerProg)
+  }
+  clause redeem() {
+    lock askAmount of askAsset with sellerProg
+    unlock valueAmount of valueAsset
+  }
+}`
+
 export const INITIAL_SOURCE_MAP = {
   ContractName: BASE_TEMPLATE,
   LockWithPublicKey: LOCK_WITH_PUBLIC_KEY,
@@ -113,7 +128,8 @@ export const INITIAL_SOURCE_MAP = {
   LoanCollateral: LOAN_COLLATERAL,
   RevealPreimage: REVEAL_PREIMAGE,
   RevealFactors: REVEAL_FACTORS,
-  CallOption: CALL_OPTION
+  CallOption: CALL_OPTION,
+  PriceChanger: PRICE_CHANGER
 }
 
 export const INITIAL_ID_LIST = [
@@ -126,6 +142,7 @@ export const INITIAL_ID_LIST = [
   "LoanCollateral",
   "CallOption",
   "RevealPreimage",
+  "PriceChanger"
 ]
 
 export const INITIAL_ID_CHINESE_LIST = {
@@ -136,6 +153,7 @@ export const INITIAL_ID_CHINESE_LIST = {
   Escrow: '第三方托管合约',
   LoanCollateral: '借贷合约',
   CallOption: '看涨合约',
-  RevealPreimage: '猜谜合约'
+  RevealPreimage: '猜谜合约',
+  PriceChanger:'变价币币交易合约'
 }
 
