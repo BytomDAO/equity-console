@@ -253,7 +253,8 @@ export const getClauseWitnessComponents = createSelector(
   getClauseParameters,
   getSpendContract,
   getSelectedClause,
-  (spendInputMap: InputMap, clauseName: string, clauseParameters, contract, clauseInfo): WitnessComponent[] => {
+  getSelectedClauseIndex,
+  (spendInputMap: InputMap, clauseName: string, clauseParameters, contract, clauseInfo, clauseIndex): WitnessComponent[] => {
     const witness: WitnessComponent[] = []
     clauseParameters.forEach(clauseParameter => {
       const clauseParameterPrefix = "clauseParameters." + clauseName + "." + clauseParameter.name
@@ -335,7 +336,7 @@ export const getClauseWitnessComponents = createSelector(
     if (contract.template.clause_info.length > 1) {
       witness.push(
         { type: "integer",
-          raw_data: { value: getClauseFlag(contract.template.name, clauseInfo.name) }
+          raw_data: { value: clauseIndex }
         })
     }
     return witness

@@ -154,6 +154,6 @@ export const INITIAL_ID_CHINESE_LIST = {
   LoanCollateral: '借贷合约',
   CallOption: '看涨合约',
   RevealPreimage: '猜谜合约',
-  PriceChanger:'递归合约'
+  PriceChanger:'变价币币交易合约'
 }
 
