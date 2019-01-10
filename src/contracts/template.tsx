@@ -1,8 +1,14 @@
 import { Action, SpendFromAccount, SpendUnspentOutput, ControlWithProgram, RawTxSignatureWitness } from "../core/types"
-import { getSpendInputMap, getSpendUnspentOutputAction, getGasAction, getSpendContract, getSpendContractArgs, getSelectedClause, getSpendContractSource } from "./selectors";
-import { AppState } from "../app/types";
-import { client } from "../core";
+import {
+  getSpendInputMap, getSpendUnspentOutputAction, getGasAction, getSpendContract, getSpendContractArgs,
+  getSelectedClause, getSpendContractSource, getUnlockAction, getParamValue, getClauseValueInfo, getRequiredPaymentInfo
+} from "./selectors"
+import { INITIAL_SOURCE_MAP } from '../templates/constants'
+import { AppState } from "../app/types"
+import { client } from "../core"
 import {sha3_256} from "js-sha3"
+import _ from "lodash"
+import { calculation, addParamType } from './util'
 
 abstract class AbstractTemplate {
 
@@ -44,6 +50,52 @@ abstract class AbstractTemplate {
             }
         }
         reject( "can not find public key info")
+      })
+    }
+
+    getProgram(lockAction): Promise<Action[]>{
+      return new Promise((resolve) => {
+        const state = this.state
+        let amount
+
+        // amount
+        if(_.has(lockAction, 'amount_params')){
+          amount = calculation(lockAction.amount_params, lockAction.amount, state)
+        }
+        else{
+          amount = getParamValue(lockAction.amount)(state)
+        }
+
+        // asset
+        const asset = getParamValue(lockAction.asset)(state)
+
+        if(_.has(lockAction, 'program_info')){
+          const programParams = []
+          for( const programExp of lockAction.program_info.params ){
+            let value;
+            if(_.has(programExp, 'source')){
+              value = calculation(programExp.params, programExp.source, state)
+            }else {
+              value = getParamValue(programExp.name)(state)
+            }
+            programParams.push(value)
+          }
+
+          const args = programParams.map(param => {
+            return addParamType(param)
+          })
+
+          const source = INITIAL_SOURCE_MAP[lockAction.program_info.name]
+          client.compile(source, args).then(result=> {
+            if (result.status === 'fail') {
+              throw new Error(result.data)
+            }
+            resolve(this.buildRecipientAction(asset, amount, result.data.program))
+          })
+        }
+        else{
+          resolve(this.buildRecipientAction(asset, amount, getParamValue(lockAction.program)(state)))
+        }
       })
     }
 
@@ -116,16 +168,7 @@ abstract class AbstractTemplate {
     }
 
     getPaymentInfo() {
-        const clauseInfo = getSelectedClause(this.state)
-        if (clauseInfo.values.length != 2) {
-            throw "the clause's value is invalid"
-        }
-        const paymentId = "clauseValue." + clauseInfo.name + "." + clauseInfo.values[0].name + ".valueInput."
-        const spendInputMap = getSpendInputMap(this.state)
-        const paymentAccountId = spendInputMap[paymentId + "accountInput"].value
-        const paymentAssetId = spendInputMap[paymentId + "assetInput"].value
-        const paymentAmount = parseInt(spendInputMap[paymentId + "amountInput"].value)
-        return { paymentAccountId, paymentAssetId, paymentAmount }
+        return getRequiredPaymentInfo(this.state)
     }
 
     getDestinationInfo() {
@@ -297,33 +340,82 @@ export class LockPaymentLockValueTemplate extends AbstractTemplate {
     }
 }
 
+export class Repay extends AbstractTemplate {
+
+  private state
+
+  constructor(state: AppState) {
+    super(state)
+    this.state = state
+  }
+
+  buildActions(): Promise<Action[]> {
+    return this.buildUnSpendOutputAction().then(action => {
+      let actions: Action[] = []
+      actions.push(action)
+
+      const actionSets = getClauseValueInfo(this.state)
+      const length = actionSets.length
+
+      if(length === 1){
+
+      }
+      // type: lock lock
+      else if(actionSets[length-1].type === 'lock') {
+        const promisedArgs = actionSets.map(lockAction => this.getProgram(lockAction).catch((e) => { throw (e) }))
+
+        return Promise.all(promisedArgs).then(actionArray => {
+          actions =  actions.concat(actionArray)
+
+          const { paymentAccountId, paymentAssetId, paymentAmount } = this.getPaymentInfo()
+          actions.push(this.buildSpendAccountAction(paymentAssetId, paymentAmount, paymentAccountId))
+          actions.push(this.buildGasAction())
+
+          return actions
+        }).catch((e) => {
+          throw (e)
+        })
+      }
+      // type: lock unlock
+      else if(actionSets[length-1].type === 'unlock') {
+
+      }
+
+      return []
+    })
+  }
+}
+
 export function getActionBuildTemplate(type: string, state: AppState): AbstractTemplate {
   try{
     switch (type) {
-        case "LockWithPublicKey.spend":
-        case "LockWithPublicKeyHash.spend":
-        case "LockWithMultiSig.spend":
-        case "TradeOffer.cancel":
-        case "RevealPreimage.reveal":
-            return new UnlockValueTemplate(state)
-        case "PriceChanger.changePrice":
-            return new PriceChangerChangePrice(state)
-        case "CallOption.expire":
-        case "Escrow.approve":
-            return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[2])
-        case "Escrow.reject":
-            return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[1])
-        case "LoanCollateral.default":
-            return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[3])
-        case "PriceChanger.redeem":
-            return new LockPaymentUnlockValueTemplate(state, getSpendContractArgs(state)[3])
-        case "TradeOffer.trade":
-        case "CallOption.exercise":
-            return new LockPaymentUnlockValueTemplate(state, getSpendContractArgs(state)[2])
-        case "LoanCollateral.repay":
-            return new LockPaymentLockValueTemplate(state, getSpendContractArgs(state)[3], getSpendContractArgs(state)[4])
-        default:
-            throw "can not find action build template. type:" + type
+      case "LockWithPublicKey.spend":
+      case "LockWithPublicKeyHash.spend":
+      case "LockWithMultiSig.spend":
+      case "TradeOffer.cancel":
+      case "RevealPreimage.reveal":
+          return new UnlockValueTemplate(state)
+      case "PriceChanger.changePrice":
+          return new PriceChangerChangePrice(state)
+      case "CallOption.expire":
+      case "Escrow.approve":
+          return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[2])
+      case "Escrow.reject":
+          return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[1])
+      case "LoanCollateral.default":
+      case "PartLoanCollateral.default":
+        return new LockValueWithProgramTemplate(state, getSpendContractArgs(state)[3])
+      case "PriceChanger.redeem":
+          return new LockPaymentUnlockValueTemplate(state, getSpendContractArgs(state)[3])
+      case "TradeOffer.trade":
+      case "CallOption.exercise":
+          return new LockPaymentUnlockValueTemplate(state, getSpendContractArgs(state)[2])
+      case "LoanCollateral.repay":
+          return new LockPaymentLockValueTemplate(state, getSpendContractArgs(state)[3], getSpendContractArgs(state)[4])
+      case "PartLoanCollateral.repay":
+        return new Repay(state)
+      default:
+          throw "can not find action build template. type:" + type
     }
   } catch (e){
     throw e

@@ -33,10 +33,9 @@ export type ValueInfo = {
 export type ClauseInfo = {
   name: string,
   params: Param[],
-  // mintimes: string[],
-  // maxtimes: string[],
   hashCalls: HashCall[],
-  values: ValueInfo[]
+  values: ValueInfo[],
+  cond_values: any[],
 }
 
 export type CompiledTemplate = {

@@ -345,7 +345,6 @@ export const fetchUtxoInfo = () => {
       }else{
         const utxo = data[0];
         client.decodeProgram(data[0].program).then(resp => {
-
           const { contractArg, contractProgram } = parseInstructions(resp.instructions);
 
           const contractName = INITIAL_PRGRAM_NAME[contractProgram]
@@ -405,9 +404,9 @@ export const fetchUtxoInfo = () => {
 
               }
             }
-            const assetValueId = "contractValue." + compiled.value + ".valueInput.assetInput"
+            const assetValueId = "contractValue." + compiled.value.name + ".valueInput.assetInput"
             inputMap[assetValueId] = {...inputMap[assetValueId], computedData: utxo.asset_id}
-            updateContractInputMap(inputMap, "contractValue." + compiled.value, utxo.amount, "amount");
+            updateContractInputMap(inputMap, "contractValue." + compiled.value.name, utxo.amount, "amount");
 
             return inputMap
           })

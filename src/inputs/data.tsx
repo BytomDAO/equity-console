@@ -277,7 +277,7 @@ export const validateInput = (input: Input): boolean => {
     case "timestampTimeInput":
       return !Number.isNaN(Date.parse(input.value))
     case "amountInput":
-      numberValue = parseInt(input.value, 10)
+      numberValue = ( input.value ==='' ? 0 : parseInt(input.value, 10) )
       if (isNaN(numberValue)) return false
       if (numberValue < 0) return false
       return true

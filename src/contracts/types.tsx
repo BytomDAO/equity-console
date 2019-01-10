@@ -36,7 +36,8 @@ export type Contract = {
   clauseList: string[],
   clauseMap: {
     [s: string]: string[]
-  }
+  },
+  unlockActions: any[]
 }
 
 export type ContractMap = { [s: string]: Contract }

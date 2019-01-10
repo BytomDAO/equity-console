@@ -170,7 +170,7 @@ export const getParameterIds = createSelector(
 
 export const getContractValueId = createSelector(
   getCompiled,
-  (compiled) => compiled && ("contractValue." + compiled.value)
+  (compiled) => compiled && ("contractValue." + compiled.value.name)
 )
 
 export const areInputsValid = createSelector(

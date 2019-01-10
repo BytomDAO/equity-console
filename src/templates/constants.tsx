@@ -103,7 +103,6 @@ export const CALL_OPTION = `contract CallOption(strikePrice: Amount,
   }
 }`
 
-
 export const PRICE_CHANGER = `contract PriceChanger(askAmount: Amount, 
               askAsset: Asset, 
               sellerKey: PublicKey, 
@@ -118,6 +117,27 @@ export const PRICE_CHANGER = `contract PriceChanger(askAmount: Amount,
   }
 }`
 
+export const PART_LOAN_COLLATERAL = `contract PartLoanCollateral(assetLoaned: Asset,
+                        amountLoaned: Amount,
+                        blockHeight: Integer,
+                        lender: Program,
+                        borrower: Program) locks valueAmount of valueAsset {
+  clause repay(amountPartLoaned: Amount) {
+    if amountPartLoaned > 0 && amountPartLoaned < amountLoaned {
+      lock amountPartLoaned of assetLoaned with lender
+      lock valueAmount*amountPartLoaned/amountLoaned of valueAsset with borrower
+      lock valueAmount-(valueAmount*amountPartLoaned/amountLoaned) of valueAsset with PartLoanCollateral(assetLoaned, amountLoaned-amountPartLoaned, blockHeight, lender, borrower)
+    } else {
+      lock amountLoaned of assetLoaned with lender
+      lock valueAmount of valueAsset with borrower
+    }
+  }
+  clause default() {
+    verify above(blockHeight)
+    lock valueAmount of valueAsset with lender
+  }
+}`
+
 export const INITIAL_SOURCE_MAP = {
   ContractName: BASE_TEMPLATE,
   LockWithPublicKey: LOCK_WITH_PUBLIC_KEY,
@@ -129,7 +149,8 @@ export const INITIAL_SOURCE_MAP = {
   RevealPreimage: REVEAL_PREIMAGE,
   RevealFactors: REVEAL_FACTORS,
   CallOption: CALL_OPTION,
-  PriceChanger: PRICE_CHANGER
+  PriceChanger: PRICE_CHANGER,
+  PartLoanCollateral: PART_LOAN_COLLATERAL
 }
 
 export const INITIAL_ID_LIST = [
@@ -142,7 +163,8 @@ export const INITIAL_ID_LIST = [
   "LoanCollateral",
   "CallOption",
   "RevealPreimage",
-  "PriceChanger"
+  "PriceChanger",
+  "PartLoanCollateral"
 ]
 
 export const INITIAL_ID_CHINESE_LIST = {
@@ -154,6 +176,7 @@ export const INITIAL_ID_CHINESE_LIST = {
   LoanCollateral: '借贷合约',
   CallOption: '看涨合约',
   RevealPreimage: '猜谜合约',
-  PriceChanger:'变价币币交易合约'
+  PriceChanger:'变价币币交易合约',
+  PartLoanCollateral:"部分借贷合约"
 }
 

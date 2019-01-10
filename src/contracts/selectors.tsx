@@ -4,10 +4,9 @@ import { sha3_256 } from 'js-sha3'
 import { calGas } from './decimals'
 
 // ivy imports
-import { client, parseError } from '../core'
 import { AppState } from '../app/types'
 import { CompiledTemplate } from '../templates/types'
-import { strToHexCharCode } from './util'
+import {calculation, strToHexCharCode} from './util'
 
 import {
   Contract,
@@ -20,8 +19,6 @@ import {
   ClauseParameterType,
   Input,
   InputMap,
-  ProgramInput,
-  ValueInput
 } from '../inputs/types'
 
 import {
@@ -31,15 +28,14 @@ import {
 } from '../inputs/data'
 
 import {
-  ControlWithProgram,
-  ControlWithAddress,
-  DataWitness,
-  KeyId,
   SignatureWitness,
   SpendFromAccount,
-  WitnessComponent, SpendUnspentOutput, PublickeyHashWitness
+  WitnessComponent, SpendUnspentOutput
 } from '../core/types'
-import { SPEND_CONTRACT } from './actions';
+
+import _ from "lodash"
+
+export const getAllState = (state: AppState): ContractsState => state
 
 export const getState = (state: AppState): ContractsState => state.contracts
 
@@ -58,11 +54,6 @@ export const getIsCalling = createSelector(
   getState,
   (state: ContractsState) => state.isCalling
 )
-
-// export const getContract = (state: AppState, contractId: string) => {
-//   const contractMap = getContractMap(state)
-//   return contractMap[contractId]
-// }
 
 export const getSpendContractId = createSelector(
   getState,
@@ -145,6 +136,11 @@ export const getInputMap = createSelector(
   spendContract => spendContract.inputMap
 )
 
+export const getParameters = createSelector(
+  getSpendContract,
+  spendContract => spendContract.template.params
+)
+
 export const getParameterIds = createSelector(
   getSpendContract,
   spendContract => spendContract.template.params.map(param => "contractParameters." + param.name)
@@ -155,6 +151,14 @@ export const getSelectedClause = createSelector(
   getSelectedClauseIndex,
   (spendContract, clauseIndex) => {
     return spendContract.template.clause_info[clauseIndex]
+  }
+)
+
+export const getUnlockAction = createSelector(
+  getSpendContract,
+  getSelectedClauseIndex,
+  (spendContract, clauseIndex) => {
+    return spendContract.unlockActions[clauseIndex]
   }
 )
 
@@ -179,6 +183,13 @@ export const getClauseParameterIds = createSelector(
   }
 )
 
+export const getClauseParameterPrefixed = createSelector(
+  getClauseName,
+  (clauseName) => {
+    return "clauseParameters." + clauseName + "."
+  }
+)
+
 export function dataToArgString(data: number | Buffer): string {
   if (typeof data === "number") {
     let buf = Buffer.alloc(8)
@@ -191,10 +202,40 @@ export function dataToArgString(data: number | Buffer): string {
 
 export const getClauseValueInfo = createSelector(
   getSelectedClause,
-  (clause) => {
-    return clause.values
+  getAllState,
+  (clause, state) => {
+    let value = clause.values
+    if(!value){
+      const valueInfo = clause.cond_values[0]
+
+      const condition = calculation(valueInfo.condition.params, valueInfo.condition.source, state)
+      if(condition) {
+        value = valueInfo.true_body
+      }else{
+        value = valueInfo.false_body
+      }
+    }
+
+    return value
   }
 )
+
+export const getRequiredPaymentInfo = createSelector(
+  getSpendInputMap,
+  getClauseValueInfo,
+  getClauseName,
+  (spendInputMap, clauseInfo, clauseName) => {
+    if (clauseInfo.length < 2) {
+      throw "the clause's value is invalid"
+    }
+    const paymentId = "clauseValue." + clauseName + "." + clauseInfo[0].name + ".valueInput."
+    const paymentAccountId = spendInputMap[paymentId + "accountInput"].value
+    const paymentAssetId = spendInputMap[paymentId + "assetInput"].value
+    const paymentAmount = parseInt(spendInputMap[paymentId + "amountInput"].value)
+    return {paymentAccountId, paymentAssetId, paymentAmount}
+  }
+)
+
 
 export const getClauseUnlockInput = createSelector(
   // getSelectedClause,
@@ -211,41 +252,41 @@ export const getClauseUnlockInput = createSelector(
   }
 )
 
-export const getUnlockAction = createSelector(
-  getSpendContract,
-  getClauseUnlockInput,
-  (contract, unlockInput) => {
-    if (unlockInput === undefined || unlockInput.value === '') {
-      return undefined
-    }
-    return {
-      type: "controlWithAddress",
-      accountId: unlockInput.value,
-      assetId: contract.assetId,
-      amount: contract.amount
-    } as ControlWithAddress
-  }
-)
-
-export const getClauseFlag = (templateName, clausename) => {
-  const type = templateName + "." + clausename
-  switch (type) {
-    case "TradeOffer.trade":
-    case "Escrow.approve":
-    case "LoanCollateral.repay":
-    case "CallOption.exercise":
-    case "PriceChanger.changePrice":
-      return 0
-    case "TradeOffer.cancel":
-    case "Escrow.reject":
-    case "LoanCollateral.default":
-    case "CallOption.expire":
-    case "PriceChanger.redeem":
-      return 1
-    default:
-      throw "can not find the flag of clause type:" + type
-  }
-}
+// export const getUnlockAction = createSelector(
+//   getSpendContract,
+//   getClauseUnlockInput,
+//   (contract, unlockInput) => {
+//     if (unlockInput === undefined || unlockInput.value === '') {
+//       return undefined
+//     }
+//     return {
+//       type: "controlWithAddress",
+//       accountId: unlockInput.value,
+//       assetId: contract.assetId,
+//       amount: contract.amount
+//     } as ControlWithAddress
+//   }
+// // )
+//
+// export const getClauseFlag = (templateName, clausename) => {
+//   const type = templateName + "." + clausename
+//   switch (type) {
+//     case "TradeOffer.trade":
+//     case "Escrow.approve":
+//     case "LoanCollateral.repay":
+//     case "CallOption.exercise":
+//     case "PriceChanger.changePrice":
+//       return 0
+//     case "TradeOffer.cancel":
+//     case "Escrow.reject":
+//     case "LoanCollateral.default":
+//     case "CallOption.expire":
+//     case "PriceChanger.redeem":
+//       return 1
+//     default:
+//       throw "can not find the flag of clause type:" + type
+//   }
+// }
 
 export const getClauseWitnessComponents = createSelector(
   getSpendInputMap,
@@ -391,7 +432,12 @@ export const getSpendContractSource = createSelector(
 
 export const getSpendContractValueId = createSelector(
   getSpendContract,
-  (contract) => contract.template && ("contractValue." + contract.template.value)
+  (contract) => contract.template && ("contractValue." + contract.template.value.name)
+)
+
+export const getSpendContractValue = createSelector(
+  getSpendContract,
+  (contract) => contract.template && contract.template.value
 )
 
 export const getClauseValueId = createSelector(
@@ -410,16 +456,16 @@ export const getClauseValueId = createSelector(
 )
 
 export const getRequiredAssetAmount = createSelector(
-  getClauseValueId,
+  getClauseParameterPrefixed,
   getClauseValueInfo,
   getInputMap,
   getSpendInputMap,
-  (clauseValuePrefix, valueInfo, inputMap, spendInputMap) => {
-    if (clauseValuePrefix === undefined) {
+  (ClauseParameterPrefix, valueInfo, inputMap, spendInputMap) => {
+    if (ClauseParameterPrefix === undefined) {
       return undefined
     }
 
-    const name = clauseValuePrefix.split('.').pop()
+    const name = ClauseParameterPrefix.split('.').pop()
     if (name === undefined) {
       return undefined
     }
@@ -427,11 +473,14 @@ export const getRequiredAssetAmount = createSelector(
     const valueArg = valueInfo.find(info => {
       return info.name === name
     })
+
     if (valueArg === undefined) {
       return undefined
     }
+
     const assetInput = inputMap["contractParameters." + valueArg.asset + ".assetInput"]
-    const amountInput = inputMap["contractParameters." + valueArg.amount + ".amountInput"]
+    const amountInput = inputMap["contractParameters." + valueArg.amount + ".amountInput"] || spendInputMap[ ClauseParameterPrefix+ valueArg.amount + ".amountInput" ]
+
     if (!(assetInput && amountInput)) {
       return undefined
     }
@@ -441,6 +490,44 @@ export const getRequiredAssetAmount = createSelector(
     }
   }
 )
+
+export const getParamValue = (paramName) => {
+  return createSelector(
+    getClauseParameters,
+    getParameters,
+    getSpendContractValue,
+    getInputMap,
+    getSpendInputMap,
+    getClauseParameterPrefixed,
+    getSpendContract,
+    (claseParams, contractParams, contractValue, inputMap, spendInputMap, clauseParameterPrefixed, contract) => {
+      let param = _.find(claseParams, {'name': paramName})
+
+      if(param){
+        const value = getData(clauseParameterPrefixed+param.name, spendInputMap)
+        if (value instanceof Buffer) {
+          return value.toString('hex')
+        }
+        return value
+      }else if( _.find(contractParams, {'name': paramName}) ){
+        param =  _.find(contractParams, {'name': paramName})
+        const value = getData('contractParameters.'+param.name, inputMap)
+        if (value instanceof Buffer) {
+          return value.toString('hex')
+        }
+        return value
+      }else{
+        if(contractValue.asset === paramName){
+          return contract.assetId
+        }else if(contractValue.amount === paramName){
+          return contract.amount
+        }else{
+          throw 'Unknow Parameter type.'
+        }
+      }
+    }
+  )
+}
 
 // export const getSpendUnspentOutputAction = createSelector(
 //   getSpendContract,
@@ -584,7 +671,7 @@ export const generateInputMap = (compiled: CompiledTemplate): InputMap => {
   }
 
   if (compiled.value !== "") {
-    addParameterInput(inputs, "Value", "contractValue." + compiled.value)
+    addParameterInput(inputs, "Value", "contractValue." + compiled.value.name)
   }
 
   const inputMap = {}
@@ -611,7 +698,7 @@ export const generateUnlockInputMap = (compiled: CompiledTemplate): InputMap => 
   }
 
   if (compiled.value !== "") {
-    addParameterInput(inputs, "Value", "contractValue." + compiled.value)
+    addParameterInput(inputs, "Value", "contractValue." + compiled.value.name)
   }
 
   const inputMap = {}

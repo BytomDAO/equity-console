@@ -12,11 +12,13 @@ import { Contract } from './types'
 import { CREATE_CONTRACT, UPDATE_IS_CALLING, SET_UTXO_ID, SET_CONTRACT_NAME, SPEND_CONTRACT, CLEAN_CONTRACT,
   UPDATE_CLAUSE_INPUT, SET_CLAUSE_INDEX,  UPDATE_UNLOCK_ERROR, SHOW_UNLOCK_INPUT_ERRORS, } from './actions'
 
+import {addType} from './util'
+
 export const INITIAL_STATE: ContractsState = {
   contractMap: {},
   firstTime: true,
-  spendContractId: "",
   idList: [],
+  spendContractId: "",
   selectedClauseIndex: 0,
   isCalling: false,
   showUnlockInputErrors: false,
@@ -51,97 +53,124 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       }
     }
     case CREATE_CONTRACT: // reset keys etc. this is safe (the action already has this stuff)
-    const controlProgram = action.controlProgram
-    const template: CompiledTemplate = action.template
-    const clauseNames = template.clause_info.map(clause => clause.name)
-    const clauseParameterIds = {}
-    const inputs: Input[] = []
-    for (const clause of template.clause_info) {
-      if (!clause.params) {
-        clause.params = []
-      }
-      clauseParameterIds[clause.name] = clause.params.map(param => "clauseParameters." + clause.name + "." + param.name)
-      for (let param of clause.params) {
-        switch(param.type) {
-          case "Sha3(PublicKey)": {
-            const hashParam = {
-              type: "hashType",
-              inputType: "PublicKey",
-              hashFunction: "sha3" as HashFunction
-            }
-            addParameterInput(inputs, hashParam as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
-            break
-          }
-          case "Sha3(String)": {
-            const hashParam = {
-              type: "hashType",
-              inputType: "String",
-              hashFunction: "sha3" as HashFunction
-            }
-            addParameterInput(inputs, hashParam as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
-            break
-          }
-          case "Sha256(PublicKey)": {
-            const hashParam = {
-              type: "hashType",
-              inputType: "PublicKey",
-              hashFunction: "sha256" as HashFunction
-            }
-            addParameterInput(inputs, hashParam as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
-            break
-          }
-          case "Sha256(String)": {
-            const hashParam = {
-              type: "hashType",
-              inputType: "String",
-              hashFunction: "sha256" as HashFunction
-            }
-            addParameterInput(inputs, hashParam as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
-            break
-          }
-          default:
-            addParameterInput(inputs, param.type === "String" ? "OriginString" : param.type as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
+      const controlProgram = action.controlProgram
+      const template: CompiledTemplate = action.template
+      const clauseNames = template.clause_info.map(clause => clause.name)
+      const clauseParameterIds = {}
+      const inputs: Input[] = []
+      let unlockActions = []
+      for (const clause of template.clause_info) {
+        if (!clause.params) {
+          clause.params = []
         }
-      }
-      for (const value of clause.values) {
-        if (value.name === template.value) {
-          // This is the unlock statement.
-          // Do not add it to the spendInputMap.
-          continue
-        }
-        addParameterInput(inputs, "Value", "clauseValue." + clause.name + "." + value.name)
-      }
-    }
-    addDefaultInput(inputs, "accountInput", "unlockValue") // Unlocked value destination. Not always used.
-    addDefaultInput(inputs, "passwordInput", "unlockValue")
-    addDefaultInput(inputs, "gasInput", "unlockValue")
 
-    const spendInputMap = {}
-    for (const input of inputs) {
-      spendInputMap[input.name] = input
-    }
-    const contract: Contract = {
-      id: action.utxo.id,
-      unlockTxid: '',
-      assetId: action.utxo.asset_id,
-      amount: action.utxo.amount,
-      template,
-      inputMap: action.inputMap,
-      contractProgram: action.contractProgram,
-      controlProgram,
-      clauseList: clauseNames,
-      clauseMap: clauseParameterIds,
-      spendInputMap,
-      contractArgs: action.contractArg
-    }
-    return {
-      ...state,
-      idList: [contract.id, ...state.idList],
-      contractMap: {
-        ...state.contractMap,
-        [contract.id]: contract
-      },
-      error: undefined
+        const actionSets = addType(clause)
+        unlockActions = unlockActions.concat(actionSets)
+
+        clauseParameterIds[clause.name] = clause.params.map(param => "clauseParameters." + clause.name + "." + param.name)
+        for (const param of clause.params) {
+          switch(param.type) {
+            case "Sha3(PublicKey)": {
+              const hashParam = {
+                type: "hashType",
+                inputType: "PublicKey",
+                hashFunction: "sha3" as HashFunction
+              }
+              addParameterInput(inputs, hashParam as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
+              break
+            }
+            case "Sha3(String)": {
+              const hashParam = {
+                type: "hashType",
+                inputType: "String",
+                hashFunction: "sha3" as HashFunction
+              }
+              addParameterInput(inputs, hashParam as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
+              break
+            }
+            case "Sha256(PublicKey)": {
+              const hashParam = {
+                type: "hashType",
+                inputType: "PublicKey",
+                hashFunction: "sha256" as HashFunction
+              }
+              addParameterInput(inputs, hashParam as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
+              break
+            }
+            case "Sha256(String)": {
+              const hashParam = {
+                type: "hashType",
+                inputType: "String",
+                hashFunction: "sha256" as HashFunction
+              }
+              addParameterInput(inputs, hashParam as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
+              break
+            }
+            default:
+              addParameterInput(inputs, param.type === "String" ? "OriginString" : param.type as ClauseParameterType, "clauseParameters." + clause.name + "." + param.name)
+          }
+        }
+        if(clause.values !== null){
+          for (const value of clause.values) {
+            if (value.name === template.value) {
+              // This is the unlock statement.
+              // Do not add it to the spendInputMap.
+              continue
+            }
+            addParameterInput(inputs, "Value", "clauseValue." + clause.name + "." + value.name)
+          }
+        }else if(clause.cond_values !== null){
+          for (const condValue of clause.cond_values) {
+            for(const value of condValue.true_body){
+              if (value.name === template.value) {
+                // This is the unlock statement.
+                // Do not add it to the spendInputMap.
+                continue
+              }
+              addParameterInput(inputs, "Value", "clauseValue." + clause.name + "." + value.name)
+            }
+            for(const value of condValue.false_body){
+              if (value.name === template.value) {
+                // This is the unlock statement.
+                // Do not add it to the spendInputMap.
+                continue
+              }
+              addParameterInput(inputs, "Value", "clauseValue." + clause.name + "." + value.name)
+            }
+          }
+        }
+      }
+      addDefaultInput(inputs, "accountInput", "unlockValue") // Unlocked value destination. Not always used.
+      addDefaultInput(inputs, "passwordInput", "unlockValue")
+      addDefaultInput(inputs, "gasInput", "unlockValue")
+
+      const spendInputMap = {}
+      for (const input of inputs) {
+        spendInputMap[input.name] = input
+      }
+      const contract: Contract = {
+        id: action.utxo.id,
+        unlockTxid: '',
+        assetId: action.utxo.asset_id,
+        amount: action.utxo.amount,
+        template,
+        inputMap: action.inputMap,
+        contractProgram: action.contractProgram,
+        controlProgram,
+        clauseList: clauseNames,
+        clauseMap: clauseParameterIds,
+        spendInputMap,
+        contractArgs: action.contractArg,
+        unlockActions
+      }
+      return {
+        ...state,
+        idList: [contract.id, ...state.idList],
+        contractMap: {
+          ...state.contractMap,
+          [contract.id]: contract
+        },
+        error: undefined
     }
     case UPDATE_IS_CALLING: {
       return {
@@ -190,7 +219,7 @@ export default function reducer(state: ContractsState = INITIAL_STATE, action): 
       const oldContract = state.contractMap[action.contractId]
       const oldSpendInputMap = oldContract.spendInputMap
       const oldInput = oldSpendInputMap[action.name]
-      if (oldInput === undefined) throw "unexpectedly undefined clause input"
+      if (oldInput === undefined) { throw "unexpectedly undefined clause input" }
       const newInput = {
         ...oldInput,
         value: action.newValue
