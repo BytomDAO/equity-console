@@ -135,20 +135,13 @@ export const INITIAL_SOURCE_MAP = {
 export const INITIAL_ID_LIST = [
   "ContractName",
   "LockWithPublicKey",
-  "LockWithPublicKeyHash",
   "LockWithMultiSig",
-  "TradeOffer",
-  "Escrow",
-  "LoanCollateral",
-  "CallOption",
-  "RevealPreimage",
-  "PriceChanger"
 ]
 
 export const INITIAL_ID_CHINESE_LIST = {
-  LockWithPublicKey: '单签合约',
+  LockWithPublicKey: '单部门智能合约',
   LockWithPublicKeyHash: '单签地址合约',
-  LockWithMultiSig: '多签合约',
+  LockWithMultiSig: '跨部门智能合约',
   TradeOffer: '币币交易合约',
   Escrow: '第三方托管合约',
   LoanCollateral: '借贷合约',

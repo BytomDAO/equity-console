@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom'
 import { prefixRoute } from '../../core'
 import {setlang} from "../actions"
 
-const logo = require('../../static/images/logo.svg')
+const logo = require('../../static/images/logo.jpeg')
 
 const mapStateToProps = (state) => {
   const location = state.routing.location

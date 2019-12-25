@@ -27,7 +27,7 @@ type Props = {
 }
 
 const LockButton = ({ isCalling, lang, handleClick }: Props) => {
-  const td = <td><button className="btn btn-primary btn-lg form-button" disabled={isCalling} onClick={handleClick}>{lang==='zh'?'锁定资产':'Lock Value'}</button></td>
+  const td = <td><button className="btn btn-primary btn-lg form-button" disabled={isCalling} onClick={handleClick}>{lang==='zh'?'锁定存证方':'Lock Value'}</button></td>
   return <div><table><tbody><tr>{td}</tr></tbody></table></div>
 }
 

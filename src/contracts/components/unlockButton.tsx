@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch) => ({
 const UnlockButton = (props: {isCalling: boolean, lang: string, handleSpendClick: (e)=>undefined} ) => {
   return <button className="btn btn-primary btn-lg form-button"
                  disabled={props.isCalling}
-                 onClick={props.handleSpendClick}> {props.lang==='zh'?'解锁资产':'Unlock Value'}</button>
+                 onClick={props.handleSpendClick}> {props.lang==='zh'?'解锁存证方':'Unlock Value'}</button>
 }
 
 export default connect(

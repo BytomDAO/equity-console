@@ -21,12 +21,12 @@ const UnlockDestination = (props: { assetMap, contract, lang }) => {
   } else {
     return (
       <section>
-        <h5>{lang==='zh'?'资产解锁目标账户':'Unlocked Value Destination'}</h5>
+        <h5>{lang==='zh'?'存证方解锁目标账户':'Unlocked Value Destination'}</h5>
         {getWidget("unlockValue.accountInput")}
         <div className="form-group">
           <div className="input-group">
             <div className="input-group-prepend">
-              <span className="input-group-text">{lang==='zh'?'资产':'Asset'}</span>
+              <span className="input-group-text">{lang==='zh'?'存证方':'Asset'}</span>
               </div>
             <input type="text" className="form-control" value={assetAlias} disabled />
           </div>

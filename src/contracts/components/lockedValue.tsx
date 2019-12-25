@@ -74,7 +74,7 @@ const LockedValueDisplay = (props: {
     return <option key={id} value={id}>{id}</option>
   })
 
-  const td = <button className="btn btn-lg btn-primary" onClick={props.fetch}>{ lang==='zh'?'解锁资产':'Unlock'}</button>
+  const td = <button className="btn btn-lg btn-primary" onClick={props.fetch}>{ lang==='zh'?'解锁存证方':'Unlock'}</button>
   return (
     <DocumentTitle title={ lang==='zh'?'合约解锁':"Unlock Value"}>
       <div>

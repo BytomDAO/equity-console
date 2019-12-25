@@ -140,14 +140,14 @@ function AssetAliasWidgetUnconnected(props: {
   const lang = props.lang
   const options = props.assets.map(asset => <option key={asset.id} value={asset.id}>{asset.alias}</option>)
   if (options.length === 0) {
-    options.push(<option key="" value="">{ lang ==='zh'? '没有可用资产信息' : 'No Assets Available'}</option>)
+    options.push(<option key="" value="">{ lang ==='zh'? '没有可用存证方信息' : 'No Assets Available'}</option>)
   } else {
-    options.unshift(<option key="" value="">{ lang ==='zh'? '请选择资产' : 'Select Asset'}</option>)
+    options.unshift(<option key="" value="">{ lang ==='zh'? '请选择存证方' : 'Select Asset'}</option>)
   }
   return (
     <div className={"form-group " + props.errorClass}>
       <div className="input-group">
-        <div className="input-group-prepend"><span className="input-group-text">{ lang==='zh'? '资产': 'Asset' }</span></div>
+        <div className="input-group-prepend"><span className="input-group-text">{ lang==='zh'? '存证方': 'Asset' }</span></div>
         <select id={props.input.name} className="form-control with-addon"
           value={props.input.value} onChange={props.handleChange}>
           {options}
@@ -159,8 +159,8 @@ function AssetAliasWidgetUnconnected(props: {
 
 function AssetWidget(props: { input: AssetInput, lang: string, inputContext: InputContext, handleChange: (e) => undefined }) {
   const lang = props.lang
-  const options = [{ label: lang==='zh'?'选择资产':"Generate Asset", value: (props.inputContext === "contractValue" || props.inputContext === "clauseParameters")? "assetAliasInput" : "assetAliasWithBTMInput" },
-  { label:lang==='zh'?'输入资产ID':"Provide Asset Id", value: "provideStringInput" }]
+  const options = [{ label: lang==='zh'?'选择存证方':"Generate Asset", value: (props.inputContext === "contractValue" || props.inputContext === "clauseParameters")? "assetAliasInput" : "assetAliasWithBTMInput" },
+  { label:lang==='zh'?'输入存证方ID':"Provide Asset Id", value: "provideStringInput" }]
   const handleChange = (s: string) => undefined
   return (
     <div className="input-group flex-column">
@@ -232,8 +232,6 @@ function BtmUnitWidget(props: {
           border: 'none'
         }}
       >
-        <option value="btm">BTM</option>
-        <option value="mbtm">mBTM</option>
         <option value="neu">NEU</option>
       </select>
     </div>
@@ -655,7 +653,7 @@ function ClauseValueUnconnected(props: { spendInputMap, balanceMap, assetAmount,
           {getWidget(props.valueId + ".valueInput.accountInput")}
           <div className="form-group">
             <div className="input-group">
-              <div className="input-group-prepend"><span className="input-group-text">{lang==='zh'?'资产':'Asset'}</span></div>
+              <div className="input-group-prepend"><span className="input-group-text">{lang==='zh'?'存证方':'Asset'}</span></div>
               <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.assetAmount.assetId} disabled />
             </div>
           </div>

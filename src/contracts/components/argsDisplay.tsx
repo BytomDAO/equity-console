@@ -60,7 +60,7 @@ function AssetAliasWidgetUnconnected(props: { input: AssetInput, lang: string, a
   const asset = props.assetMap[props.input.computedData]
   return <div className="form-group">
     <div className="input-group">
-      <div className="input-group-prepend"><span className="input-group-text">{props.lang==='zh'?'资产':'Asset'}</span></div>
+      <div className="input-group-prepend"><span className="input-group-text">{props.lang==='zh'?'存证方':'Asset'}</span></div>
       <input type="text" className="form-control" value={asset !== undefined ? asset.alias : props.input.computedData} disabled />
     </div>
   </div>
@@ -181,7 +181,7 @@ function mapStateToContractValueProps(state) {
 function ContractValueUnconnected(props: { valueId: string , lang: string}) {
   return (
     <section style={{wordBreak: 'break-all'}}>
-      <h5>{props.lang ==='zh'?'锁定资产':'Locked Value'}</h5>
+      <h5>{props.lang ==='zh'?'锁定存证方':'Locked Value'}</h5>
       <form className="form">
         <div className="argument">{getWidget(props.valueId)}</div>
       </form>
